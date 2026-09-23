@@ -1,0 +1,15 @@
+[
+ {"name":"Eephus Growth Fund I","assetClass":"Real Estate","commitment":50000,"funded":50000,"uncalled":0,"yearFunded":2025,"hold":5,"coupon":0.06,"moic":1.80,"conviction":"Medium"},
+ {"name":"Eephus Growth Fund II","assetClass":"Real Estate","commitment":50000,"funded":50000,"uncalled":0,"yearFunded":2026,"hold":5,"coupon":0.06,"moic":1.75,"conviction":"Medium"},
+ {"name":"BlueBird Capital (Tranche 1)","assetClass":"Private Equity","commitment":50000,"funded":50000,"uncalled":0,"yearFunded":2025,"hold":7,"coupon":0.15,"moic":2.65,"conviction":"Medium"},
+ {"name":"BlueBird Capital (Tranche 2)","assetClass":"Private Equity","commitment":50000,"funded":50000,"uncalled":0,"yearFunded":2026,"hold":7,"coupon":0.15,"moic":2.65,"conviction":"Medium"},
+ {"name":"Asilia GC Fund","assetClass":"Private Credit","commitment":100000,"funded":19000,"uncalled":81000,"yearFunded":2026,"hold":8,"coupon":0.12,"moic":3.27,"conviction":"High"},
+ {"name":"SpaceStation Fund","assetClass":"VC","commitment":250000,"funded":75000,"uncalled":175000,"yearFunded":2025,"hold":10,"coupon":"","moic":3.96,"conviction":"Medium"},
+ {"name":"Next Life Sciences - Plan A","assetClass":"VC","commitment":25000,"funded":25000,"uncalled":0,"yearFunded":2025,"hold":10,"coupon":"","moic":4.00,"conviction":"Medium"},
+ {"name":"Aerolane","assetClass":"VC","commitment":25000,"funded":25000,"uncalled":0,"yearFunded":2026,"hold":10,"coupon":"","moic":10.00,"conviction":"Medium"},
+ {"name":"Turbo Insurance","assetClass":"VC","commitment":20000,"funded":20000,"uncalled":0,"yearFunded":2025,"hold":5,"coupon":"","moic":5.00,"conviction":"High"},
+ {"name":"Rainmaker SPV","assetClass":"VC","commitment":20000,"funded":20000,"uncalled":0,"yearFunded":2026,"hold":10,"coupon":"","moic":10.00,"conviction":"Low"},
+ {"name":"AERTHLINGS","assetClass":"VC","commitment":10000,"funded":10000,"uncalled":0,"yearFunded":2025,"hold":10,"coupon":"","moic":10.00,"conviction":"Low"},
+ {"name":"Rorra","assetClass":"VC","commitment":10000,"funded":10000,"uncalled":0,"yearFunded":2026,"hold":10,"coupon":"","moic":2.71,"conviction":"Medium"},
+ {"name":"Telly TV","assetClass":"VC","commitment":5000,"funded":5000,"uncalled":0,"yearFunded":2025,"hold":10,"coupon":"","moic":1.78,"conviction":"Low"}
+]

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exit Timing Calendar</title>
+<meta name="description" content="Turn a private-markets tracker into a year-by-year liquidity picture. Runs entirely in your browser.">
+<style>
+  :root{
+    --bg:#F7F9FC; --card:#FFFFFF; --ink:#141A22; --muted:#6B7A8C; --rule:#DCE3EC;
+    --navy:#1F3864; --green:#2E6B52; --red:#A33A1F; --amber:#9C6B1A;
+    --vc:#7B5EA7; --inc:#B17930; --all:#2E6B52;
+    --mono:ui-monospace,"Consolas","SFMono-Regular",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:1160px;margin:0 auto;padding:28px 16px 80px}
+  h1{font-size:30px;margin:0 0 6px;color:var(--navy);letter-spacing:-.2px}
+  h2{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--navy);margin:0 0 10px}
+  .sub{color:var(--muted);margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;
+        padding:20px 22px;margin-bottom:16px}
+  .note{font-size:14px;color:var(--muted);line-height:1.65;max-width:900px}
+  .note b{color:var(--ink)}
+  .warn{color:var(--red);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+     text-align:right;padding:8px 10px;border-bottom:1px solid var(--rule);font-weight:700}
+  th.l,td.l{text-align:left}
+  td{text-align:right;padding:7px 10px;font-family:var(--mono);border-bottom:1px solid #EFF2F6}
+  tr:last-child td{border-bottom:none}
+  .z{color:#A8B3C0}
+  .neg{color:var(--red);font-weight:700}
+  .pos{color:var(--green)}
+  .b{font-weight:700}
+  .hi{background:#EEF6F1}
+  button{font:inherit;font-size:14px;padding:8px 14px;border:1px solid var(--rule);
+         background:#fff;color:var(--ink);border-radius:7px;cursor:pointer}
+  button:hover{border-color:#B9C6D8}
+  button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .drop{border:2px dashed #C3CEDD;border-radius:12px;padding:34px 20px;text-align:center;
+        background:#FBFCFE;transition:.15s}
+  .drop.over{border-color:var(--navy);background:#EEF3FA}
+  .drop h3{margin:0 0 6px;font-size:19px;color:var(--navy)}
+  .drop p{margin:0 0 14px;color:var(--muted);font-size:14px}
+  .privacy{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:var(--green);
+           background:#EDF6F1;border:1px solid #CBE4D7;border-radius:999px;padding:6px 14px;margin-top:14px}
+  .glos{display:flex;gap:18px;margin-bottom:12px;align-items:flex-start}
+  .glos .t{flex:0 0 190px;font-weight:700;font-size:14px}
+  .glos .d{flex:1;color:var(--muted);font-size:14px;line-height:1.65}
+  .kpi{display:flex;gap:26px;flex-wrap:wrap;margin-top:6px}
+  .kpi div small{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .kpi div span{font-family:var(--mono);font-size:21px;font-weight:700}
+  .err{background:#FDF3EC;border:1px solid #F0D3BE;border-radius:8px;padding:14px 16px;
+       color:#7A3A15;font-size:14px;margin-bottom:14px}
+  .hidden{display:none}
+  footer{color:var(--muted);font-size:13px;margin-top:30px;line-height:1.7}
+  a{color:var(--navy)}
+  @media (max-width:700px){ .wrap{padding:18px 12px 60px} h1{font-size:24px} .glos{display:block} .glos .t{margin-bottom:4px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Exit Timing Calendar</h1>
+  <p class="sub">Turn a private-markets tracker into a year-by-year picture of when cash might
+    actually arrive. It will not give you a predicted exit date, because nobody has one.</p>
+
+  <div class="card" id="intake">
+    <div class="drop" id="drop">
+      <h3>Drop your tracker here</h3>
+      <p>An .xlsx or .csv with one row per position. Or pick a file.</p>
+      <div class="row" style="justify-content:center;margin:0">
+        <button id="pick">Choose file</button>
+        <button id="demo">Run the example book</button>
+      </div>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv" class="hidden">
+      <div class="privacy">
+        <span>&#128274;</span>
+        <span>Everything runs in your browser. Your file is never uploaded anywhere.</span>
+      </div>
+    </div>
+    <div id="intakeErr"></div>
+  </div>
+
+  <div id="out" class="hidden"></div>
+
+  <footer>
+    Not advice. The outcome probabilities are assumptions and are meant to be argued with.
+    Source and the tracker template are in the repository.
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
