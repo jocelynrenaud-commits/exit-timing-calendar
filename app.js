@@ -16,6 +16,34 @@
   let BOOK = null;          // every position
   let MODE = 'all';         // which book the panels describe
   let DIST = 'all';         // which curve is in front on the chart
+  let TAB = 'dash';         // 'dash' | 'outlook' | 'about'
+  let DEALIDX = null;       // the shared deal index, loaded once
+  let OPEN = {};            // which deal cards are expanded
+
+  /* The shared deal files are fetched once and cached. A failure here is not fatal:
+     the tool still runs on whatever the tracker holds, which is the whole point of the
+     tracker winning. */
+  async function loadDealIndex() {
+    if (DEALIDX !== null) return DEALIDX;
+    try {
+      DEALIDX = await fetch('deals/index.json').then((r) => r.json());
+    } catch (e) { DEALIDX = { deals: [] }; }
+    return DEALIDX;
+  }
+  async function enrich(rows) {
+    const idx = await loadDealIndex();
+    const cache = {};
+    for (const r of rows) {
+      const hit = Engine.matchDeal(r.name, idx);
+      if (!hit) continue;
+      if (!cache[hit.slug]) {
+        try { cache[hit.slug] = await fetch('deals/' + hit.slug + '.json').then((x) => x.json()); }
+        catch (e) { cache[hit.slug] = null; }
+      }
+      if (cache[hit.slug]) Object.assign(r, Engine.applyDealFile(r, cache[hit.slug]));
+    }
+    return rows;
+  }
 
   /* ── reading the tracker ─────────────────────────────────────────────────
      Headers are matched loosely, because nobody keeps a spreadsheet to someone
@@ -40,6 +68,9 @@
     ['coupon',      ['coupon', 'coupon %', 'preferred', 'pref', 'preferred return']],
     ['moic',        ['sponsor moic', 'moic', 'multiple', 'expected moic', 'target multiple']],
     ['conviction',  ['conviction', 'confidence']],
+    // the holder's own words. Personal, so it lives in THEIR tracker, never in a
+    // shared deal file.
+    ['thesis',      ['thesis', 'why i did it', 'rationale', 'notes', 'my notes']],
     ['exitEarliest',['exit: earliest', 'earliest', 'exit earliest']],
     ['exitLikely',  ['exit: likely', 'likely', 'exit likely', 'override likely']],
     ['exitLatest',  ['exit: latest', 'latest', 'exit latest']],
@@ -108,7 +139,265 @@
     return BOOK;
   }
 
+  /* ── the three tabs ───────────────────────────────────────────────────────
+     Dashboard is what you hold now. Liquidity Outlook is when it comes back and how
+     much. Background is the assumptions, so the other two can be argued with. */
+  const TABS = [['dash', 'Private Deal Dashboard'], ['outlook', 'Liquidity Outlook'],
+                ['about', 'Background']];
+
   function render() {
+    if (!BOOK || !BOOK.length) return;
+    $('#out').classList.remove('hidden');
+    $('#out').innerHTML = '<div class="row tabs">'
+      + TABS.map(([k, l]) => '<button data-tab="' + k + '"' + (TAB === k ? ' class="on"' : '')
+          + '>' + l + '</button>').join('')
+      + '</div><div id="tabbody"></div>';
+    document.querySelectorAll('[data-tab]').forEach((b) => {
+      b.onclick = () => { TAB = b.getAttribute('data-tab'); render(); };
+    });
+    if (TAB === 'dash') renderDashboard();
+    else if (TAB === 'about') renderBackground();
+    else renderOutlook();
+  }
+
+  /* Expected proceeds for one position, on the model's own outcome table. Kept here so
+     the dashboard and the cards cannot compute it two different ways. */
+  function expectedOf(x) {
+    let acc = 0, e = 0;
+    for (const [p, v] of x.branches) { acc += p; e += p * (x.scales ? v * x.exitMult : v); }
+    e += (1 - acc) * x.exitMult;
+    return { mult: e, exit: x.commitment * e, pref: x.commitment * x.coupon * x.hold };
+  }
+
+  function clsColour(c) {
+    return ({ 'Venture': '#7B5EA7', 'VC': '#7B5EA7', 'Real Estate': '#2E6B52',
+              'Private Equity': '#2563EB', 'Private Credit': '#B17930' })[c] || '#6B7A8C';
+  }
+
+  function payWindow(x) {
+    return x.spread ? (x.fy + x.liq[0]) + '–' + (x.fy + x.liq[1]) : String(x.fy + x.hold);
+  }
+
+  /* ── DASHBOARD ────────────────────────────────────────────────────────────
+     Reads the same book off the same engine as the Outlook tab, so the two cannot
+     describe a deal differently. */
+  function renderDashboard() {
+    const b = BOOK;
+    const sum = (f) => b.reduce((a, x) => a + f(x), 0);
+    const committed = sum((x) => x.commitment);
+    const funded = sum((x) => x.funded);
+    const uncalled = sum((x) => x.uncalled);
+    const expExit = sum((x) => expectedOf(x).exit);
+    const expPref = sum((x) => expectedOf(x).pref);
+    const expTotal = expExit + expPref;
+    const sponsorWt = committed > 0 ? sum((x) => x.moic * x.commitment) / committed : 0;
+
+    let h = '<div class="card"><h2>Where you stand</h2>'
+      + '<div class="kpi">'
+      + kpi('Positions', b.length) + kpi('Committed', money(committed))
+      + kpi('Funded', money(funded))
+      + kpi('Still callable', money(uncalled), uncalled > 0 ? 'neg' : '')
+      + kpi('Sponsor MOIC', mult(sponsorWt))
+      + kpi('Modelled', mult(committed > 0 ? expTotal / committed : 0), 'b')
+      + '</div>'
+      + '<p class="note" style="margin-top:12px"><b>Two multiples, on purpose.</b> The sponsor '
+      + 'figure is what these deals return <b>if they work</b>, weighted by what you committed. '
+      + 'The modelled one is what they are <b>expected</b> to return once every outcome is '
+      + 'weighted by how likely it is, including the ones that go nowhere. It is always the '
+      + 'lower number and it is the one to plan against. Of the modelled total, '
+      + money(expPref) + ' is contractual preferred return and ' + money(expExit) + ' depends '
+      + 'on a sale.</p></div>';
+
+    const byCls = {};
+    b.forEach((x) => {
+      const c = x.kind === 'venture' ? 'Venture' : x.cls;
+      byCls[c] = (byCls[c] || 0) + x.commitment;
+    });
+    const entries = Object.entries(byCls).sort((p, q) => q[1] - p[1]);
+    h += '<div class="card"><h2>Allocation</h2>'
+      + '<p class="note">On capital <b>committed</b>, not on current value. A private mark is '
+      + 'whatever the last sponsor statement said, and stale marks make a flattering pie.</p>'
+      + '<div style="display:flex;height:30px;border-radius:6px;overflow:hidden;margin:14px 0 10px">'
+      + entries.map(([c, v]) => '<div style="width:' + (v / committed * 100) + '%;background:'
+          + clsColour(c) + ';display:flex;align-items:center;justify-content:center;color:#fff;'
+          + 'font-size:12px;font-weight:700">' + (v / committed > 0.07 ? pct(v / committed) : '')
+          + '</div>').join('')
+      + '</div><div class="row">'
+      + entries.map(([c, v]) => '<span style="display:flex;align-items:center;gap:7px;font-size:13px;'
+          + 'color:var(--muted)"><span style="width:11px;height:11px;border-radius:3px;background:'
+          + clsColour(c) + '"></span>' + esc(c) + ' <b style="color:var(--ink)">' + money(v)
+          + '</b></span>').join('')
+      + '</div></div>';
+
+    const yrs = [];
+    for (let y = Engine.CFG.yearFrom; y <= Engine.CFG.yearFrom + 9; y++) yrs.push(y);
+    const calls = {}, prefs = {};
+    yrs.forEach((y) => { calls[y] = 0; prefs[y] = 0; });
+    b.forEach((x) => {
+      if (x.uncalled > 0) {
+        for (let i = 0; i < Engine.CFG.callYears; i++) {
+          const y = x.fy + 1 + i;
+          if (calls[y] != null) calls[y] += x.uncalled / Engine.CFG.callYears;
+        }
+      }
+      if (x.coupon > 0) {
+        for (let i = 1; i <= x.hold; i++) {
+          const y = x.fy + i;
+          if (prefs[y] != null) prefs[y] += x.commitment * x.coupon;
+        }
+      }
+    });
+    const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
+    h += '<div class="card"><h2>Capital calls against preferred income</h2>'
+      + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
+      + 'money the documents promise you. Exits are not here on purpose: an exit is a hope and a '
+      + 'coupon is a promise, and adding them together is how these tools mislead. Exits live on '
+      + 'the Liquidity Outlook tab.</p>'
+      + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
+      + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
+      + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
+          const net = prefs[y] - calls[y];
+          return '<tr><td class="l b">' + y + '</td>'
+            + '<td class="' + (calls[y] ? 'neg' : 'z') + '">' + (calls[y] ? '-' + money(calls[y]) : DASH) + '</td>'
+            + '<td class="' + (prefs[y] ? 'pos' : 'z') + '">' + (prefs[y] ? money(prefs[y]) : DASH) + '</td>'
+            + '<td class="' + (net < 0 ? 'neg' : 'pos') + '">' + money(net) + '</td>'
+            + '<td class="l"><div style="display:flex;align-items:center;gap:3px">'
+            + '<div style="flex:1;display:flex;justify-content:flex-end"><div style="height:11px;width:'
+            + (calls[y] / peak * 100) + '%;background:var(--red);border-radius:2px 0 0 2px"></div></div>'
+            + '<div style="flex:1"><div style="height:11px;width:' + (prefs[y] / peak * 100)
+            + '%;background:var(--green);border-radius:0 2px 2px 0"></div></div>'
+            + '</div></td></tr>';
+        }).join('')
+      + '</table></div>';
+
+    h += '<div class="card"><h2>Your deals</h2>'
+      + '<p class="note">Tap a deal for its terms. Anything marked <b>shared</b> comes from a '
+      + 'deal file everyone can use, so nobody retypes the same preferred rate thirteen times. '
+      + 'Your own numbers always win over it.</p>'
+      + b.map(dealCard).join('') + '</div>';
+
+    $('#tabbody').innerHTML = h;
+    document.querySelectorAll('[data-deal]').forEach((el) => {
+      el.onclick = () => {
+        const k = el.getAttribute('data-deal');
+        OPEN[k] = !OPEN[k];
+        renderDashboard();
+      };
+    });
+  }
+
+  function dealCard(x) {
+    const open = !!OPEN[x.name];
+    const d = x.deal;
+    const e = expectedOf(x);
+    const row = (l, v, cls) => '<div style="display:flex;justify-content:space-between;gap:16px;'
+      + 'padding:5px 0;font-size:13px"><span style="color:var(--muted)">' + l + '</span>'
+      + '<span class="' + (cls || '') + '" style="font-family:var(--mono);text-align:right">'
+      + v + '</span></div>';
+    let h = '<div style="border:1px solid var(--rule);border-radius:9px;margin-bottom:9px;overflow:hidden">'
+      + '<div data-deal="' + esc(x.name) + '" style="display:flex;align-items:center;gap:12px;'
+      + 'padding:12px 14px;cursor:pointer;background:' + (open ? '#F4F7FB' : '#fff') + '">'
+      + '<span style="width:9px;height:9px;border-radius:50%;background:'
+      + clsColour(x.kind === 'venture' ? 'Venture' : x.cls) + '"></span>'
+      + '<b style="flex:1">' + esc(x.name) + '</b>'
+      + (d ? '<span style="font-size:10px;letter-spacing:.05em;color:var(--muted);border:1px solid '
+             + 'var(--rule);border-radius:999px;padding:2px 8px">SHARED</span>' : '')
+      + '<span style="font-family:var(--mono);font-size:13px">' + money(x.commitment) + '</span>'
+      + '<span style="font-family:var(--mono);font-size:12px;color:var(--muted);width:92px;'
+      + 'text-align:right">' + payWindow(x) + '</span>'
+      + '<span style="color:var(--muted)">' + (open ? '−' : '+') + '</span></div>';
+    if (open) {
+      h += '<div style="padding:4px 16px 16px;border-top:1px solid var(--rule)">'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">'
+        + '<div><div class="note" style="margin:10px 0 4px"><b>Your position</b></div>'
+        + row('Commitment', money(x.commitment))
+        + row('Funded to date', money(x.funded))
+        + row('Still callable', x.uncalled ? money(x.uncalled) : DASH, x.uncalled ? 'neg' : 'z')
+        + row('Year funded', x.fy)
+        + '</div><div><div class="note" style="margin:10px 0 4px"><b>What the model makes of it</b></div>'
+        + row('Exits at', mult(x.exitMult) + (x.coupon ? ' residual' : ''))
+        + row('Expected exit', money(e.exit) + '  ' + mult(e.mult))
+        + (e.pref > 0 ? row('Preferred over the hold', money(e.pref), 'pos') : '')
+        + row('Pays out', x.spread ? payWindow(x) : payWindow(x) + ' (single date)')
+        + '</div></div>';
+      if (d) {
+        const t = d.terms || {};
+        const bits = [];
+        if (t.couponPct != null) bits.push(['Preferred', pct(t.couponPct)]);
+        if (t.holdYears) bits.push(['Hold', t.holdYears + ' yrs']);
+        if (t.equityKicker != null) bits.push(['Equity kicker', t.equityKicker]);
+        if (t.sponsorMoic) bits.push(['Sponsor MOIC', mult(t.sponsorMoic)]);
+        if (t.mgmtFee != null) bits.push(['Mgmt fee', pct(t.mgmtFee)]);
+        if (t.carry) bits.push(['Carry', t.carry]);
+        if (t.ubtiDrag != null) bits.push(['UBTI drag', pct(t.ubtiDrag)]);
+        h += '<div class="note" style="margin:16px 0 6px"><b>' + esc(d.sponsor) + '</b> · '
+          + esc(d.vehicle) + ' · ' + esc(d.subStrategy || d.assetClass) + '</div>'
+          + '<div class="row" style="margin-bottom:8px">'
+          + bits.map(([k, v]) => '<span style="font-size:12px;color:var(--muted)">' + k
+              + ' <b style="color:var(--ink);font-family:var(--mono)">' + v + '</b></span>').join('')
+          + '</div><p class="note">' + esc(d.structure || '') + '</p>';
+        if (d.liquidity && d.liquidity.source) {
+          h += '<p class="note" style="margin-top:6px">Pays out over years '
+            + d.liquidity.fromYear + ' to ' + d.liquidity.toYear + ' from funding. '
+            + '<span style="color:var(--muted)">' + esc(d.liquidity.source) + '.</span></p>';
+        }
+      }
+      if (x.thesis) {
+        h += '<div class="note" style="margin:16px 0 4px"><b>Why you did it</b></div>'
+          + '<p class="note">' + esc(x.thesis) + '</p>';
+      }
+      h += '</div>';
+    }
+    return h + '</div>';
+  }
+
+  function renderBackground() {
+    const rules = [
+      ['Commitment, not funded', 'Exit proceeds run off the full commitment, because the whole '
+        + 'commitment is called long before any exit lands. Using funded-to-date understated '
+        + 'one real book by 48%.'],
+      ['A coupon is already inside the multiple', 'A sponsor MOIC is total distributions over '
+        + 'invested capital, so a preferred return paid along the way is part of it. Showing the '
+        + 'coupon separately AND exiting at the full multiple counts that cash twice.'],
+      ['A fund is not one big deal', 'A fund of 20 or more companies cannot return zero the way '
+        + 'one company can, and it does not pay out on a single date. It gets its own outcome '
+        + 'table and sells down over a window.'],
+      ['Two kinds of percentile', 'Per-year percentiles rank each year separately and cannot be '
+        + 'added. Cumulative percentiles add each future up first and rank once, so they can. '
+        + 'Mixing them overstated one book by 69%.'],
+      ['Contractual and speculative never sum', 'A coupon is promised; an exit is hoped for. They '
+        + 'appear on different panels and never inside the same total.'],
+    ];
+    $('#tabbody').innerHTML = '<div class="card"><h2>What this does</h2>'
+      + '<p class="note">Two questions about a private book, answered separately because they are '
+      + 'different questions. <b>What do I hold?</b> is the dashboard, and it is mostly '
+      + 'bookkeeping. <b>When does it come back, and how much?</b> is the outlook, and it is a '
+      + 'projection with real uncertainty in it.</p>'
+      + '<p class="note">Everything runs in your browser. Your tracker is read in the page and '
+      + 'never uploaded. There is no account and no analytics. Once the page has loaded you can '
+      + 'turn off your wifi and it still works.</p></div>'
+      + '<div class="card"><h2>The rules it enforces</h2>'
+      + rules.map(([t, v]) => '<div class="glos"><div class="t">' + t + '</div><div class="d">'
+          + v + '</div></div>').join('')
+      + '</div>'
+      + '<div class="card"><h2>What it cannot tell you</h2>'
+      + '<p class="note"><b>Whether any of this is a good investment.</b> It takes your deals as '
+      + 'given and says when the money might arrive. It has no view on whether you should have '
+      + 'bought them.</p>'
+      + '<p class="note"><b>What anything is worth today.</b> Private marks are stale by '
+      + 'construction and usually flattering. Current value is whatever the last sponsor '
+      + 'statement said.</p>'
+      + '<p class="note"><b>Anything precise beyond about seven years.</b> The honest answer that '
+      + 'far out is that the range is wide, and a precise-looking number would be false.</p>'
+      + '<p class="note"><b>What happens when everything goes wrong at once.</b> The model draws '
+      + 'each deal independently. In a real downturn they move together, which makes any '
+      + 'diversification benefit here look better than it probably is. The other optimistic '
+      + 'assumption is that the preferred return always pays, and a sponsor can suspend one.</p>'
+      + '<p class="note">Not advice. The outcome probabilities are assumptions and are meant to '
+      + 'be argued with.</p></div>';
+  }
+
+  function renderOutlook() {
     const book = subset(MODE);
     const st = Engine.simulate(book, { paths: 6000 });
     if (!st) { $('#out').innerHTML = '<div class="card">No positions in this view.</div>'; return; }
@@ -238,8 +527,7 @@
       + '</table></div>';
 
     h += glossary(T);
-    $('#out').innerHTML = h;
-    $('#out').classList.remove('hidden');
+    $('#tabbody').innerHTML = h;
     wire();
   }
 
@@ -363,7 +651,10 @@
   }
 
   /* ── intake ──────────────────────────────────────────────────────────────── */
-  function load(rows, skipped) {
+  async function load(rows, skipped) {
+    // fill blanks from the shared deal files BEFORE validating, so a term that GC already
+    // knows does not get reported as something the holder failed to supply
+    await enrich(rows);
     const problems = validate(rows, skipped);
     BOOK = Engine.buildBook(rows);
     if (!BOOK.length) {
@@ -376,7 +667,7 @@
         + ' thing' + (problems.length > 1 ? 's' : '') + ' worth fixing.</b> Nothing was guessed at; these rows '
         + 'are running on whatever was there.<br>' + problems.slice(0, 8).map(esc).join('<br>') + '</div>'
       : '';
-    MODE = 'all'; DIST = 'all';
+    MODE = 'all'; DIST = 'all'; TAB = 'dash'; OPEN = {};
     render();
     $('#out').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }

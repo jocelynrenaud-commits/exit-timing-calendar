@@ -27,8 +27,9 @@ const CFG = {
      needs to know they were produced by different models.
        v1.0  first public release
        v1.1  a diversified fund is no longer priced or timed like a single deal
-       v1.2  a fund's sell-down is a window off its own terms, not a deal count */
-  version: 'v1.2',
+       v1.2  a fund's sell-down is a window off its own terms, not a deal count
+       v1.3  three tabs, shared deal files, and the tool is renamed Private Deals */
+  version: 'v1.3',
   released: '24 Sep 2026',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
@@ -153,6 +154,8 @@ function buildBook(rows) {
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
       exitMult, deals, isFund, diversified, branches, scales, liq,
+      deal: r._deal || null,          // the shared file this matched, if any
+      thesis: String(r.thesis || ''), // the holder's own words, from their tracker
       spread: liq ? liqSpread(hold, liq) : null,
       earliest: parseInt(r.exitEarliest, 10) || (likely - Math.min(3, Math.max(1, Math.round(hold * 0.3)))),
       likely,
@@ -346,5 +349,46 @@ function simulate(book, opts) {
   return out;
 }
 
-const Engine = { CFG, buildBook, simulate, makeRng, num };
+/* ── SHAREABLE DEAL FILES ───────────────────────────────────────────────────
+   The terms of a deal are identical for everyone who bought it, so they live in one
+   file per deal rather than being retyped by every holder -- thirteen people typing
+   the same preferred rate is thirteen chances to get it wrong.
+
+   YOUR TRACKER ALWAYS WINS. A deal file only fills what you left blank. If your copy
+   of the terms differs from the shared one, yours is used and nothing argues with you.
+   Nothing personal is ever in a deal file: commitments, dates and notes stay in your
+   tracker and never leave your machine. */
+function matchDeal(name, index) {
+  const n = String(name || '').trim().toLowerCase();
+  if (!n || !index || !index.deals) return null;
+  let best = null;
+  for (const d of index.deals) {
+    for (const a of (d.aliases || [d.name])) {
+      const al = String(a).trim().toLowerCase();
+      if (!al) continue;
+      if (n === al) return d;                                  // exact wins outright
+      if ((n.startsWith(al) || al.startsWith(n)) &&
+          (!best || al.length > best._len)) best = Object.assign({ _len: al.length }, d);
+    }
+  }
+  return best;
+}
+
+function applyDealFile(row, f) {
+  if (!f) return row;
+  const t = f.terms || {}, L = f.liquidity || {};
+  const blank = (v) => v == null || String(v).trim() === '';
+  const out = Object.assign({}, row);
+  if (blank(out.assetClass) && f.assetClass) out.assetClass = f.assetClass;
+  if (blank(out.coupon) && t.couponPct != null) out.coupon = t.couponPct;
+  if (blank(out.hold) && t.holdYears) out.hold = t.holdYears;
+  if (blank(out.moic) && t.sponsorMoic) out.moic = t.sponsorMoic;
+  if (blank(out.deals) && f.dealsInFund != null) out.deals = f.dealsInFund;
+  if (blank(out.liqFrom) && L.fromYear) out.liqFrom = L.fromYear;
+  if (blank(out.liqTo) && L.toYear) out.liqTo = L.toYear;
+  out._deal = f;
+  return out;
+}
+
+const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile };
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;

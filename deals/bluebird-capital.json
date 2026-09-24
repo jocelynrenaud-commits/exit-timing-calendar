@@ -1,0 +1,32 @@
+{
+  "slug": "bluebird-capital",
+  "name": "BlueBird Capital",
+  "aliases": [
+    "BlueBird Capital",
+    "BlueBird Capital (Tranche 1)",
+    "BlueBird Capital (Tranche 2)",
+    "Bluebird"
+  ],
+  "sponsor": "BlueBird Capital Group, LP",
+  "assetClass": "Private Equity",
+  "vehicle": "SPV",
+  "subStrategy": "Special situations, single company",
+  "terms": {
+    "couponPct": 0.15,
+    "couponNote": "Paid in cash annually on the funding anniversary.",
+    "holdYears": 7,
+    "holdNote": "PPM says seven years, up to two years of extension.",
+    "equityKicker": 0.15,
+    "sponsorMoic": 2.65,
+    "mgmtFee": 0.02,
+    "carry": "10% LP / 90% GP at exit",
+    "minimum": 100000
+  },
+  "liquidity": null,
+  "dealsInFund": 1,
+  "singleCompany": true,
+  "structure": "A single operating company, not a pool. If it is bought, the whole company is bought on one date, so it exits as a single event rather than selling down over years.",
+  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+  "asOf": "2026-09-24",
+  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+}

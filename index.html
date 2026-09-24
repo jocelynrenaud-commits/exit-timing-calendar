@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Exit Timing Calendar</title>
-<meta name="description" content="Turn a private-markets tracker into a year-by-year liquidity picture. Runs entirely in your browser.">
+<title>Private Deals</title>
+<meta name="description" content="Everything you hold in private markets, and when it might pay you back. Runs entirely in your browser.">
 <style>
   :root{
     --bg:#F7F9FC; --card:#FFFFFF; --ink:#141A22; --muted:#6B7A8C; --rule:#DCE3EC;
@@ -40,6 +40,12 @@
   button:hover{border-color:#B9C6D8}
   button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
   .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  /* the three tabs. Bigger than the in-card toggles, because they change the whole page */
+  .tabs{gap:6px;margin:4px 0 16px;border-bottom:1px solid var(--rule);padding-bottom:0}
+  .tabs button{font-size:15px;padding:11px 18px;border:none;border-bottom:3px solid transparent;
+               border-radius:8px 8px 0 0;background:none;color:var(--muted);font-weight:600}
+  .tabs button:hover{color:var(--ink);background:#EEF3FA}
+  .tabs button.on{background:none;color:var(--navy);border-bottom-color:var(--navy)}
   .drop{border:2px dashed #C3CEDD;border-radius:12px;padding:34px 20px;text-align:center;
         background:#FBFCFE;transition:.15s}
   .drop.over{border-color:var(--navy);background:#EEF3FA}
@@ -90,9 +96,10 @@
 <body>
 <div class="wrap">
 
-  <h1>Exit Timing Calendar</h1>
-  <p class="sub">Turn a private-markets tracker into a year-by-year picture of when cash might
-    actually arrive. It will not give you a predicted exit date, because nobody has one.</p>
+  <h1>Private Deals</h1>
+  <p class="sub">Everything you hold in private markets, and when it might pay you back. The
+    <b>Liquidity Outlook</b> tab is the Exit Timing Calendar, now part of a bigger tool. It will
+    still not give you a predicted exit date, because nobody has one.</p>
 
   <div class="card" id="intake">
     <div class="drop" id="drop">
@@ -129,6 +136,38 @@
     <p>Every time the maths behind this tool changes, the version at the bottom of the
       page changes with it. It is worth knowing which one you were looking at, because
       two answers produced by different versions are not directly comparable.</p>
+
+    <div class="rel">
+      <span class="tag">v1.3 &nbsp;&middot;&nbsp; 24 Sep 2026</span>
+      <h4>Same link, bigger tool &mdash; and it opens somewhere new</h4>
+      <p>If you bookmarked this as the Exit Timing Calendar, nothing is lost and the link is
+        unchanged. The calendar is now the <b>Liquidity Outlook</b> tab, and there are two more
+        tabs beside it. The page opens on the new one, so this is the change you are noticing.</p>
+
+      <h4>Private Deal Dashboard</h4>
+      <p>Everything you hold in one place: committed, funded, still callable, allocation, and a
+        card per deal you can open for its terms. At the top, two multiples side by side &mdash;
+        what the sponsors project, and what the same deals are <b>expected</b> to return once the
+        outcomes that go nowhere are weighted in. Most tools show you only the first.</p>
+      <p>There is also a year-by-year table of capital calls going out against preferred income
+        coming in. Exits are deliberately not on it: a coupon is promised and an exit is hoped
+        for, and adding them together is the most misleading thing one of these tools can do.
+        Exits stay on the Liquidity Outlook tab.</p>
+
+      <h4>You can leave most of the tracker blank now</h4>
+      <p>The tool ships with a small shared file for each of the common GC deals, carrying the
+        sponsor, the vehicle, the structure, the preferred rate, the hold, the fees and when the
+        sponsor says it pays out. If your deal name matches one, all of that fills itself in and
+        you only supply <b>your</b> numbers: what you committed, what you have funded, and when.</p>
+      <p><b>Anything you type wins over the shared file.</b> It only fills what you left empty and
+        never argues with you. A deal nobody has shared still works exactly as before.</p>
+      <p>Nothing personal is in a shared file. There is a new <b>Thesis</b> column for why you did
+        the deal, and that stays in your spreadsheet, on your machine, like everything else.</p>
+
+      <h4>Background</h4>
+      <p>The assumptions, the rules the tool enforces, and a plain list of what it
+        <b>cannot</b> tell you. Worth two minutes before you trust any of the numbers.</p>
+    </div>
 
     <div class="rel">
       <span class="tag">v1.2 &nbsp;&middot;&nbsp; 24 Sep 2026</span>

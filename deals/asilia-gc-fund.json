@@ -1,0 +1,37 @@
+{
+  "slug": "asilia-gc-fund",
+  "name": "Asilia GC Fund",
+  "aliases": [
+    "Asilia GC Fund",
+    "Asilia",
+    "Asilia GC Fund QP, LP"
+  ],
+  "sponsor": "Asilia",
+  "assetClass": "Private Credit",
+  "vehicle": "Fund",
+  "subStrategy": "Evergreen credit fund of funds, three sleeves",
+  "terms": {
+    "couponPct": 0.12,
+    "couponNote": "Quarterly cash coupon, DRIP-able.",
+    "holdYears": 8,
+    "holdNote": "8-year term, 5-year lockup, 5% quarterly redemption gate.",
+    "equityKicker": 0.4,
+    "sponsorMoic": 3.27,
+    "mgmtFee": 0.013,
+    "carry": "~30% over a 6% compounded hurdle",
+    "ubtiDrag": 0.065,
+    "minimum": 100000,
+    "minimumNote": "$1M standard; $100k through GC access."
+  },
+  "liquidity": {
+    "fromYear": 5,
+    "toYear": 8,
+    "source": "GP stated: equity kickers realised years 5-8"
+  },
+  "dealsInFund": null,
+  "singleCompany": false,
+  "structure": "Evergreen credit fund of funds across three sleeves: senior credit, Walnut, and opportunistic. Current income is recyclable; equity kickers realise late in the term.",
+  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+  "asOf": "2026-09-24",
+  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+}

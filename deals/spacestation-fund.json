@@ -1,0 +1,29 @@
+{
+  "slug": "spacestation-fund",
+  "name": "SpaceStation Fund",
+  "aliases": [
+    "SpaceStation Fund",
+    "SPVC Ventures Fund I",
+    "SpaceStation",
+    "SPVC"
+  ],
+  "sponsor": "SPVC Ventures Fund I, L.P.",
+  "assetClass": "VC",
+  "vehicle": "Fund",
+  "subStrategy": "Early-stage venture, diversified",
+  "terms": {
+    "couponPct": null,
+    "holdYears": 10,
+    "sponsorMoic": 3.96,
+    "capitalCalls": "Quarterly, ~5% of commitment",
+    "minimum": 250000
+  },
+  "liquidity": null,
+  "dealsInFund": 40,
+  "dealsNote": "13 companies held as at Sep 2026, expected past 40 by the time it distributes. A fund of 20+ is priced on the fund outcome table rather than the single-deal power law.",
+  "singleCompany": false,
+  "structure": "Diversified early-stage venture fund. Called quarterly and expected to hold 40+ companies, so it neither returns zero the way one company can nor pays out on a single date.",
+  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+  "asOf": "2026-09-24",
+  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+}

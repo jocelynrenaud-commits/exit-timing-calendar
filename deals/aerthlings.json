@@ -1,0 +1,25 @@
+{
+  "slug": "aerthlings",
+  "name": "AERTHLINGS",
+  "aliases": [
+    "AERTHLINGS",
+    "AERTHLINGS",
+    "AERTHLINGS - Plan A"
+  ],
+  "sponsor": "Spacestation 89 / Spacestation Investments 1, LLC",
+  "assetClass": "VC",
+  "vehicle": "SPV",
+  "subStrategy": "Single-company venture",
+  "terms": {
+    "couponPct": null,
+    "holdYears": 10,
+    "sponsorMoic": 10.0
+  },
+  "liquidity": null,
+  "dealsInFund": 1,
+  "singleCompany": true,
+  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
+  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+  "asOf": "2026-09-24",
+  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+}
