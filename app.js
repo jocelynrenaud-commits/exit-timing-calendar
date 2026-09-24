@@ -285,14 +285,27 @@
       + '" stroke="#141A22" stroke-width="1.5" stroke-dasharray="4,3"/>'
       + '<text x="' + (bx + 6) + '" y="' + (T + 11) + '" font-size="11" font-weight="700" fill="#141A22">break even</text>';
 
-    series.forEach((sr, k) => {
+    /* Medians as dots on the axis, with the NUMBERS in a corner key rather than floating
+       over the curves. They used to sit above each dot, which worked while the three were
+       far apart and became unreadable the moment they converged -- on a blended book they
+       can land within a few hundredths of each other, on top of the tallest curve. */
+    series.forEach((sr) => {
       const on = sr.key === active, t = sr.st.totals;
       const mx = X(t.p50 / t.committed);
       s += '<circle cx="' + mx + '" cy="' + (T + ih + 1) + '" r="' + (on ? 5 : 3.2) + '" fill="' + sr.raw
-        + '" opacity="' + (on ? 1 : 0.5) + '"/>'
-        + '<text x="' + mx + '" y="' + (T + ih - 7 - k * 13) + '" text-anchor="middle" font-size="10" '
-        + 'font-weight="700" fill="' + sr.raw + '" opacity="' + (on ? 1 : 0.55) + '">'
-        + mult(t.p50 / t.committed) + '</text>';
+        + '" opacity="' + (on ? 1 : 0.5) + '"/>';
+    });
+    const kx = L + 12, ky = T + 14;
+    s += '<text x="' + kx + '" y="' + ky + '" font-size="9" font-weight="700" fill="#6B7A8C" '
+      + 'letter-spacing="0.5">TYPICAL RUN</text>';
+    series.forEach((sr, k) => {
+      const on = sr.key === active, t = sr.st.totals, yy = ky + 15 + k * 15;
+      s += '<rect x="' + kx + '" y="' + (yy - 4) + '" width="10" height="3" rx="1.5" fill="'
+        + sr.raw + '" opacity="' + (on ? 1 : 0.5) + '"/>'
+        + '<text x="' + (kx + 17) + '" y="' + yy + '" font-size="11" font-weight="700" fill="'
+        + sr.raw + '" opacity="' + (on ? 1 : 0.6) + '">' + mult(t.p50 / t.committed) + '</text>'
+        + '<text x="' + (kx + 56) + '" y="' + yy + '" font-size="10" fill="#6B7A8C" '
+        + 'opacity="' + (on ? 1 : 0.6) + '">' + esc(sr.label) + '</text>';
     });
     s += '<text x="' + L + '" y="' + (H - 8) + '" font-size="10" fill="#6B7A8C">multiple on committed capital</text>';
     for (let i = 0; i < n; i++) {
