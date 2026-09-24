@@ -26,8 +26,9 @@ const CFG = {
      rather than easy. Bump the minor when an assumption moves: anyone comparing two runs
      needs to know they were produced by different models.
        v1.0  first public release
-       v1.1  a diversified fund is no longer priced or timed like a single deal */
-  version: 'v1.1',
+       v1.1  a diversified fund is no longer priced or timed like a single deal
+       v1.2  a fund's sell-down is a window off its own terms, not a deal count */
+  version: 'v1.2',
   released: '24 Sep 2026',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
@@ -64,17 +65,17 @@ const CFG = {
   /* A fund also does not exit ONCE. It sells down over several years: distributions
      build, peak, then tail off. For a tool whose whole job is to say WHEN cash arrives,
      dropping a fund's entire proceeds into a single year is the larger error of the two.
-     Weights are offsets from the drawn exit year. They sum to 1, so staging moves money
-     between years without creating or destroying any. */
-  spreadVenture: [[-3, 0.10], [-2, 0.15], [-1, 0.20], [0, 0.25], [1, 0.18], [2, 0.12]],
-  /* Income funds sell down over a tighter window: the assets are stabilized and the
-     fund has a stated life it is working towards. */
-  spreadIncome: [[-2, 0.15], [-1, 0.25], [0, 0.35], [1, 0.25]],
 
-  /* A position is staged once it holds more than one underlying deal. It only earns the
-     FUND outcome table once it is genuinely diversified; below that it is a handful of
-     deals wearing a fund's name, and the single-deal power law still describes it. */
-  stageMinDeals: 2,
+     That sell-down is a property of the DEAL, not of how many things it holds, so it is
+     described by a LIQUIDITY WINDOW in fund-years rather than by a fixed table. Fund-years
+     rather than calendar years so the window survives a change to the funding date.
+     A GP who has told you "years five through eight" can say exactly that. */
+  liqStart: 0.6,       // with nothing stated, a sell-down runs over the back 40% of the hold
+  liqTailVenture: 2,   // venture funds run PAST the horizon; income funds wind up on it
+
+  /* The deal COUNT is a separate question, and it decides only the outcome table. A
+     position earns the FUND table once it is genuinely diversified; below that it is a
+     handful of deals wearing a fund's name and the single-deal power law still fits. */
   fundMinDeals: 20,
 
   /* Exits slip and nothing makes them early, so the window is skewed late. The final
@@ -122,11 +123,12 @@ function buildBook(rows) {
     const likely = parseInt(r.exitLikely, 10) || (fy + hold);
     const kind = coupon > 0 ? 'income' : 'venture';
 
-    /* How many underlying deals does this position hold? One means an SPV or a single
-       company, and it behaves like a single deal however it is labelled. Blank means
-       one, because assuming diversification nobody declared would be inventing it. */
+    /* How many underlying deals does this position hold? This decides the OUTCOME table
+       only. Blank means one, because assuming diversification nobody declared would be
+       inventing it. A blank is NOT the same as a typed 1: typing 1 is someone saying
+       "this is one company", which is what opts a coupon-payer out of staging below. */
+    const declared = r.deals != null && String(r.deals).trim() !== '';
     const deals = Math.max(1, Math.round(num(r.deals)) || 1);
-    const isFund = deals >= CFG.stageMinDeals;
     const diversified = deals >= CFG.fundMinDeals;
 
     // which outcome table, and does it scale the target or replace it
@@ -134,19 +136,51 @@ function buildBook(rows) {
     if (kind === 'income') { branches = CFG.income; scales = true; }
     else if (diversified) { branches = CFG.fundVenture; scales = true; }
 
+    /* DOES IT SELL DOWN, OR IS IT BOUGHT ONCE?
+       A coupon-paying position is assumed to be a fund, because most of them are, and a
+       fund sells down over years. Someone holding one company with a preferred return
+       types 1 in the deals column to say so. Venture is the other way round: a single
+       deal unless declared otherwise, which stays the cautious reading of a blank. */
+    const single = declared && deals === 1;
+    const isFund = kind === 'income' ? !single : deals > 1;
+    const liq = isFund
+      ? liqWindow(hold, num(r.liqFrom), num(r.liqTo), kind !== 'income')
+      : null;
+
     out.push({
       name: String(r.name || 'Unnamed'),
       kind,
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
-      exitMult, deals, isFund, diversified, branches, scales,
-      spread: isFund ? (kind === 'income' ? CFG.spreadIncome : CFG.spreadVenture) : null,
+      exitMult, deals, isFund, diversified, branches, scales, liq,
+      spread: liq ? liqSpread(hold, liq) : null,
       earliest: parseInt(r.exitEarliest, 10) || (likely - Math.min(3, Math.max(1, Math.round(hold * 0.3)))),
       likely,
       latest: parseInt(r.exitLatest, 10) || (likely + 2),
       conviction: String(r.conviction || 'Medium'),
     });
   }
+  return out;
+}
+
+/* The liquidity window for a position, as [firstYear, lastYear] in FUND-YEARS from
+   funding. A stated window always wins -- a GP who says "years five through eight" is
+   better information than any rule. Otherwise the back of the hold. */
+function liqWindow(hold, from, to, isVenture) {
+  const a = from > 0 ? Math.round(from) : Math.max(1, Math.round(hold * CFG.liqStart));
+  const b = to > 0 ? Math.round(to) : hold + (isVenture ? CFG.liqTailVenture : 0);
+  return [a, Math.max(a, b)];
+}
+
+/* That window as offsets from the exit year, with weights. Weights ramp up across it:
+   a sell-down starts slowly and the largest payment is usually the last one. They sum
+   to 1, so staging MOVES money between years and never creates any. */
+function liqSpread(hold, win) {
+  const n = Math.max(1, win[1] - win[0] + 1);
+  const out = [];
+  let tot = 0;
+  for (let i = 0; i < n; i++) { tot += i + 2; out.push([win[0] + i - hold, i + 2]); }
+  for (let i = 0; i < n; i++) out[i][1] /= tot;
   return out;
 }
 

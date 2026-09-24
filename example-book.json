@@ -10,7 +10,8 @@
   "coupon": 0.06,
   "moic": 1.8,
   "conviction": "Medium",
-  "deals": 8
+  "liqFrom": 4,
+  "liqTo": 6
  },
  {
   "name": "Eephus Growth Fund II",
@@ -23,7 +24,8 @@
   "coupon": 0.06,
   "moic": 1.75,
   "conviction": "Medium",
-  "deals": 8
+  "liqFrom": 4,
+  "liqTo": 6
  },
  {
   "name": "BlueBird Capital (Tranche 1)",
@@ -62,7 +64,8 @@
   "coupon": 0.12,
   "moic": 3.27,
   "conviction": "High",
-  "deals": 12
+  "liqFrom": 5,
+  "liqTo": 8
  },
  {
   "name": "SpaceStation Fund",
@@ -75,7 +78,7 @@
   "coupon": "",
   "moic": 3.96,
   "conviction": "Medium",
-  "deals": 20
+  "deals": 40
  },
  {
   "name": "Next Life Sciences - Plan A",

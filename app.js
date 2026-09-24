@@ -26,6 +26,10 @@
     // by the 'deal' prefix under 'name' and swallow the deal-name column.
     ['deals',       ['deals in fund', 'underlying deals', 'number of deals',
                      'portfolio companies', 'positions in fund', 'deal count']],
+    // optional liquidity window, in FUND-YEARS from funding. A GP who says "years five
+    // through eight" can say exactly that; leaving them blank uses the default rule.
+    ['liqFrom',     ['liquidity from', 'payout from', 'sell-down from', 'distributions from']],
+    ['liqTo',       ['liquidity to', 'payout to', 'sell-down to', 'distributions to']],
     ['name',        ['deal name', 'deal', 'name', 'investment', 'position']],
     ['assetClass',  ['asset class', 'class', 'type', 'sleeve type']],
     ['commitment',  ['commitment', 'committed', 'total commitment']],
@@ -152,16 +156,17 @@
       + '<p class="note">Exit proceeds run off the <b>commitment</b>, not off what is funded so far, because '
       + 'the whole commitment is called long before any exit lands. Anything paying a coupon exits on the '
       + '<b>residual</b> multiple: a sponsor MOIC already contains the coupon, so exiting at the full multiple '
-      + 'while also counting the coupon would count that cash twice. A position holding more than one '
-      + 'underlying deal is a <b>fund</b>, and a fund does not exit on a single date, so its proceeds are '
-      + 'spread over the years around its exit rather than dropped into one. A venture fund holding '
-      + Engine.CFG.fundMinDeals + '+ deals also stops being priced like a single company.</p>'
+      + 'while also counting the coupon would count that cash twice. A <b>fund</b> does not exit on a '
+      + 'single date, so its proceeds are spread over its sell-down window rather than dropped into one '
+      + 'year. Anything paying a coupon is assumed to be a fund unless you put 1 in the deals column to '
+      + 'say it is a single company. A venture fund holding ' + Engine.CFG.fundMinDeals + '+ deals also '
+      + 'stops being priced like a single company.</p>'
       + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
       + '<th>Uncalled</th><th>Coupon</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
       + book.map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
         + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
         + (b.kind === 'venture' ? 'Venture' : esc(b.cls)) + '</td>'
-        + '<td class="' + (b.isFund ? 'b' : 'z') + '">' + (b.isFund ? b.deals : '1') + '</td>'
+        + '<td class="' + (b.isFund ? 'b' : 'z') + '">' + (b.isFund ? (b.deals > 1 ? b.deals : 'fund') : '1') + '</td>'
         + '<td>' + money(b.commitment) + '</td>'
         + '<td class="' + (b.uncalled > 0 ? 'neg' : 'z') + '">' + (b.uncalled > 0 ? money(b.uncalled) : DASH) + '</td>'
         + '<td class="' + (b.coupon ? 'pos' : 'z') + '">' + (b.coupon ? (b.coupon * 100).toFixed(1) + '%' : DASH) + '</td>'
@@ -318,12 +323,16 @@
         + 'mixing them is the commonest way a table like this overstates by most of its own value.'],
       ['Coupon versus multiple', 'A sponsor MOIC already contains the coupon paid along the way, so anything '
         + 'paying a coupon exits here on the residual. Otherwise that cash gets counted twice.'],
-      ['A fund is not a big deal', 'Say how many underlying deals a position holds and it stops being treated '
-        + 'as one. Funds sell down over several years rather than exiting on a date, so their proceeds are '
-        + 'spread across the years around the exit. A venture fund holding ' + Engine.CFG.fundMinDeals + '+ '
-        + 'companies also gets its own outcome table, because the single-deal power law carries a 30% chance '
-        + 'of returning zero and a fund that size cannot do that. Leave the column blank and the position is '
-        + 'treated as a single deal, which is the cautious reading.'],
+      ['A fund is not a big deal', 'Two separate things. WHEN it pays: a fund sells down over several years '
+        + 'instead of exiting on a date, so its proceeds are spread across a window. Anything paying a coupon '
+        + 'is treated as a fund, because most coupon-paying vehicles are one; put 1 in the deals column to say '
+        + 'a position is a single company and it exits on one date instead. HOW MUCH it returns: a venture fund '
+        + 'holding ' + Engine.CFG.fundMinDeals + '+ companies gets its own outcome table, because the '
+        + 'single-deal power law carries a 30% chance of returning zero and a fund that size cannot do that.'],
+      ['Liquidity window', 'When a fund actually sells down, in years from when you funded it. That is not the '
+        + 'same as its stated life, because a fund can finish paying out and wind up afterwards. If a sponsor '
+        + 'has told you "years five through eight", put 5 and 8 in the two liquidity columns. Left blank it '
+        + 'runs over the back 40% of the hold, which is roughly what most sponsors describe anyway.'],
       ['What this assumes', 'That the coupon always pays, and that deals fail independently of one another. '
         + 'Both are optimistic. A sponsor can suspend a preferred return, and in a real downturn outcomes move '
         + 'together, which would make the blended picture less flattering than it looks.'],
