@@ -381,6 +381,12 @@
     fr.readAsArrayBuffer(f);
   }
 
+  // the badge reads the engine's own version, so the label cannot drift from the model
+  (function () {
+    const el = $('#ver');
+    if (el) el.textContent = Engine.CFG.version + ' · ' + Engine.CFG.released;
+  })();
+
   $('#pick').onclick = () => $('#file').click();
   $('#file').onchange = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); };
   $('#demo').onclick = () => {

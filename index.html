@@ -58,7 +58,15 @@
   .hidden{display:none}
   footer{color:var(--muted);font-size:13px;margin-top:30px;line-height:1.7}
   a{color:var(--navy)}
-  @media (max-width:700px){ .wrap{padding:18px 12px 60px} h1{font-size:24px} .glos{display:block} .glos .t{margin-bottom:4px} }
+  /* Version badge. Pinned bottom-left so it is findable without being in the way, and
+     semi-transparent until hovered so it never competes with the numbers. */
+  .ver{position:fixed;left:12px;bottom:12px;z-index:20;font-family:var(--mono);
+       font-size:11px;letter-spacing:.02em;color:var(--muted);background:rgba(255,255,255,.92);
+       border:1px solid var(--rule);border-radius:999px;padding:4px 11px;opacity:.72;
+       transition:opacity .15s;pointer-events:auto;user-select:text}
+  .ver:hover{opacity:1}
+  @media (max-width:700px){ .wrap{padding:18px 12px 60px} h1{font-size:24px} .glos{display:block} .glos .t{margin-bottom:4px}
+    .ver{left:8px;bottom:8px;font-size:10px;padding:3px 9px} }
 </style>
 </head>
 <body>
@@ -92,6 +100,8 @@
     Source and the tracker template are in the repository.
   </footer>
 </div>
+
+<div class="ver" id="ver" title="Model version. Two runs from different versions are not comparable."></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="engine.js"></script>

@@ -21,6 +21,15 @@ function makeRng(seed) {
 }
 
 const CFG = {
+  /* The version the page shows bottom-left. It lives HERE, next to the assumptions it
+     describes, so that changing the model and forgetting to change the label is awkward
+     rather than easy. Bump the minor when an assumption moves: anyone comparing two runs
+     needs to know they were produced by different models.
+       v1.0  first public release
+       v1.1  a diversified fund is no longer priced or timed like a single deal */
+  version: 'v1.1',
+  released: '24 Sep 2026',
+
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
      projected multiple. That number is what the deal returns IF IT WORKS; using it as
      the expected value is the single commonest way these models become fiction.
