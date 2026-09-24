@@ -28,8 +28,10 @@ const CFG = {
        v1.0  first public release
        v1.1  a diversified fund is no longer priced or timed like a single deal
        v1.2  a fund's sell-down is a window off its own terms, not a deal count
-       v1.3  three tabs, shared deal files, and the tool is renamed Private Deals */
-  version: 'v1.3',
+       v1.3  three tabs, shared deal files, and the tool is renamed Private Deals
+       v1.4  bug sweep: short names no longer inherit another deal's terms; quotes in a
+             deal name no longer break its card */
+  version: 'v1.4',
   released: '24 Sep 2026',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
@@ -358,6 +360,13 @@ function simulate(book, opts) {
    of the terms differs from the shared one, yours is used and nothing argues with you.
    Nothing personal is ever in a deal file: commitments, dates and notes stay in your
    tracker and never leave your machine. */
+/* MIN_FUZZY exists because "Ae" used to match AERTHLINGS. A prefix match on two
+   characters silently attached somebody else's sponsor, hold and 10x multiple to a
+   stranger's position, and nothing on screen said where those numbers came from.
+   Quietly using the wrong terms is worse than using none, so a partial match now needs
+   real evidence on both sides. An exact name still matches at any length. */
+const MIN_FUZZY = 6;
+
 function matchDeal(name, index) {
   const n = String(name || '').trim().toLowerCase();
   if (!n || !index || !index.deals) return null;
@@ -367,6 +376,7 @@ function matchDeal(name, index) {
       const al = String(a).trim().toLowerCase();
       if (!al) continue;
       if (n === al) return d;                                  // exact wins outright
+      if (n.length < MIN_FUZZY || al.length < MIN_FUZZY) continue;
       if ((n.startsWith(al) || al.startsWith(n)) &&
           (!best || al.length > best._len)) best = Object.assign({ _len: al.length }, d);
     }

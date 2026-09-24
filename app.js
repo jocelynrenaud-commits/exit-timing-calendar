@@ -10,7 +10,13 @@
   const money = (v) => (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
   const mult = (v) => v.toFixed(2) + 'x';
   const pct = (v) => (v * 100).toFixed(0) + '%';
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  /* Quotes are escaped too, not just angle brackets. A deal card writes the name into a
+     data- attribute AND reads it back to decide which card is open, so a name like
+     O'Brien's "Fund" used to truncate the attribute at its first inner quote: the card
+     would not open, any markup in the name rendered as real HTML, and the whole row
+     broke. Somebody will name a position with an apostrophe. */
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   const DASH = '—';
 
   let BOOK = null;          // every position

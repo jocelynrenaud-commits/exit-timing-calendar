@@ -138,6 +138,23 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.4 &nbsp;&middot;&nbsp; 24 Sep 2026</span>
+      <h4>Bug sweep</h4>
+      <p>The new version went up fast, so it has been put through a full test pass. Two real
+        problems turned up and both are fixed.</p>
+      <p><b>A short deal name could pick up the wrong terms.</b> A position named with just a
+        couple of letters would quietly match a shared deal file that happened to start the
+        same way, and inherit its sponsor, hold and multiple without saying so. A partial
+        match now needs a proper amount of the name to agree. An exact name still matches at
+        any length.</p>
+      <p><b>An apostrophe or a quotation mark in a deal name broke its card.</b> The card
+        would not open, and any angle brackets in the name were treated as formatting. Names
+        with punctuation now work normally.</p>
+      <p>Neither changed any number in anyone&rsquo;s results. If you find anything else,
+        please say so.</p>
+    </div>
+
+    <div class="rel">
       <span class="tag">v1.3 &nbsp;&middot;&nbsp; 24 Sep 2026</span>
       <h4>Same link, bigger tool &mdash; and it opens somewhere new</h4>
       <p>If you bookmarked this as the Exit Timing Calendar, nothing is lost and the link is
