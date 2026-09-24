@@ -23,13 +23,50 @@ function makeRng(seed) {
 const CFG = {
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
      projected multiple. That number is what the deal returns IF IT WORKS; using it as
-     the expected value is the single commonest way these models become fiction. */
+     the expected value is the single commonest way these models become fiction.
+     This is a SINGLE deal. A fund of them is a different distribution -- see below. */
   venture: [[0.30, 0.00], [0.30, 1.00], [0.30, 1.65]],
 
   /* Income sleeves: stabilized RE / PE / credit. A far tighter spread, and the branches
      SCALE the exit multiple rather than replacing it. Last branch, 15%, is the full
      exit. */
   income: [[0.05, 0.00], [0.25, 0.60], [0.55, 0.75]],
+
+  /* A DIVERSIFIED VENTURE FUND is not a big venture deal, and treating it as one was a
+     real error in this model. The single-deal table above carries a 30% chance of
+     returning zero. For a fund holding 20+ companies that outcome requires all of them
+     to fail at once: it is not conservative, it is impossible. Published fund data has
+     no 0.00x in it at all.
+
+     So funds get their own table, fitted to VC fund TVPI benchmarks -- p10 0.70x,
+     p25 1.00x, p50 1.50x, p75 2.20x, p90 3.00x -- expressed as a fraction of the
+     sponsor's target so it works for any fund. Like the income table it SCALES the
+     target rather than replacing it, and the implicit top branch is the sponsor's own
+     number, which lands around the 95th percentile. That is where a sponsor's target
+     belongs: achievable, not the base case.
+
+     Pooling maths alone would give the wrong answer here. Averaging 20 independent
+     deals makes a fund look nearly risk-free, which is plainly false. Deals inside one
+     fund share a vintage and managers differ, so pooling collapses the left tail
+     without narrowing the right one. This table is fitted to what funds actually did,
+     not to what averaging predicts. */
+  fundVenture: [[0.10, 0.18], [0.15, 0.25], [0.25, 0.38], [0.25, 0.56], [0.15, 0.76]],
+
+  /* A fund also does not exit ONCE. It sells down over several years: distributions
+     build, peak, then tail off. For a tool whose whole job is to say WHEN cash arrives,
+     dropping a fund's entire proceeds into a single year is the larger error of the two.
+     Weights are offsets from the drawn exit year. They sum to 1, so staging moves money
+     between years without creating or destroying any. */
+  spreadVenture: [[-3, 0.10], [-2, 0.15], [-1, 0.20], [0, 0.25], [1, 0.18], [2, 0.12]],
+  /* Income funds sell down over a tighter window: the assets are stabilized and the
+     fund has a stated life it is working towards. */
+  spreadIncome: [[-2, 0.15], [-1, 0.25], [0, 0.35], [1, 0.25]],
+
+  /* A position is staged once it holds more than one underlying deal. It only earns the
+     FUND outcome table once it is genuinely diversified; below that it is a handful of
+     deals wearing a fund's name, and the single-deal power law still describes it. */
+  stageMinDeals: 2,
+  fundMinDeals: 20,
 
   /* Exits slip and nothing makes them early, so the window is skewed late. The final
      5% rung is not padding: funds extend, and leaving it out is how a calendar quietly
@@ -74,12 +111,27 @@ function buildBook(rows) {
     if (coupon > 0) exitMult = Math.max(0.2, moic - coupon * hold);
 
     const likely = parseInt(r.exitLikely, 10) || (fy + hold);
+    const kind = coupon > 0 ? 'income' : 'venture';
+
+    /* How many underlying deals does this position hold? One means an SPV or a single
+       company, and it behaves like a single deal however it is labelled. Blank means
+       one, because assuming diversification nobody declared would be inventing it. */
+    const deals = Math.max(1, Math.round(num(r.deals)) || 1);
+    const isFund = deals >= CFG.stageMinDeals;
+    const diversified = deals >= CFG.fundMinDeals;
+
+    // which outcome table, and does it scale the target or replace it
+    let branches = CFG.venture, scales = false;
+    if (kind === 'income') { branches = CFG.income; scales = true; }
+    else if (diversified) { branches = CFG.fundVenture; scales = true; }
+
     out.push({
       name: String(r.name || 'Unnamed'),
-      kind: coupon > 0 ? 'income' : 'venture',
+      kind,
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
-      exitMult,
+      exitMult, deals, isFund, diversified, branches, scales,
+      spread: isFund ? (kind === 'income' ? CFG.spreadIncome : CFG.spreadVenture) : null,
       earliest: parseInt(r.exitEarliest, 10) || (likely - Math.min(3, Math.max(1, Math.round(hold * 0.3)))),
       likely,
       latest: parseInt(r.exitLatest, 10) || (likely + 2),
@@ -166,11 +218,30 @@ function simulate(book, opts) {
     for (const b of book) {
       const off = pick(rnd, CFG.timing, 4);
       const ey = b.likely + off;
-      const branches = b.kind === 'income' ? CFG.income : CFG.venture;
-      let m = pick(rnd, branches, null);
-      if (m === null) m = b.exitMult;                 // top branch: the full exit
-      else if (b.kind === 'income') m = m * b.exitMult; // tight branches scale it
-      if (m > 0 && yr[ey] != null) yr[ey] += b.commitment * m;
+      let m = pick(rnd, b.branches, null);
+      if (m === null) m = b.exitMult;          // top branch: the full exit
+      else if (b.scales) m = m * b.exitMult;   // tight tables scale it
+      const cash = b.commitment * m;
+      if (!(cash > 0)) continue;
+      if (b.spread) {
+        /* A fund sells down over several years rather than exiting on one date.
+           The window can run off the front of the calendar -- a 2027 exit staged from
+           two years earlier starts in 2025 -- so the in-range weights are renormalised
+           rather than the stray tranche being dropped. Dropping it silently deleted
+           0.12% of the book's mean, which is exactly the kind of quiet leak that makes
+           a model untrustworthy. Renormalising keeps the total intact and avoids
+           inventing a spike on the boundary year. */
+        let wsum = 0;
+        for (const [d, w] of b.spread) if (yr[ey + d] != null) wsum += w;
+        if (wsum > 0) {
+          for (const [d, w] of b.spread) {
+            const y = ey + d;
+            if (yr[y] != null) yr[y] += cash * (w / wsum);
+          }
+        }
+      } else if (yr[ey] != null) {
+        yr[ey] += cash;
+      }
     }
     let run = 0, tot = 0;
     for (const y of years) {

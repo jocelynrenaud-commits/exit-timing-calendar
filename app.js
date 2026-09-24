@@ -22,6 +22,10 @@
      else's column names. Anything genuinely missing is REPORTED rather than
      guessed at: an invented input is how these models quietly become fiction. */
   const FIELDS = [
+    // deliberately FIRST, and deliberately multi-word. A bare 'deals' would be matched
+    // by the 'deal' prefix under 'name' and swallow the deal-name column.
+    ['deals',       ['deals in fund', 'underlying deals', 'number of deals',
+                     'portfolio companies', 'positions in fund', 'deal count']],
     ['name',        ['deal name', 'deal', 'name', 'investment', 'position']],
     ['assetClass',  ['asset class', 'class', 'type', 'sleeve type']],
     ['commitment',  ['commitment', 'committed', 'total commitment']],
@@ -148,18 +152,24 @@
       + '<p class="note">Exit proceeds run off the <b>commitment</b>, not off what is funded so far, because '
       + 'the whole commitment is called long before any exit lands. Anything paying a coupon exits on the '
       + '<b>residual</b> multiple: a sponsor MOIC already contains the coupon, so exiting at the full multiple '
-      + 'while also counting the coupon would count that cash twice.</p>'
-      + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Commitment</th><th>Uncalled</th>'
-      + '<th>Coupon</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Likely exit</th></tr>'
+      + 'while also counting the coupon would count that cash twice. A position holding more than one '
+      + 'underlying deal is a <b>fund</b>, and a fund does not exit on a single date, so its proceeds are '
+      + 'spread over the years around its exit rather than dropped into one. A venture fund holding '
+      + Engine.CFG.fundMinDeals + '+ deals also stops being priced like a single company.</p>'
+      + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
+      + '<th>Uncalled</th><th>Coupon</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
       + book.map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
         + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
         + (b.kind === 'venture' ? 'Venture' : esc(b.cls)) + '</td>'
+        + '<td class="' + (b.isFund ? 'b' : 'z') + '">' + (b.isFund ? b.deals : '1') + '</td>'
         + '<td>' + money(b.commitment) + '</td>'
         + '<td class="' + (b.uncalled > 0 ? 'neg' : 'z') + '">' + (b.uncalled > 0 ? money(b.uncalled) : DASH) + '</td>'
         + '<td class="' + (b.coupon ? 'pos' : 'z') + '">' + (b.coupon ? (b.coupon * 100).toFixed(1) + '%' : DASH) + '</td>'
         + '<td>' + mult(b.moic) + '</td>'
         + '<td class="b">' + mult(b.exitMult) + '</td>'
-        + '<td>' + b.likely + '</td></tr>').join('')
+        + '<td>' + (b.spread
+            ? (b.likely + b.spread[0][0]) + '-' + (b.likely + b.spread[b.spread.length - 1][0])
+            : b.likely) + '</td></tr>').join('')
       + '</table></div>';
 
     /* year by year */
@@ -308,6 +318,12 @@
         + 'mixing them is the commonest way a table like this overstates by most of its own value.'],
       ['Coupon versus multiple', 'A sponsor MOIC already contains the coupon paid along the way, so anything '
         + 'paying a coupon exits here on the residual. Otherwise that cash gets counted twice.'],
+      ['A fund is not a big deal', 'Say how many underlying deals a position holds and it stops being treated '
+        + 'as one. Funds sell down over several years rather than exiting on a date, so their proceeds are '
+        + 'spread across the years around the exit. A venture fund holding ' + Engine.CFG.fundMinDeals + '+ '
+        + 'companies also gets its own outcome table, because the single-deal power law carries a 30% chance '
+        + 'of returning zero and a fund that size cannot do that. Leave the column blank and the position is '
+        + 'treated as a single deal, which is the cautious reading.'],
       ['What this assumes', 'That the coupon always pays, and that deals fail independently of one another. '
         + 'Both are optimistic. A sponsor can suspend a preferred return, and in a real downturn outcomes move '
         + 'together, which would make the blended picture less flattering than it looks.'],

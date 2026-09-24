@@ -32,6 +32,7 @@ probably work as-is.
 | Hold (yrs) | Stated fund life or hold period |
 | Coupon % | Preferred return or credit coupon. Blank for venture |
 | Sponsor MOIC | The multiple the sponsor projects |
+| Deals in fund | How many investments the position holds. 1, or blank, for a single company |
 
 Anything missing is **reported, never guessed at**. An invented input is how these
 models quietly become fiction.
@@ -52,7 +53,22 @@ render.
 **Lifetime totals.** Bad run, typical, average and good run, with profit measured against
 the full commitment rather than the uncalled balance.
 
-## Three rules it enforces, each learned the hard way
+## Four rules it enforces, each learned the hard way
+
+**A fund is not one big deal.** Say how many investments a position holds and it stops being
+priced like a single company. The single-deal power law carries a 30% chance of returning
+zero, which is fair for an SPV and impossible for a fund of twenty: that outcome would need
+all twenty to fail at once. Published fund data contains no 0.00x at all. So a venture fund
+of 20+ gets its own outcome table, fitted to fund TVPI benchmarks — 10th percentile 0.70x,
+median 1.50x, 90th 3.00x — with the sponsor's own target sitting around the 95th percentile,
+which is where a target belongs.
+
+A fund also does not exit on a date. It sells down over several years, so any position holding
+more than one deal has its proceeds spread across the years around its exit rather than dropped
+into one. That moves money between years without creating or destroying any, which the test
+suite checks to the cent. Leave the column blank and the position is treated as a single deal,
+because assuming diversification nobody declared would be inventing it.
+
 
 **Commitment, not funded.** Exit proceeds run off the full commitment, because the whole
 commitment is called long before any exit lands. Using funded-to-date understated one real
