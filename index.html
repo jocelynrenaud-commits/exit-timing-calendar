@@ -63,8 +63,22 @@
   .ver{position:fixed;left:12px;bottom:12px;z-index:20;font-family:var(--mono);
        font-size:11px;letter-spacing:.02em;color:var(--muted);background:rgba(255,255,255,.92);
        border:1px solid var(--rule);border-radius:999px;padding:4px 11px;opacity:.72;
-       transition:opacity .15s;pointer-events:auto;user-select:text}
-  .ver:hover{opacity:1}
+       transition:opacity .15s;cursor:pointer;user-select:none}
+  .ver:hover{opacity:1;border-color:#B9C6D8}
+  .ver:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  /* release notes */
+  .mask{position:fixed;inset:0;z-index:40;background:rgba(20,26,34,.45);
+        display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal{background:var(--card);border-radius:12px;max-width:680px;width:100%;
+         max-height:86vh;overflow:auto;padding:26px 28px;box-shadow:0 18px 50px rgba(20,26,34,.28)}
+  .modal h3{margin:0 0 2px;font-size:21px;color:var(--navy)}
+  .modal .when{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 18px}
+  .modal h4{margin:20px 0 6px;font-size:15px;color:var(--ink)}
+  .modal p{margin:0 0 10px;font-size:14.5px;line-height:1.66;color:#36424F}
+  .modal .rel{border-top:1px solid var(--rule);padding-top:16px;margin-top:20px}
+  .modal .tag{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--muted);
+              border:1px solid var(--rule);border-radius:999px;padding:2px 9px;margin-bottom:8px}
+  .modal .close{margin-top:22px}
   @media (max-width:700px){ .wrap{padding:18px 12px 60px} h1{font-size:24px} .glos{display:block} .glos .t{margin-bottom:4px}
     .ver{left:8px;bottom:8px;font-size:10px;padding:3px 9px} }
 </style>
@@ -101,7 +115,59 @@
   </footer>
 </div>
 
-<div class="ver" id="ver" title="Model version. Two runs from different versions are not comparable."></div>
+<button class="ver" id="ver" type="button" title="What changed, and when"></button>
+
+<div class="mask hidden" id="relMask">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="relTitle">
+    <h3 id="relTitle">What&rsquo;s new</h3>
+    <p class="when" id="relWhen"></p>
+
+    <p>Every time the maths behind this tool changes, the version at the bottom of the
+      page changes with it. It is worth knowing which one you were looking at, because
+      two answers produced by different versions are not directly comparable.</p>
+
+    <div class="rel">
+      <span class="tag">v1.1 &nbsp;&middot;&nbsp; 24 Sep 2026</span>
+      <h4>Funds are no longer treated like single deals</h4>
+      <p>A fund that holds twenty or thirty companies behaves nothing like a single
+        company, and the first version priced them the same way. The old maths gave every
+        venture position a 30% chance of returning nothing. For one company that is fair.
+        For a fund of twenty it would take every company in it failing at once, which has
+        never happened to a real fund.</p>
+      <p>Funds now use their own set of odds, taken from what venture funds have actually
+        returned rather than from anything invented here. A useful side effect: it puts the
+        sponsor&rsquo;s own target multiple at roughly the top 5% of outcomes, which is
+        where a target belongs. Something to aim at, not the expected result.</p>
+
+      <h4>Funds pay out over several years, not all on one day</h4>
+      <p>A fund sells its holdings gradually, so the cash arrives over a stretch of years.
+        The tool used to drop the whole lot into a single year, which for something meant
+        to be a calendar was the bigger mistake of the two. Anything holding more than one
+        deal now spreads its payout across the years around its exit.</p>
+      <p>This moves no money. It only puts it in the right years, and your lifetime totals
+        come out exactly the same either way.</p>
+
+      <h4>What you need to do</h4>
+      <p>There is a new column in the tracker called <b>Deals in fund</b>. Put 1 there, or
+        leave it empty, and nothing changes from before. Put the real number in and your
+        funds stop being priced like single companies. If you are not sure how many the
+        fund holds, ask the sponsor.</p>
+      <p>A single company being bought is still one event on one date, so leave those at 1.</p>
+    </div>
+
+    <div class="rel">
+      <span class="tag">v1.0 &nbsp;&middot;&nbsp; 22 Sep 2026</span>
+      <h4>First public release</h4>
+      <p>Drop in a tracker and get a year-by-year picture of when cash might arrive, how
+        much has arrived by any given year, what the whole book returns over its life, and
+        the shape of the distribution behind all of it.</p>
+    </div>
+
+    <div class="close">
+      <button type="button" id="relClose">Close</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="engine.js"></script>

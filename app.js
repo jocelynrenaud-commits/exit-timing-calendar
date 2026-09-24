@@ -383,8 +383,20 @@
 
   // the badge reads the engine's own version, so the label cannot drift from the model
   (function () {
-    const el = $('#ver');
-    if (el) el.textContent = Engine.CFG.version + ' · ' + Engine.CFG.released;
+    const el = $('#ver'), mask = $('#relMask');
+    if (!el) return;
+    el.textContent = Engine.CFG.version + ' · ' + Engine.CFG.released;
+    if (!mask) return;
+    const when = $('#relWhen');
+    if (when) when.textContent = 'You are on ' + Engine.CFG.version
+      + ', released ' + Engine.CFG.released + '.';
+    const open = () => mask.classList.remove('hidden');
+    const shut = () => mask.classList.add('hidden');
+    el.onclick = open;
+    $('#relClose').onclick = shut;
+    // clicking the backdrop closes; clicking inside the panel must not
+    mask.onclick = (e) => { if (e.target === mask) shut(); };
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') shut(); });
   })();
 
   $('#pick').onclick = () => $('#file').click();
