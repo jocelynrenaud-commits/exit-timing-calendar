@@ -69,6 +69,10 @@
   /* release notes */
   .mask{position:fixed;inset:0;z-index:40;background:rgba(20,26,34,.45);
         display:flex;align-items:center;justify-content:center;padding:20px}
+  /* .hidden is declared earlier in this sheet, so on equal specificity .mask's
+     display:flex won it and the dialog opened on load and would not close. Two
+     classes beat one, so this is the rule that actually decides it. */
+  .mask.hidden{display:none}
   .modal{background:var(--card);border-radius:12px;max-width:680px;width:100%;
          max-height:86vh;overflow:auto;padding:26px 28px;box-shadow:0 18px 50px rgba(20,26,34,.28)}
   .modal h3{margin:0 0 2px;font-size:21px;color:var(--navy)}
