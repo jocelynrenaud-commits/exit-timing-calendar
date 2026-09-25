@@ -32,8 +32,10 @@ const CFG = {
        v1.4  bug sweep: short names no longer inherit another deal's terms; quotes in a
              deal name no longer break its card
        v1.5  a Fund / Single deal column, said outright instead of inferred; Asilia's
-             shared terms flagged as under review after a holder caught them */
-  version: 'v1.5',
+             shared terms flagged as under review after a holder caught them
+       v1.6  Asilia rebuilt from the April 2026 offering, ACFE split into its own file,
+             and an ambiguous name now matches nothing rather than guessing */
+  version: 'v1.6',
   released: '24 Sep 2026',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
@@ -384,16 +386,25 @@ function matchDeal(name, index) {
   const n = String(name || '').trim().toLowerCase();
   if (!n || !index || !index.deals) return null;
   let best = null;
+  const hits = new Set();
   for (const d of index.deals) {
     for (const a of (d.aliases || [d.name])) {
       const al = String(a).trim().toLowerCase();
       if (!al) continue;
       if (n === al) return d;                                  // exact wins outright
       if (n.length < MIN_FUZZY || al.length < MIN_FUZZY) continue;
-      if ((n.startsWith(al) || al.startsWith(n)) &&
-          (!best || al.length > best._len)) best = Object.assign({ _len: al.length }, d);
+      if (n.startsWith(al) || al.startsWith(n)) {
+        hits.add(d.slug);
+        if (!best || al.length > best._len) best = Object.assign({ _len: al.length }, d);
+      }
     }
   }
+  /* AMBIGUITY WINS NOTHING. "Asilia" prefixes both the GC Fund and Asilia Credit Fund
+     Evergreen, which are different vehicles with different terms. Picking the longer
+     alias would attach one of them silently and look confident about it. When more than
+     one deal is in play the honest answer is none: the holder types their own terms, or
+     writes the fuller name. Only an EXACT match is allowed to resolve this. */
+  if (hits.size > 1) return null;
   return best;
 }
 

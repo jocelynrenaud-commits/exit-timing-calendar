@@ -1,0 +1,39 @@
+{
+  "slug": "asilia-credit-fund-evergreen",
+  "name": "Asilia Credit Fund Evergreen",
+  "aliases": [
+    "Asilia Credit Fund Evergreen",
+    "Asilia Credit Evergreen Fund",
+    "Asilia Credit Evergreen",
+    "ACFE",
+    "ACEF"
+  ],
+  "sponsor": "Asilia Credit Investments",
+  "assetClass": "Private Credit",
+  "vehicle": "Fund",
+  "subStrategy": "Senior secured private credit, evergreen",
+  "terms": {
+    "couponPct": 0.135,
+    "couponNote": "Targets 12-15% through senior secured lending. Quarterly. Holders of the standalone offering report the high teens; check your own statements, and type over this if yours differs.",
+    "holdYears": 8,
+    "holdNote": "Evergreen, so there is no fixed end date and no wind-down. 8 years is used only so the tool has a horizon to work with. If your documents say otherwise, type over it.",
+    "sponsorMoic": null,
+    "sponsorMoicNote": "There is no exit multiple to quote. This vehicle returns cash, not a sale.",
+    "mgmtFee": 0.005,
+    "carry": "20%",
+    "minimum": 400000,
+    "minimumNote": "$400k for Growth Circle members, negotiated down from $1M. This was the December offering, before the $100k GC Fund."
+  },
+  "liquidity": null,
+  "dealsInFund": null,
+  "singleCompany": false,
+  "structure": "The conservative sleeve on its own, and the flagship of the platform. Senior secured lending to mature, cash-flowing businesses, secured against inventory, equipment and other tangible assets at roughly 30-40% loan to value. Borrowers pay monthly regardless of performance. Around 13 portfolio companies, heading for 20-30. This is NOT the three-sleeve GC Fund: no Walnut, no Opportunistic, and no 8-year wind-down.",
+  "notes": [
+    "This file exists because a holder pointed out that the Asilia GC Fund and this are different vehicles and were being confused. They are.",
+    "Evergreen means the model cannot give you a meaningful exit multiple or payout window. What it can do is show the quarterly income. Read the outlook tab with that in mind.",
+    "The fund can generate UBTI, which matters in a self-directed IRA."
+  ],
+  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+  "asOf": "2026-09-24",
+  "source": "Described within the April 2026 GC Fund materials and Braiden's underwrite. The standalone December offering documents are NOT in hand, so the coupon and minimum here are the least certain numbers in any of these files. Type over them."
+}

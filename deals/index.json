@@ -44,12 +44,14 @@
       "name": "Asilia GC Fund",
       "aliases": [
         "Asilia GC Fund",
-        "Asilia",
-        "Asilia GC Fund QP, LP"
+        "Asilia GC Fund, LP",
+        "Asilia GC Fund QP, LP",
+        "Asilia Growth Circle Fund",
+        "AGCF"
       ],
       "assetClass": "Private Credit",
       "vehicle": "Fund",
-      "sponsor": "Asilia"
+      "sponsor": "Asilia Credit Investments"
     },
     {
       "slug": "spacestation-fund",
@@ -147,6 +149,20 @@
       "assetClass": "VC",
       "vehicle": "SPV",
       "sponsor": "Spacestation 88 / Spacestation Investments 1, LLC"
+    },
+    {
+      "slug": "asilia-credit-fund-evergreen",
+      "name": "Asilia Credit Fund Evergreen",
+      "aliases": [
+        "Asilia Credit Fund Evergreen",
+        "Asilia Credit Evergreen Fund",
+        "Asilia Credit Evergreen",
+        "ACFE",
+        "ACEF"
+      ],
+      "assetClass": "Private Credit",
+      "vehicle": "Fund",
+      "sponsor": "Asilia Credit Investments"
     }
   ]
 }

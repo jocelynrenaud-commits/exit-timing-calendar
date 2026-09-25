@@ -3,37 +3,43 @@
   "name": "Asilia GC Fund",
   "aliases": [
     "Asilia GC Fund",
-    "Asilia",
-    "Asilia GC Fund QP, LP"
+    "Asilia GC Fund, LP",
+    "Asilia GC Fund QP, LP",
+    "Asilia Growth Circle Fund",
+    "AGCF"
   ],
-  "sponsor": "Asilia",
+  "sponsor": "Asilia Credit Investments",
   "assetClass": "Private Credit",
   "vehicle": "Fund",
-  "subStrategy": "Evergreen credit fund of funds, three sleeves",
+  "subStrategy": "Fund of funds, three sleeves",
   "terms": {
     "couponPct": 0.12,
-    "couponNote": "Quarterly cash coupon, DRIP-able.",
+    "couponNote": "Quarterly cash distributions, beginning immediately. 12% annual cash plus roughly 11% from equity kickers is the 23.08% blended base-case IRR.",
     "holdYears": 8,
-    "holdNote": "8-year term, 5-year lockup, 5% quarterly redemption gate.",
-    "equityKicker": 0.4,
-    "sponsorMoic": 3.27,
+    "holdNote": "8 years total and NO extension: 5 years of deployment and growth, then a 3-year harvest and wind-down. Hard stop with full liquidation required.",
+    "sponsorMoic": 5.27,
+    "sponsorMoicNote": "Base case, 23.08% IRR over 8 years. Stress case 2.59x / 10.0% IRR over 10 years. Upside 6.35x / 26.0% IRR.",
     "mgmtFee": 0.013,
-    "carry": "~30% over a 6% compounded hurdle",
-    "ubtiDrag": 0.065,
+    "carry": "30% (Class B). Class A at $400k+ drops the fund-of-funds overlay: 1.2% and 20%.",
     "minimum": 100000,
-    "minimumNote": "$1M standard; $100k through GC access."
+    "minimumNote": "$100k for Growth Circle members, negotiated down from a $1M industry standard. Class B under $400k, Class A at $400k and above.",
+    "capitalCalls": "10-15% at first close, then 5-10% quarterly over a 2-3 year deployment. Five business days notice. Up to 100% is callable."
   },
   "liquidity": {
-    "fromYear": 5,
+    "fromYear": 6,
     "toYear": 8,
-    "source": "GP stated: equity kickers realised years 5-8"
+    "source": "Equity kickers are realised in the 3-year harvest that follows the 5-year deployment. The quarterly cash distribution runs from year one and is counted separately"
   },
   "dealsInFund": null,
   "singleCompany": false,
-  "structure": "Credit fund. The three-sleeve description below is from the first offering and is being confirmed against the current one. Asilia Credit Evergreen Fund is a different vehicle: one conservative sleeve, no exit, high-teens annual return.",
+  "structure": "A fund of funds across three sleeves: ACFE senior secured credit at 35%, Walnut mid-cap debt with equity participation at 35%, and Opportunistic equity-heavy deals at 30%. There is no trade sale at the end. The return is quarterly cash while you wait, then equity kickers realised as the portfolio winds down.",
+  "notes": [
+    "ACFE is a SEPARATE vehicle as well as a sleeve inside this one. If you hold the standalone Asilia Credit Fund Evergreen, use that file instead: one conservative sleeve, evergreen, no fixed end date.",
+    "Administrator UMB Fund Administration, auditor Eide Bailly. Delaware LP with parallel accredited 3(c)(1) and qualified-purchaser 3(c)(7) vehicles.",
+    "The fund can generate UBTI, which matters in a self-directed IRA. Run the after-tax number.",
+    "No single investment above 40% without LPAC or majority approval."
+  ],
   "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
   "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC.",
-  "provisional": true,
-  "provisionalNote": "TERMS UNDER REVIEW. These were taken from the FIRST offering. A holder has flagged that the current Asilia GC Fund offering differs, and that Asilia Credit Evergreen Fund (ACEF) is a SEPARATE vehicle: one conservative sleeve rather than three, no exit, and a stated annual return in the high teens. Check your own subscription documents before relying on anything here, and type over any field that does not match. Your own numbers always win."
+  "source": "April 2026 GC presentation, the GC refreshed analysis, Braiden's underwrite, and the 23 April 2026 Q&A notes. Read by a holder, not verified by GC."
 }
