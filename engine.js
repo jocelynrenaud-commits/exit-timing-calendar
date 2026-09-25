@@ -35,9 +35,19 @@ const CFG = {
              shared terms flagged as under review after a holder caught them
        v1.6  Asilia rebuilt from the April 2026 offering, ACFE split into its own file,
              and an ambiguous name now matches nothing rather than guessing
-       v1.7  the cone of outcomes, and a card that says which figures you typed over */
-  version: 'v1.7',
+       v1.7  the cone of outcomes, and a card that says which figures you typed over
+       v1.8  three reading bugs found by a new regression suite: "8%" typed as text was
+             read as 800%, a column headed "Type" lost its asset class, and a column
+             headed "Funded year" was read as an amount */
+  version: 'v1.8',
   released: '25 Sep 2026',
+
+  /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
+     It was being conflated with the app's: v1.7 changed no columns, so the app's
+     "older tracker" notice started telling people to look for a v1.7 stamp in a file that
+     correctly says v1.6, and the only way to satisfy it would have been to make everyone
+     re-download a spreadsheet identical to the one they already had. */
+  trackerVersion: 'v1.6',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
      projected multiple. That number is what the deal returns IF IT WORKS; using it as
@@ -209,8 +219,18 @@ function liqSpread(hold, win) {
 function num(v) {
   if (v == null || v === '') return 0;
   if (typeof v === 'number') return v;
-  const n = parseFloat(String(v).replace(/[$,%\s]/g, ''));
-  return isFinite(n) ? n : 0;
+  const raw = String(v).trim();
+  const n = parseFloat(raw.replace(/[$,%\s]/g, ''));
+  if (!isFinite(n)) return 0;
+  /* A PERCENT SIGN MEANS PERCENT.
+     This used to strip the sign and keep the number, so "8%" became 8 -- a coupon of 800%
+     a year, on a book that still rendered perfectly. Excel hides the problem, because a
+     percent-formatted cell holds 0.08 and arrives here as a number. A CSV does not: export
+     that same cell from Numbers or Excel and it is written out as the TEXT "8%", which is
+     the documented route for anyone on a Mac. So the bug only ever hit the members least
+     able to spot it. */
+  if (/%/.test(raw)) return n / 100;
+  return n;
 }
 
 /* Capital calls are contractual, so they are deterministic and never simulated.

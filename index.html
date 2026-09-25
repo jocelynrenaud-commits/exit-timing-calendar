@@ -138,6 +138,33 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.8 &nbsp;&middot;&nbsp; 25 Sep 2026</span>
+      <h4>Three reading bugs, found by pointing a new test suite at the spreadsheet</h4>
+      <p>None of these could be seen on screen. The page rendered normally in every case,
+        which is what made them worth finding.</p>
+      <p><b>A percentage typed as text was read as a whole number.</b> If your coupon cell
+        contained the text <code>8%</code> rather than a number formatted as a percentage,
+        it was read as <b>8</b> &mdash; a preferred return of 800% a year. Excel usually
+        hides this, because a percent-formatted cell really holds 0.08. A <b>CSV does
+        not</b>: export that same cell and it is written out as the text &ldquo;8%&rdquo;.
+        That is the route anyone on a Mac was told to take, so this only ever hit the people
+        least able to spot it. If your book showed absurd income, this was why. Reload and
+        drop your file again.</p>
+      <p><b>A column headed &ldquo;Type&rdquo; lost its asset class.</b> When the Fund /
+        Single deal column arrived in v1.5 it claimed &ldquo;Type&rdquo; as one of its
+        names, and took it off the asset-class column, which had used it since the
+        beginning. Trackers predating v1.5 were the ones affected &mdash; the people who had
+        been using the tool longest.</p>
+      <p><b>A column headed &ldquo;Funded year&rdquo; was read as an amount.</b> It starts
+        with the word &ldquo;funded&rdquo;, so it was matched to funded-to-date: a year of
+        2026 became $2,026 paid in, and the position then showed an uncalled balance that
+        did not exist.</p>
+      <p><b>Also:</b> the tracker now carries its own version number, separate from the
+        app&rsquo;s. They were the same number, so a release that changed no columns was
+        telling people to go and find a stamp that did not exist in the file they already
+        had. Your tracker is current at <b>v1.6</b>; you do not need a new one.</p>
+    </div>
+    <div class="rel">
       <span class="tag">v1.7 &nbsp;&middot;&nbsp; 25 Sep 2026</span>
       <h4>The cone of outcomes, and a card that says what you typed over</h4>
       <p><b>A new chart under the cumulative table on Liquidity Outlook.</b> That table is

@@ -70,15 +70,24 @@
     // through eight" can say exactly that; leaving them blank uses the default rule.
     // Fund or Single deal, said outright. Clearer than asking for a count, and it is
     // what people already know about their own positions.
-    ['vehicle',     ['fund or single', 'fund / single', 'type', 'vehicle', 'fund?', 'structure']],
+    /* 'type' is deliberately NOT here. It was, and because `vehicle` is matched before
+       `assetClass`, it took the column off it -- so a tracker predating v1.5, where a
+       column headed "Type" holds "Real Estate", had its asset class read as a vehicle and
+       its asset class left blank. The people most affected were the ones who had been
+       using the tool longest. */
+    ['vehicle',     ['fund or single', 'fund / single', 'vehicle', 'fund?', 'structure']],
     ['liqFrom',     ['liquidity from', 'payout from', 'sell-down from', 'distributions from']],
     ['liqTo',       ['liquidity to', 'payout to', 'sell-down to', 'distributions to']],
     ['name',        ['deal name', 'deal', 'name', 'investment', 'position']],
     ['assetClass',  ['asset class', 'class', 'type', 'sleeve type']],
     ['commitment',  ['commitment', 'committed', 'total commitment']],
+    /* BEFORE `funded`, and it has to stay there. Matching is by prefix, so a column headed
+       "Funded year" starts with "funded" and was being read as the funded AMOUNT: a year
+       of 2026 became $2,026 paid in, and the position then showed a six-figure uncalled
+       balance that did not exist. */
+    ['yearFunded',  ['year funded', 'funded year', 'vintage', 'year']],
     ['funded',      ['funded to date', 'funded', 'paid in', 'contributed']],
     ['uncalled',    ['uncalled', 'unfunded', 'remaining', 'callable']],
-    ['yearFunded',  ['year funded', 'funded year', 'vintage', 'year']],
     ['hold',        ['hold', 'hold (yrs)', 'hold years', 'term', 'fund life', 'horizon']],
     ['coupon',      ['coupon', 'coupon %', 'preferred', 'pref', 'preferred return']],
     ['moic',        ['sponsor moic', 'moic', 'multiple', 'expected moic', 'target multiple']],
@@ -165,7 +174,7 @@
       + 'wasted. A newer one adds a few optional columns: whether a position is a fund or a '
       + 'single deal, when a sponsor says it pays out, and your own note on why you did it. '
       + 'All of them can be left blank. The current tracker is marked '
-      + Engine.CFG.version + ' in the top-left cell of its Positions tab.</div>';
+      + Engine.CFG.trackerVersion + ' in the top-left cell of its Positions tab.</div>';
   }
 
   /* ── panels ──────────────────────────────────────────────────────────────── */
