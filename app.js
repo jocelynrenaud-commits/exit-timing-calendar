@@ -9,7 +9,13 @@
   const $ = (s) => document.querySelector(s);
   const money = (v) => (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
   const mult = (v) => v.toFixed(2) + 'x';
-  const pct = (v) => (v * 100).toFixed(0) + '%';
+  /* A whole percent where the number is whole, one decimal where it is not. It printed
+     Asilia's 1.3% management fee as "1%" on the same card that spelled out "1.2% and 20%"
+     two lines below, so the card disagreed with itself. */
+  const pct = (v) => {
+    const p = v * 100;
+    return (Math.abs(p - Math.round(p)) < 0.05 ? p.toFixed(0) : p.toFixed(1)) + '%';
+  };
   /* Quotes are escaped too, not just angle brackets. A deal card writes the name into a
      data- attribute AND reads it back to decide which card is open, so a name like
      O'Brien's "Fund" used to truncate the attribute at its first inner quote: the card
@@ -317,10 +323,24 @@
     });
   }
 
+  /* One override line can be a rate, a multiple, a count of years or a window, so the shared
+     file's raw value is formatted the same way the holder's is -- otherwise 0.12 sits beside
+     12% and reads as a third disagreement. */
+  function ovrVal(o, v) {
+    if (o.fmt === 'window') return 'years ' + v[0] + '–' + v[1];
+    const n = Number(v);
+    if (o.fmt === 'pct' && isFinite(n)) return pct(n);
+    if (o.fmt === 'mult' && isFinite(n)) return mult(n);
+    if (o.fmt === 'years' && isFinite(n)) return n + ' yrs';
+    if (o.fmt === 'num' && isFinite(n)) return String(n);
+    return esc(String(v));
+  }
+
   function dealCard(x) {
     const open = !!OPEN[x.name];
     const d = x.deal;
     const e = expectedOf(x);
+    const ovr = x.overrides || [];
     const row = (l, v, cls) => '<div style="display:flex;justify-content:space-between;gap:16px;'
       + 'padding:5px 0;font-size:13px"><span style="color:var(--muted)">' + l + '</span>'
       + '<span class="' + (cls || '') + '" style="font-family:var(--mono);text-align:right">'
@@ -333,6 +353,9 @@
       + '<b style="flex:1">' + esc(x.name) + '</b>'
       + (d ? '<span style="font-size:10px;letter-spacing:.05em;color:var(--muted);border:1px solid '
              + 'var(--rule);border-radius:999px;padding:2px 8px">SHARED</span>' : '')
+      + (ovr.length ? '<span style="font-size:10px;letter-spacing:.05em;color:#9A5B14;border:1px solid '
+             + '#E6C79A;background:#FDF6EE;border-radius:999px;padding:2px 8px">YOURS &times; '
+             + ovr.length + '</span>' : '')
       + '<span style="font-family:var(--mono);font-size:13px">' + money(x.commitment) + '</span>'
       + '<span style="font-family:var(--mono);font-size:12px;color:var(--muted);width:92px;'
       + 'text-align:right">' + payWindow(x) + '</span>'
@@ -380,6 +403,29 @@
           h += '<p class="note" style="margin-top:6px">Pays out over years '
             + d.liquidity.fromYear + ' to ' + d.liquidity.toYear + ' from funding. '
             + '<span style="color:var(--muted)">' + esc(d.liquidity.source) + '.</span></p>';
+        }
+        /* WHERE THE SHEET AND THE FILE DISAGREE.
+           Your value is the one the model ran on, and that does not change. What changes is
+           that the disagreement is now visible: a deliberate haircut and a figure that went
+           stale when the sponsor's terms were corrected used to look exactly alike, which is
+           how a 5-to-8 window sat under a deal whose documents said 6 to 8 for a day. */
+        if (ovr.length) {
+          h += '<div style="margin:16px 0 4px;border:1px solid #E6C79A;background:#FDF6EE;'
+            + 'border-radius:8px;padding:11px 13px">'
+            + '<div style="font-size:13px;font-weight:700;color:#7A4A15;margin-bottom:2px">'
+            + 'You typed over the shared file on ' + ovr.length
+            + (ovr.length === 1 ? ' field' : ' fields') + '</div>'
+            + '<p class="note" style="margin:0 0 8px;color:#7A4A15">Your figure is what ran. '
+            + 'This is here so a number you chose on purpose does not look the same as one that '
+            + 'went stale after the sponsor terms were corrected.</p>'
+            + ovr.map((o) => '<div style="display:flex;justify-content:space-between;gap:16px;'
+                + 'padding:4px 0;font-size:13px;border-top:1px solid #F0DFC9">'
+                + '<span style="color:#7A4A15">' + esc(o.label) + '</span>'
+                + '<span style="font-family:var(--mono);text-align:right;color:#7A4A15">'
+                + '<b>' + ovrVal(o, o.yours) + '</b>'
+                + '<span style="color:var(--muted)"> &nbsp;shared file: ' + ovrVal(o, o.shared)
+                + '</span></span></div>').join('')
+            + '</div>';
         }
       }
       if (x.thesis) {
@@ -543,6 +589,32 @@
         + '<td class="pos">' + money(r.p90) + '</td></tr>').join('')
       + '</table></div>';
 
+    /* the same rows, as a shape */
+    if (cumRows.length > 1) {
+      const raw = MODE === 'venture' ? '#7B5EA7' : MODE === 'income' ? '#B17930' : '#2E6B52';
+      const be = (key) => {
+        const hit = cumRows.find((r) => r[key] >= T.committed);
+        return hit ? hit.year : null;
+      };
+      const beMid = be('p50'), beGood = be('p90'), beBad = be('p10');
+      const says = beMid
+        ? 'The median crosses it in <b>' + beMid + '</b>'
+        : 'The median never crosses it inside the calendar';
+      const edges = beGood
+        ? ', a good run in ' + beGood + (beBad ? ' and a bad one in ' + beBad : ' and a bad run not at all')
+        : '';
+      h += '<div class="card"><h2>The cone of outcomes</h2>'
+        + '<p class="note">The table above, drawn. The shaded band is the range from a bad future to a '
+        + 'good one and the line through it is the typical future; the band widening is the point, '
+        + 'because it is the honest picture of how little is settled early and how much is settled late. '
+        + 'The dashed line is getting your money back.</p>'
+        + coneChart(cumRows, T.committed, raw)
+        + '<p class="note" style="margin-top:10px">' + says + edges + '. Read the band as a range of '
+        + 'whole futures rather than a range for that year on its own: each simulated future was '
+        + 'totalled first and the totals ranked once, so the bottom edge is one coherent bad run '
+        + 'rather than a bad year stitched to a bad year.</p></div>';
+    }
+
     /* lifetime */
     const line = (lbl, v, bold) => {
       const profit = v - T.committed;
@@ -577,6 +649,113 @@
   }
   function kpi(label, val, cls) {
     return '<div><small>' + label + '</small><span class="' + (cls || '') + '">' + val + '</span></div>';
+  }
+
+  /* THE CONE.
+     The table above is exact and unreadable at a glance: seventeen rows of three columns,
+     and the thing you actually want from it -- how fast the spread between a bad future and
+     a good one opens up -- is a shape, not a number. Drawn from the SAME cumulative rows the
+     table prints, so the two can never disagree; the band is the 10th to 90th percentile and
+     the line through it is the median. Inline SVG, so there is no chart library to load.
+
+     These are cumulative percentiles, which is the only kind that may be read down a column:
+     each simulated future is totalled first and the totals are ranked once. So the bad edge
+     is one coherent bad future, not a bad year stitched to a bad year. */
+  function coneChart(rows, committed, raw) {
+    const W = 880, H = 320, L = 70, R = 104, T = 22, B = 48;
+    const iw = W - L - R, ih = H - T - B;
+    const y0 = rows[0].year, y1 = rows[rows.length - 1].year;
+    const span = Math.max(1, y1 - y0);
+    /* Round gridlines. Scaling the tallest value by 1.08 and quartering it gives ticks at
+       $456k and $913k, which are numbers nobody thinks in. Snap the step to 1, 2, 2.5 or 5
+       times a power of ten and let the top of the axis follow from it. */
+    const want = Math.max(rows[rows.length - 1].p90, committed) * 1.08;
+    const mag = Math.pow(10, Math.floor(Math.log10(want / 4)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((v) => v * 4 >= want) || mag * 10;
+    const ticks = Math.ceil(want / step);
+    const top = step * ticks;
+    const X = (yr) => L + iw * ((yr - y0) / span);
+    const Y = (v) => T + ih - (v / top) * ih;
+    /* A 2,500 step printed as "$3k" while the gridline sat at 2,500, which is a chart
+       lying about its own axis. One decimal where the number needs it, none where it does
+       not. */
+    const shortMoney = (v) => (
+      v >= 1e6 ? '$' + (v / 1e6).toFixed(v % 1e6 === 0 ? 0 : 1) + 'M'
+      : v >= 1e3 ? '$' + (v / 1e3).toFixed(v < 1e4 && v % 1e3 !== 0 ? 1 : 0) + 'k'
+      : '$' + Math.round(v));
+
+    let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" '
+      + 'role="img" aria-label="Cumulative proceeds by year, 10th to 90th percentile band">';
+
+    for (let g = 0; g <= ticks; g++) {
+      const gv = step * g, gy = Y(gv);
+      s += '<line x1="' + L + '" y1="' + gy + '" x2="' + (L + iw) + '" y2="' + gy + '" stroke="#EDF1F6"/>'
+        + '<text x="' + (L - 8) + '" y="' + (gy + 3.5) + '" text-anchor="end" font-size="10" '
+        + 'fill="#6B7A8C">' + shortMoney(gv) + '</text>';
+    }
+
+    const every = span > 12 ? 2 : 1;
+    rows.forEach((r, i) => {
+      if (i % every && i !== rows.length - 1) return;
+      s += '<text x="' + X(r.year) + '" y="' + (H - 26) + '" text-anchor="middle" font-size="10" '
+        + 'fill="#6B7A8C">' + r.year + '</text>';
+    });
+
+    /* the band: out along the good edge, back along the bad one */
+    let d = 'M' + X(rows[0].year) + ' ' + Y(rows[0].p90);
+    rows.forEach((r) => { d += ' L' + X(r.year) + ' ' + Y(r.p90); });
+    for (let i = rows.length - 1; i >= 0; i--) d += ' L' + X(rows[i].year) + ' ' + Y(rows[i].p10);
+    s += '<path d="' + d + ' Z" fill="' + raw + '" opacity="0.13"/>';
+
+    const line = (key, w, op, dash) => {
+      let q = '';
+      rows.forEach((r, i) => { q += (i ? ' L' : 'M') + X(r.year) + ' ' + Y(r[key]); });
+      return '<path d="' + q + '" fill="none" stroke="' + raw + '" stroke-width="' + w
+        + '" opacity="' + op + '" stroke-linejoin="round" stroke-linecap="round"'
+        + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/>';
+    };
+    s += line('p90', 1.6, 0.55) + line('p10', 1.6, 0.55) + line('p50', 2.4, 1);
+
+    /* money back, which is the line the cone has to clear before any of this is a return */
+    const cy = Y(committed);
+    s += '<line x1="' + L + '" y1="' + cy + '" x2="' + (L + iw) + '" y2="' + cy
+      + '" stroke="#141A22" stroke-width="1.5" stroke-dasharray="4,3"/>'
+      + '<text x="' + (L + 6) + '" y="' + (cy - 6) + '" font-size="11" font-weight="700" '
+      + 'fill="#141A22">money back &middot; ' + shortMoney(committed) + '</text>';
+
+    /* direct labels at the open end, so the three edges are never colour-alone */
+    const last = rows[rows.length - 1];
+    const lab = [['Good run', last.p90], ['Typical', last.p50], ['Bad run', last.p10]];
+    let prevY = -99;
+    lab.forEach(([txt, v]) => {
+      let ly = Y(v) + 3.5;
+      if (ly - prevY < 26) ly = prevY + 26;
+      prevY = ly;
+      s += '<circle cx="' + X(last.year) + '" cy="' + Y(v) + '" r="3.6" fill="' + raw + '"/>'
+        + '<text x="' + (L + iw + 8) + '" y="' + (ly - 6) + '" font-size="10" fill="#6B7A8C">'
+        + txt + '</text>'
+        + '<text x="' + (L + iw + 8) + '" y="' + (ly + 6) + '" font-size="12" font-weight="700" '
+        + 'fill="' + raw + '">' + shortMoney(v) + '</text>';
+    });
+
+    /* a hit target per year, wider than the marks */
+    rows.forEach((r, i) => {
+      const x = X(r.year), w = iw / Math.max(1, rows.length - 1);
+      s += '<rect x="' + (x - w / 2) + '" y="' + T + '" width="' + w + '" height="' + ih
+        + '" fill="transparent"><title>' + esc('By end of ' + r.year + '\n'
+          + 'Good run   ' + money(r.p90) + '\n'
+          + 'Typical    ' + money(r.p50) + '\n'
+          + 'Bad run    ' + money(r.p10)) + '</title></rect>';
+    });
+
+    s += '<text x="' + L + '" y="' + (H - 8) + '" font-size="10" fill="#6B7A8C">'
+      + 'total cash returned by the end of that year</text></svg>';
+
+    const key = [['Bad run (10th pct)', 0.55], ['Typical (median)', 1], ['Good run (90th pct)', 0.55]];
+    return s + '<div class="row" style="margin:8px 0 0">'
+      + key.map(([t, op]) => '<span style="display:flex;align-items:center;gap:6px;font-size:12px;'
+        + 'color:#6B7A8C"><span style="width:11px;height:3px;border-radius:2px;background:' + raw
+        + ';opacity:' + op + '"></span>' + t + '</span>').join('') + '</div>';
   }
 
   /* the distribution chart, drawn as inline SVG so there is no chart library to load */

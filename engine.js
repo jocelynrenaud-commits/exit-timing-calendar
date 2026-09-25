@@ -34,9 +34,10 @@ const CFG = {
        v1.5  a Fund / Single deal column, said outright instead of inferred; Asilia's
              shared terms flagged as under review after a holder caught them
        v1.6  Asilia rebuilt from the April 2026 offering, ACFE split into its own file,
-             and an ambiguous name now matches nothing rather than guessing */
-  version: 'v1.6',
-  released: '24 Sep 2026',
+             and an ambiguous name now matches nothing rather than guessing
+       v1.7  the cone of outcomes, and a card that says which figures you typed over */
+  version: 'v1.7',
+  released: '25 Sep 2026',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
      projected multiple. That number is what the deal returns IF IT WORKS; using it as
@@ -172,6 +173,7 @@ function buildBook(rows) {
       commitment, funded, uncalled, coupon, hold, fy, moic,
       exitMult, deals, isFund, diversified, branches, scales, liq,
       deal: r._deal || null,          // the shared file this matched, if any
+      overrides: r._ovr || [],        // fields the holder typed over that file
       thesis: String(r.thesis || ''), // the holder's own words, from their tracker
       spread: liq ? liqSpread(hold, liq) : null,
       earliest: parseInt(r.exitEarliest, 10) || (likely - Math.min(3, Math.max(1, Math.round(hold * 0.3)))),
@@ -408,11 +410,78 @@ function matchDeal(name, index) {
   return best;
 }
 
+/* Is a typed value the same thing the shared file says? Numbers compare as numbers, so
+   0.12 and "12%" parsed to 0.12 do not read as a disagreement; everything else compares as
+   trimmed lower-case text. */
+function sameVal(a, b) {
+  const na = Number(a), nb = Number(b);
+  const bothNum = Number.isFinite(na) && Number.isFinite(nb)
+    && String(a).trim() !== '' && String(b).trim() !== '';
+  if (bothNum) return Math.abs(na - nb) < 1e-9;
+  return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+}
+
+/* A vehicle column is free text on both sides: the holder writes "Fund", the file carries
+   "Closed-end fund". Those agree. Only compare what the two strings actually decide, which
+   is whether the position sells down over years or is bought on one date. */
+function vehKind(s) {
+  const t = String(s || '').trim().toLowerCase();
+  if (!t) return null;
+  if (/^(single|spv|one |direct|company)/.test(t) || t === 'single deal') return 'single';
+  if (/fund|pool|syndicat|portfolio/.test(t)) return 'fund';
+  return null;
+}
+
 function applyDealFile(row, f) {
   if (!f) return row;
   const t = f.terms || {}, L = f.liquidity || {};
   const blank = (v) => v == null || String(v).trim() === '';
   const out = Object.assign({}, row);
+
+  /* WHAT THE HOLDER TYPED OVER.
+     The shared file only ever fills blanks, so anything typed wins silently. That rule is
+     right and it is also a quiet failure mode: a number typed BEFORE the sponsor's terms
+     were corrected looks identical to a number typed in deliberate disagreement with them.
+     The tool cannot tell those two apart -- but it can put both figures on the card and let
+     the holder decide which one they still believe. Recorded here rather than in the UI so
+     the comparison happens once, against the file that actually matched. */
+  const ovr = [];
+  const mark = (key, label, fmt, mine, theirs) => {
+    if (blank(mine) || theirs == null || theirs === '') return;
+    if (sameVal(mine, theirs)) return;
+    ovr.push({ key, label, fmt, yours: mine, shared: theirs });
+  };
+
+  mark('assetClass', 'Asset class', 'text', out.assetClass, f.assetClass);
+  mark('coupon', 'Preferred rate', 'pct', out.coupon, t.couponPct);
+  mark('hold', 'Hold', 'years', out.hold, t.holdYears);
+  mark('moic', 'Sponsor MOIC', 'mult', out.moic, t.sponsorMoic);
+  mark('deals', 'Deals in fund', 'num', out.deals, f.dealsInFund);
+
+  const mineVeh = vehKind(out.vehicle);
+  const theirVeh = f.singleCompany ? 'single' : vehKind(f.vehicle);
+  if (mineVeh && theirVeh && mineVeh !== theirVeh) {
+    ovr.push({
+      key: 'vehicle', label: 'Fund or single deal', fmt: 'text',
+      yours: mineVeh === 'fund' ? 'Fund' : 'Single deal',
+      shared: theirVeh === 'fund' ? 'Fund' : 'Single deal',
+    });
+  }
+
+  /* The window is one decision typed across two cells, so it reports as one line. A holder
+     who typed only the far end still gets the whole window compared, because that is what
+     the model runs on. */
+  if ((!blank(out.liqFrom) || !blank(out.liqTo)) && L.fromYear && L.toYear) {
+    const a = blank(out.liqFrom) ? L.fromYear : num(out.liqFrom);
+    const b = blank(out.liqTo) ? L.toYear : num(out.liqTo);
+    if (a !== L.fromYear || b !== L.toYear) {
+      ovr.push({
+        key: 'window', label: 'Payout window', fmt: 'window',
+        yours: [a, b], shared: [L.fromYear, L.toYear],
+      });
+    }
+  }
+
   if (blank(out.assetClass) && f.assetClass) out.assetClass = f.assetClass;
   if (blank(out.vehicle) && f.vehicle) out.vehicle = f.singleCompany ? 'Single deal' : f.vehicle;
   if (blank(out.coupon) && t.couponPct != null) out.coupon = t.couponPct;
@@ -422,6 +491,7 @@ function applyDealFile(row, f) {
   if (blank(out.liqFrom) && L.fromYear) out.liqFrom = L.fromYear;
   if (blank(out.liqTo) && L.toYear) out.liqTo = L.toYear;
   out._deal = f;
+  out._ovr = ovr;
   return out;
 }
 
