@@ -407,7 +407,35 @@
           + '<div class="row" style="margin-bottom:8px">'
           + bits.map(([k, v]) => '<span style="font-size:12px;color:var(--muted)">' + k
               + ' <b style="color:var(--ink);font-family:var(--mono)">' + v + '</b></span>').join('')
-          + '</div><p class="note">' + esc(d.structure || '') + '</p>';
+          + '</div>';
+
+        /* NOT EVERY TERM IS THE SAME FOR EVERY HOLDER.
+           Eephus pays 8% to Class A-1/A-2 and 6% to A-4. The file carries 6%, because that
+           is the author's class -- so the shared file was quietly handing everyone the
+           LOWEST tier and understating a third of the income for anyone above it. The
+           tiering was written down in the file all along and nothing put it on screen,
+           which is the same failure as a stale override: the information existed and the
+           reader could not see it. */
+        if (d.variesByHolder && d.variesByHolder.length) {
+          h += '<div style="margin:2px 0 10px;padding:10px 12px;border-radius:8px;'
+            + 'background:#FDF6EE;border:1px solid #E6C79A;font-size:12.5px;line-height:1.6;'
+            + 'color:#7A4A15"><b>These terms are not the same for every investor.</b> '
+            + esc(d.variesNote || '') + '</div>';
+        }
+
+        /* The footnotes the terms carry: which class, what the hold really means, whether
+           the coupon compounds. Recorded since the files were written and never displayed. */
+        const notes = Object.keys(t).filter((k) => /Note$/.test(k) && t[k]);
+        if (notes.length) {
+          const label = { couponNote: 'Preferred', holdNote: 'Hold', moicNote: 'Sponsor MOIC',
+            feeNote: 'Fees', carryNote: 'Carry' };
+          h += '<div style="margin-bottom:8px">'
+            + notes.map((k) => '<div class="note" style="margin:2px 0"><b>'
+                + esc(label[k] || k.replace(/Note$/, '')) + ':</b> ' + esc(t[k]) + '</div>').join('')
+            + '</div>';
+        }
+
+        h += '<p class="note">' + esc(d.structure || '') + '</p>';
         if (d.liquidity && d.liquidity.source) {
           h += '<p class="note" style="margin-top:6px">Pays out over years '
             + d.liquidity.fromYear + ' to ' + d.liquidity.toYear + ' from funding. '
@@ -488,6 +516,15 @@
       + 'each deal independently. In a real downturn they move together, which makes any '
       + 'diversification benefit here look better than it probably is. The other optimistic '
       + 'assumption is that the preferred return always pays, and a sponsor can suspend one.</p>'
+      + '<p class="note"><b>The difference your fee class makes.</b> Management fees and carry '
+      + 'are shown on a deal card but are <b>not modelled</b>. The model runs on the sponsor&rsquo;s '
+      + 'quoted multiple, which is already stated net to the investor, so applying fees again '
+      + 'would count them twice. The catch is that a sponsor quotes ONE base case, and several '
+      + 'GC deals charge different fees at different ticket sizes — Asilia drops from 1.3% and '
+      + '30% carry to 1.2% and 20% at $400k. If you are in the cheaper class you are keeping '
+      + 'more of the same gross return than this shows. The fix is to ask the sponsor for your '
+      + 'class&rsquo;s base case and type that multiple into your tracker, because what you type '
+      + 'wins.</p>'
       + '<p class="note">Not advice. The outcome probabilities are assumptions and are meant to '
       + 'be argued with.</p></div>';
   }

@@ -1,34 +1,38 @@
 {
-  "slug": "eephus-growth-fund-ii",
-  "name": "Eephus Growth Fund II",
-  "aliases": [
-    "Eephus Growth Fund II",
-    "Eephus II",
-    "Eephus Fund II"
-  ],
-  "sponsor": "Eephus Growth Fund, LLC",
-  "assetClass": "Real Estate",
-  "vehicle": "Fund",
-  "subStrategy": "Syndicated real estate, multi-property",
-  "terms": {
-    "couponPct": 0.06,
-    "couponNote": "Class A-4, quarterly.",
-    "holdYears": 5,
-    "holdNote": "PPM states a 5-7 year hold.",
-    "equityKicker": 0.5,
-    "sponsorMoic": 1.75,
-    "mgmtFee": 0.02,
-    "minimum": 50000
-  },
-  "liquidity": {
-    "fromYear": 4,
-    "toYear": 6,
-    "source": "Expected sell-down; fund winds up after"
-  },
-  "dealsInFund": null,
-  "singleCompany": false,
-  "structure": "Second vintage of the Eephus real estate fund. Same structure as Fund I.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+ "slug": "eephus-growth-fund-ii",
+ "name": "Eephus Growth Fund II",
+ "aliases": [
+  "Eephus Growth Fund II",
+  "Eephus II",
+  "Eephus Fund II"
+ ],
+ "sponsor": "Eephus Growth Fund, LLC",
+ "assetClass": "Real Estate",
+ "vehicle": "Fund",
+ "subStrategy": "Syndicated real estate, multi-property",
+ "terms": {
+  "couponPct": 0.06,
+  "couponNote": "Class A-4, quarterly.",
+  "holdYears": 5,
+  "holdNote": "PPM states a 5-7 year hold.",
+  "equityKicker": 0.5,
+  "sponsorMoic": 1.75,
+  "mgmtFee": 0.02,
+  "minimum": 50000
+ },
+ "liquidity": {
+  "fromYear": 4,
+  "toYear": 6,
+  "source": "Expected sell-down; fund winds up after"
+ },
+ "dealsInFund": null,
+ "singleCompany": false,
+ "structure": "Second vintage of the Eephus real estate fund. Same structure as Fund I.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-24",
+ "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC.",
+ "variesByHolder": [
+  "couponPct"
+ ],
+ "variesNote": "The preferred rate depends on your share class, so the figure here is not everyone’s figure. This file carries Class A-4 at 6%. Check your own subscription documents and type your rate into your tracker — what you type wins."
 }

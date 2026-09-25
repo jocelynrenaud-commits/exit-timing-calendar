@@ -1,0 +1,40 @@
+{
+ "slug": "asilia-gc-fund-first",
+ "name": "Asilia GC Fund (first offering)",
+ "aliases": [
+  "Asilia GC Fund (first offering)",
+  "Asilia GC Fund first offering",
+  "Asilia GC Fund 1",
+  "Asilia GC Fund I"
+ ],
+ "sponsor": "Asilia Credit Investments",
+ "assetClass": "Private Credit",
+ "vehicle": "Fund of funds",
+ "subStrategy": "Private credit with equity participation",
+ "terms": {
+  "couponPct": 0.12,
+  "couponNote": "Quarterly cash coupon, DRIP-able.",
+  "holdYears": 8,
+  "holdNote": "8-year term, 5-year lockup, 5% quarterly redemption gate.",
+  "equityKicker": 0.4,
+  "sponsorMoic": 3.27,
+  "sponsorMoicNote": "Base case for THIS offering. The later offering quotes 5.27x; they are different vehicles and the numbers are not interchangeable.",
+  "mgmtFee": 0.013,
+  "carry": "~30% over a 6% compounded hurdle",
+  "ubtiDrag": 0.065,
+  "minimum": 100000,
+  "minimumNote": "$1M standard; $100k through GC access."
+ },
+ "liquidity": {
+  "fromYear": 5,
+  "toYear": 8,
+  "source": "GP stated: equity kickers realised years 5-8"
+ },
+ "dealsInFund": null,
+ "singleCompany": false,
+ "structure": "A fund of funds taking private-credit exposure with equity participation. Pays a quarterly cash coupon that can be reinvested, with the equity kickers realised toward the end of the term. This is the EARLIER offering: a later Asilia GC Fund was raised on different terms, with a different base case and a different harvest window.",
+ "provisional": true,
+ "provisionalNote": "The terms here are recovered from how this deal was recorded before the later offering replaced it, and the NAME needs confirming against the subscription agreement. What is certain is that it is a different vehicle from the later Asilia GC Fund: a 3.27x base case against 5.27x, and kickers realised over years 5-8 against 6-8. If you hold the later one, use 'Asilia GC Fund'.",
+ "asOf": "2026-09-25",
+ "source": "Recorded terms for the earlier offering, as read by the holder. Not verified by GC."
+}

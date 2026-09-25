@@ -38,8 +38,11 @@ const CFG = {
        v1.7  the cone of outcomes, and a card that says which figures you typed over
        v1.8  three reading bugs found by a new regression suite: "8%" typed as text was
              read as 800%, a column headed "Type" lost its asset class, and a column
-             headed "Funded year" was read as an amount */
-  version: 'v1.8',
+             headed "Funded year" was read as an amount
+       v1.9  the two Asilia GC Fund offerings are separate deals; a card now says when a
+             term is not the same for every holder, and prints the footnotes it was
+             already carrying */
+  version: 'v1.9',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.

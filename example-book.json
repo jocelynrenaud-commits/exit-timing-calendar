@@ -54,15 +54,12 @@
   "deals": 1
  },
  {
-  "name": "Asilia GC Fund",
+  "name": "Asilia GC Fund (first offering)",
   "assetClass": "Private Credit",
   "commitment": 100000,
   "funded": 19000,
   "uncalled": 81000,
   "yearFunded": 2026,
-  "hold": 8,
-  "coupon": 0.12,
-  "moic": 3.27,
   "conviction": "High"
  },
  {
