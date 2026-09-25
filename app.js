@@ -416,7 +416,26 @@
            tiering was written down in the file all along and nothing put it on screen,
            which is the same failure as a stale override: the information existed and the
            reader could not see it. */
-        if (d.variesByHolder && d.variesByHolder.length) {
+        /* RESOLVED reads calmly; UNRESOLVED keeps the warning.
+           Telling someone to go and work out their own share class is the tool asking the
+           reader to do its job. Where the breakpoints are documented by ticket size it now
+           picks the band from the commitment and says which one. Where they are not -- the
+           documents give Eephus's rate PER CLASS but never say what sets the class -- it
+           says so, because inventing a breakpoint is worse than admitting there is one. */
+        if (x.tier) {
+          const tt = x.tier.terms || {};
+          const detail = [
+            tt.couponPct != null ? pct(tt.couponPct) + ' preferred' : null,
+            tt.mgmtFee != null ? pct(tt.mgmtFee) + ' fee' : null,
+            tt.carry ? tt.carry + ' carry' : null,
+          ].filter(Boolean).join(' · ');
+          h += '<div style="margin:2px 0 10px;padding:10px 12px;border-radius:8px;'
+            + 'background:#F1F7F3;border:1px solid #CADFD2;font-size:12.5px;line-height:1.6;'
+            + 'color:#2E6B52"><b>Your commitment puts you in ' + esc(x.tier.label) + '.</b>'
+            + (detail ? ' ' + esc(detail) + '.' : '')
+            + ' <span style="color:var(--muted)">Set from the ' + money(x.commitment)
+            + ' you committed, not from whoever wrote the shared file.</span></div>';
+        } else if (d.variesByHolder && d.variesByHolder.length) {
           h += '<div style="margin:2px 0 10px;padding:10px 12px;border-radius:8px;'
             + 'background:#FDF6EE;border:1px solid #E6C79A;font-size:12.5px;line-height:1.6;'
             + 'color:#7A4A15"><b>These terms are not the same for every investor.</b> '

@@ -41,12 +41,13 @@
   },
   {
    "slug": "asilia-gc-fund-first",
-   "name": "Asilia GC Fund (first offering)",
+   "name": "Asilia (first offering)",
    "aliases": [
-    "Asilia GC Fund (first offering)",
-    "Asilia GC Fund first offering",
-    "Asilia GC Fund 1",
-    "Asilia GC Fund I"
+    "Asilia (first offering)",
+    "Asilia first offering",
+    "Asilia 1",
+    "Asilia I",
+    "Asilia GC Fund (first offering)"
    ],
    "sponsor": "Asilia Credit Investments",
    "assetClass": "Private Credit"

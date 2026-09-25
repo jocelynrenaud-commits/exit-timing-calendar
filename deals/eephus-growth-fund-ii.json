@@ -34,5 +34,30 @@
  "variesByHolder": [
   "couponPct"
  ],
- "variesNote": "The preferred rate depends on your share class, so the figure here is not everyone’s figure. This file carries Class A-4 at 6%. Check your own subscription documents and type your rate into your tracker — what you type wins."
+ "variesNote": "Your preferred rate depends on your share class: 8% for A-1 and A-2, 7% for A-3, 6% for A-4. This file carries 6%. The documents do not say what sets the class — if it is ticket size, tell me the breakpoints and the tool will pick your rate automatically. Until then, type your rate into your tracker; what you type wins.",
+ "tiers": {
+  "basis": "class",
+  "unknownBreakpoints": true,
+  "source": "Tiered by share class: A-1/A-2 8%, A-3 7%, A-4 6%. The documents state the RATE per class but not what sets the class, so this cannot be resolved from a commitment yet.",
+  "bands": [
+   {
+    "label": "Class A-1 / A-2",
+    "terms": {
+     "couponPct": 0.08
+    }
+   },
+   {
+    "label": "Class A-3",
+    "terms": {
+     "couponPct": 0.07
+    }
+   },
+   {
+    "label": "Class A-4",
+    "terms": {
+     "couponPct": 0.06
+    }
+   }
+  ]
+ }
 }

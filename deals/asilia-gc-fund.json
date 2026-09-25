@@ -46,5 +46,28 @@
   "mgmtFee",
   "carry"
  ],
- "variesNote": "Your class depends on your ticket size, and the class sets your fees. This file carries Class B (under $400k): 1.3% management fee and 30% carry. Class A at $400k and above drops the fund-of-funds overlay to 1.2% and 20%. A lower fee leaves more of the same gross return with you."
+ "variesNote": "Your class is set by your commitment, and the tool now picks it for you: Class B under $400k at 1.3% and 30% carry, Class A at $400k and above at 1.2% and 20%. Note that fees are DISPLAYED but not modelled — the sponsor's multiple is already net — so a cheaper class means you keep more than the projection shows.",
+ "tiers": {
+  "basis": "commitment",
+  "source": "Class B under $400k, Class A at $400k and above. Class A drops the fund-of-funds overlay.",
+  "bands": [
+   {
+    "min": 0,
+    "max": 400000,
+    "label": "Class B (under $400k)",
+    "terms": {
+     "mgmtFee": 0.013,
+     "carry": "30%"
+    }
+   },
+   {
+    "min": 400000,
+    "label": "Class A ($400k and above)",
+    "terms": {
+     "mgmtFee": 0.012,
+     "carry": "20%"
+    }
+   }
+  ]
+ }
 }

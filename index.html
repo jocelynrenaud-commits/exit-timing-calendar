@@ -138,6 +138,26 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.10 &nbsp;&middot;&nbsp; 25 Sep 2026</span>
+      <h4>Your fee class is now worked out from your commitment</h4>
+      <p>Yesterday this tool noticed that several GC deals price by ticket size, and then
+        printed a message telling you to go and work out your own share class and type the
+        number in. That was the tool asking you to do its job. It already knows what you
+        committed and it already holds the bands.</p>
+      <p><b>Asilia now resolves automatically.</b> Under $400k you are Class B at 1.3% and
+        30% carry; at $400k and above you are Class A at 1.2% and 20%. The card says which
+        one you are in and that it came from your own commitment.</p>
+      <p><b>Eephus deliberately does not.</b> Its documents give the rate per share class
+        &mdash; 8% for A-1 and A-2, 7% for A-3, 6% for A-4 &mdash; but never say what
+        <i>sets</i> the class. Guessing a ticket-size breakpoint would be worse than
+        admitting there is one, so the card still asks you. <b>If you know the breakpoints,
+        send them over</b> and Eephus will resolve automatically too.</p>
+      <p>Anything you type still wins. A tier only ever fills a cell you left blank.</p>
+      <p><b>Also:</b> the earlier Asilia offering is now called <b>Asilia (first
+        offering)</b> rather than Asilia GC Fund (first offering). The old spelling still
+        matches, so nothing breaks.</p>
+    </div>
+    <div class="rel">
       <span class="tag">v1.9 &nbsp;&middot;&nbsp; 25 Sep 2026</span>
       <h4>Two Asilia offerings, and terms that are not the same for everyone</h4>
       <p><b>The Asilia GC Fund was raised twice, on different terms, and the tool was

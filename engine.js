@@ -41,8 +41,10 @@ const CFG = {
              headed "Funded year" was read as an amount
        v1.9  the two Asilia GC Fund offerings are separate deals; a card now says when a
              term is not the same for every holder, and prints the footnotes it was
-             already carrying */
-  version: 'v1.9',
+             already carrying
+       v1.10 where a sponsor prices by ticket size, the tool now picks your class from your
+             commitment instead of telling you to work it out yourself */
+  version: 'v1.10',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -187,6 +189,8 @@ function buildBook(rows) {
       exitMult, deals, isFund, diversified, branches, scales, liq,
       deal: r._deal || null,          // the shared file this matched, if any
       overrides: r._ovr || [],        // fields the holder typed over that file
+      tier: r._tier || null,          // the band this commitment landed in, if resolvable
+      tierUnresolved: !!r._tierUnresolved,
       thesis: String(r.thesis || ''), // the holder's own words, from their tracker
       spread: liq ? liqSpread(hold, liq) : null,
       earliest: parseInt(r.exitEarliest, 10) || (likely - Math.min(3, Math.max(1, Math.round(hold * 0.3)))),
@@ -455,9 +459,40 @@ function vehKind(s) {
   return null;
 }
 
+/* WHICH TIER DOES THIS COMMITMENT LAND IN?
+   Several GC deals price by ticket size -- Eephus pays 8% to its top classes and 6% to its
+   lowest, Asilia charges 1.3% and 30% carry below $400k and 1.2% and 20% above it. Until
+   now the shared file carried ONE set of terms, the author's, and the best the tool could
+   do was print a warning telling the reader to work out their own class and type it in by
+   hand. That is the tool asking the reader to do its job: it already knows the commitment
+   and it already holds the bands.
+
+   `basis` is what makes this safe. Only 'commitment' can be resolved from a tracker row.
+   A deal whose tiers are known to exist but whose breakpoints are NOT documented is
+   recorded with basis 'class', which resolves to nothing and leaves the warning in place --
+   because guessing a breakpoint would be worse than admitting there is one. */
+function resolveTier(f, commitment) {
+  const T = f && f.tiers;
+  if (!T || !Array.isArray(T.bands) || !T.bands.length) return null;
+  if (T.basis !== 'commitment') return null;      // not resolvable from what a tracker holds
+  const amt = num(commitment);
+  if (!(amt > 0)) return null;
+  let hit = null;
+  for (const b of T.bands) {
+    const lo = b.min == null ? 0 : num(b.min);
+    const hi = b.max == null ? Infinity : num(b.max);
+    if (amt >= lo && amt < hi) { if (!hit || lo >= num(hit.min || 0)) hit = b; }
+  }
+  return hit;
+}
+
 function applyDealFile(row, f) {
   if (!f) return row;
-  const t = f.terms || {}, L = f.liquidity || {};
+  const tier = resolveTier(f, row && row.commitment);
+  /* A band's terms REPLACE the file's defaults before anything is filled in, so the rest of
+     this function never needs to know tiers exist. */
+  const t = Object.assign({}, f.terms || {}, (tier && tier.terms) || {});
+  const L = f.liquidity || {};
   const blank = (v) => v == null || String(v).trim() === '';
   const out = Object.assign({}, row);
 
@@ -515,8 +550,12 @@ function applyDealFile(row, f) {
   if (blank(out.liqTo) && L.toYear) out.liqTo = L.toYear;
   out._deal = f;
   out._ovr = ovr;
+  out._tier = tier ? { label: tier.label, min: tier.min, max: tier.max, terms: tier.terms } : null;
+  /* Tiers exist but cannot be resolved from a commitment -- the reader still has to be
+     told, which is what the card's warning is for. */
+  out._tierUnresolved = !!(f.tiers && !tier);
   return out;
 }
 
-const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile };
+const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier };
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
