@@ -1,39 +1,59 @@
 {
-  "slug": "asilia-credit-fund-evergreen",
-  "name": "Asilia Credit Fund Evergreen",
-  "aliases": [
-    "Asilia Credit Fund Evergreen",
-    "Asilia Credit Evergreen Fund",
-    "Asilia Credit Evergreen",
-    "ACFE",
-    "ACEF"
-  ],
-  "sponsor": "Asilia Credit Investments",
-  "assetClass": "Private Credit",
-  "vehicle": "Fund",
-  "subStrategy": "Senior secured private credit, evergreen",
-  "terms": {
-    "couponPct": 0.135,
-    "couponNote": "Targets 12-15% through senior secured lending. Quarterly. Holders of the standalone offering report the high teens; check your own statements, and type over this if yours differs.",
-    "holdYears": 8,
-    "holdNote": "Evergreen, so there is no fixed end date and no wind-down. 8 years is used only so the tool has a horizon to work with. If your documents say otherwise, type over it.",
-    "sponsorMoic": null,
-    "sponsorMoicNote": "There is no exit multiple to quote. This vehicle returns cash, not a sale.",
-    "mgmtFee": 0.005,
-    "carry": "20%",
-    "minimum": 400000,
-    "minimumNote": "$400k for Growth Circle members, negotiated down from $1M. This was the December offering, before the $100k GC Fund."
-  },
-  "liquidity": null,
-  "dealsInFund": null,
-  "singleCompany": false,
-  "structure": "The conservative sleeve on its own, and the flagship of the platform. Senior secured lending to mature, cash-flowing businesses, secured against inventory, equipment and other tangible assets at roughly 30-40% loan to value. Borrowers pay monthly regardless of performance. Around 13 portfolio companies, heading for 20-30. This is NOT the three-sleeve GC Fund: no Walnut, no Opportunistic, and no 8-year wind-down.",
-  "notes": [
-    "This file exists because a holder pointed out that the Asilia GC Fund and this are different vehicles and were being confused. They are.",
-    "Evergreen means the model cannot give you a meaningful exit multiple or payout window. What it can do is show the quarterly income. Read the outlook tab with that in mind.",
-    "The fund can generate UBTI, which matters in a self-directed IRA."
-  ],
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Described within the April 2026 GC Fund materials and Braiden's underwrite. The standalone December offering documents are NOT in hand, so the coupon and minimum here are the least certain numbers in any of these files. Type over them."
+ "slug": "asilia-credit-fund-evergreen",
+ "name": "Asilia Credit Fund Evergreen (Fund II)",
+ "aliases": [
+  "ACEF",
+  "ACF2",
+  "ACFE",
+  "Asilia Credit Evergreen",
+  "Asilia Credit Evergreen Fund",
+  "Asilia Credit Fund Evergreen",
+  "Asilia Credit Fund II",
+  "Asilia Credit Investments Fund II"
+ ],
+ "sponsor": "Asilia Credit Investments",
+ "assetClass": "Private Credit",
+ "vehicle": "Evergreen fund",
+ "subStrategy": "Senior secured first-lien direct lending",
+ "terms": {
+  "couponPct": 0.15,
+  "couponNote": "Expected return 15%+ net, paid QUARTERLY. The sessions quote a 13-17% net target range, levered roughly 1x at fund level from an 11-13% gross. Fund I targeted 12-14% and was tracking 14-15%.",
+  "holdYears": 5,
+  "holdNote": "5-year lockup, then redemption on 90 days’ notice. The fund is EVERGREEN, so a holder may stay well past 5 — modelled at the lockup because that is the first date the money can come back. Type your own horizon if you intend to stay longer.",
+  "sponsorMoic": null,
+  "sponsorMoicNote": "There is no exit multiple to quote. This vehicle returns cash, not a sale.",
+  "mgmtFee": 0.01,
+  "carry": "20% after a 6% preferred return",
+  "minimum": 400000,
+  "minimumNote": "$400,000 to invest directly, reduced from $1M. Below that, access is through a fund-of-funds — which is what the Asilia GC Fund is, at a $100,000 minimum.",
+  "feeNote": "All-in 1.0 / 30 when held inside the GC Fund: a 0.5/20 underlying fund fee plus a 0.5/10 fund-of-funds overlay. Held standalone you would not pay the overlay.",
+  "blendedRoe": 0.1625,
+  "mgmtFeeNote": "1% management fee charged on INVESTED capital, not on committed — so an uncalled commitment is not paying a fee. Held inside the Asilia GC Fund the underlying is struck at 0.5/20 with a 0.5/10 fund-of-funds overlay on top, for 1.0/30 all-in.",
+  "capitalCalls": "Roughly 50% called in late 2026, the remainder over the following 18 months. Uncalled capital still earns a mid-to-high single-digit return in the meantime.",
+  "fundValuation": 500000000,
+  "expectedRaise": 25000000,
+  "ltv": 0.4
+ },
+ "liquidity": null,
+ "dealsInFund": null,
+ "singleCompany": false,
+ "structure": "Senior secured, first-lien direct lending to large-cap, market-leading businesses owned by top-tier private equity sponsors — durable cash flows, recession-resilient sectors, low LTVs around 40%. Floating rate, so the income moves with rates. Asilia is an SEC-registered RIA that has put $1.5B+ into 100+ deals, sourcing alongside Oak Hill, TCW and Cerberus. Fund II already holds nine portfolio companies and Asilia is its largest investor, with $60M+ of GP capital committed.",
+ "notes": [
+  "This file exists because a holder pointed out that the Asilia GC Fund and this are different vehicles and were being confused. They are.",
+  "Evergreen means the model cannot give you a meaningful exit multiple or payout window. What it can do is show the quarterly income. Read the outlook tab with that in mind.",
+  "The fund can generate UBTI, which matters in a self-directed IRA."
+ ],
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Asilia sales-pitch session and investor Q&A session notes, plus the Fund II deal snapshot (closed 6 Feb 2026). Fee stack and return mix from the Asilia GC Fund investor Q&A chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
+ "liquidityNote": "Evergreen with no wind-down and no exit multiple to quote: it returns cash rather than selling. Redemption is by 90-day notice after the 5-year lockup.",
+ "trackRecord": "One borrower default in 75+ deals — First Brands, a family-owned company where the CEO committed fraud. Despite the bankruptcy, full capital recovery is expected from the first-lien position and hard collateral. The GC underwrite scored the handling of it as a positive rather than a negative.",
+ "keyRisks": [
+  "Short public-facing track record: the team is deeply experienced individually, but the platform itself has only about three years of public data.",
+  "Key-person risk around the Reed/Gardner team.",
+  "Ordinary income for tax, with no depreciation shield. UBIT may apply inside an SDIRA.",
+  "Fund-level leverage of about 1x is what lifts 11-13% gross to the 14-17% net target — it amplifies losses as well as returns.",
+  "Five-year lockup. The 90-day notice only starts after it."
+ ],
+ "provisional": false
 }

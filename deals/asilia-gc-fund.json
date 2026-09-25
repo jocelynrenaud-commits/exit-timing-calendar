@@ -18,12 +18,47 @@
   "holdYears": 8,
   "holdNote": "8 years total and NO extension: 5 years of deployment and growth, then a 3-year harvest and wind-down. Hard stop with full liquidation required.",
   "sponsorMoic": 5.27,
-  "sponsorMoicNote": "Base case, 23.08% IRR over 8 years. Stress case 2.59x / 10.0% IRR over 10 years. Upside 6.35x / 26.0% IRR. This is the LATER offering. An earlier Asilia GC Fund was raised on a 3.27x base case with kickers over years 5-8; the two are different vehicles.",
+  "sponsorMoicNote": "5.27x is DERIVED, and the derivation checks: the blended ROE of 23.08% net of fees, compounded over the 8-year term, gives 5.2662x. That is the Q&A chart’s own arithmetic, not a separate projection. This is the LATER offering. An earlier Asilia GC Fund was raised on different terms; see asilia-gc-fund-first.json, though note the 3.27x on that file may instead be the ACFE SLEEVE compounded over the same 8 years (16% -> 3.27x), which is an open question flagged in the task list.",
   "mgmtFee": 0.013,
   "carry": "30% (Class B). Class A at $400k+ drops the fund-of-funds overlay: 1.2% and 20%.",
   "minimum": 100000,
   "minimumNote": "$100k for Growth Circle members, negotiated down from a $1M industry standard. Class B under $400k, Class A at $400k and above.",
-  "capitalCalls": "10-15% at first close, then 5-10% quarterly over a 2-3 year deployment. Five business days notice. Up to 100% is callable."
+  "capitalCalls": "10-15% at first close, then 5-10% quarterly over a 2-3 year deployment. Five business days notice. Up to 100% is callable.",
+  "returnMix": {
+   "source": "Asilia GC Fund investor Q&A, fee-stack and return-mix chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
+   "sleeves": [
+    {
+     "sleeve": "ACFE",
+     "allocation": 0.35,
+     "expectedDistribution": 0.15,
+     "equityYield": 0.0125,
+     "blendedRoe": 0.1625,
+     "allInFee": "1.0 / 30"
+    },
+    {
+     "sleeve": "Walnut",
+     "allocation": 0.35,
+     "expectedDistribution": 0.105,
+     "equityYield": 0.139,
+     "blendedRoe": 0.244,
+     "allInFee": "2.0 / 30"
+    },
+    {
+     "sleeve": "Opportunistic",
+     "allocation": 0.3,
+     "expectedDistribution": 0.105,
+     "equityYield": 0.19,
+     "blendedRoe": 0.295,
+     "allInFee": "1.0 / 30"
+    }
+   ],
+   "total": {
+    "expectedDistribution": 0.1208,
+    "equityYield": 0.11,
+    "blendedRoe": 0.2308
+   },
+   "note": "All figures net of fees. The fund-level 12.08% annual distribution is what the tool models as the coupon; the 11.0% equity yield is the kicker realised at harvest."
+  }
  },
  "liquidity": {
   "fromYear": 6,
@@ -40,8 +75,8 @@
   "No single investment above 40% without LPAC or majority approval."
  ],
  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
- "asOf": "2026-09-24",
- "source": "April 2026 GC presentation, the GC refreshed analysis, Braiden's underwrite, and the 23 April 2026 Q&A notes. Read by a holder, not verified by GC.",
+ "asOf": "2026-09-25",
+ "source": "April 2026 GC presentation, the GC refreshed analysis, Braiden's underwrite, and the 23 April 2026 Q&A notes. Read by a holder, not verified by GC. Asilia GC Fund investor Q&A, fee-stack and return-mix chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
  "variesByHolder": [
   "mgmtFee",
   "carry"

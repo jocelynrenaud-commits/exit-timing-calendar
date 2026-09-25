@@ -40,13 +40,13 @@
    "sponsor": "BlueBird Capital Group, LP"
   },
   {
-   "slug": "asilia-gc-fund-first",
-   "name": "Asilia (first offering)",
+   "slug": "asilia-debt-fund",
+   "name": "Asilia Debt Fund (2025)",
    "aliases": [
-    "Asilia (first offering)",
-    "Asilia first offering",
-    "Asilia 1",
-    "Asilia I",
+    "Asilia Debt Fund",
+    "Asilia Debt Fund 2025",
+    "Asilia Credit Fund I",
+    "ACF1",
     "Asilia GC Fund (first offering)"
    ],
    "sponsor": "Asilia Credit Investments",
@@ -165,13 +165,16 @@
   },
   {
    "slug": "asilia-credit-fund-evergreen",
-   "name": "Asilia Credit Fund Evergreen",
+   "name": "Asilia Credit Fund Evergreen (Fund II)",
    "aliases": [
-    "Asilia Credit Fund Evergreen",
-    "Asilia Credit Evergreen Fund",
-    "Asilia Credit Evergreen",
+    "ACEF",
+    "ACF2",
     "ACFE",
-    "ACEF"
+    "Asilia Credit Evergreen",
+    "Asilia Credit Evergreen Fund",
+    "Asilia Credit Fund Evergreen",
+    "Asilia Credit Fund II",
+    "Asilia Credit Investments Fund II"
    ],
    "assetClass": "Private Credit",
    "vehicle": "Fund",

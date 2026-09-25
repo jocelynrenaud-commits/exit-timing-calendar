@@ -1,25 +1,33 @@
 {
-  "slug": "rorra",
-  "name": "Rorra",
-  "aliases": [
-    "Rorra",
-    "Rorra",
-    "Rorra - Plan A"
-  ],
-  "sponsor": "Spacestation / Belltower Fund Group, Ltd.",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": 2.71
-  },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+ "slug": "rorra",
+ "name": "Rorra",
+ "aliases": [
+  "Rorra",
+  "Rorra",
+  "Rorra - Plan A"
+ ],
+ "sponsor": "Spacestation / Belltower Fund Group, Ltd.",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Consumer hardware with a subscription attach",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 4,
+  "sponsorMoic": 4.3,
+  "holdNote": "3-5 years per the GC underwrite scorecard; modelled at 4. This file previously carried 10 years, which was not from any document and put the proceeds in the wrong decade — a far bigger error than any multiple.",
+  "sponsorMoicNote": "4.3x, the LOW end of the GC underwrite’s 4.3x-8.0x base case over 3-5 years (scored 85/100). NOTE THE BASIS: this is a GROSS figure, before SPV economics and dilution. Rainmaker’s underwrite publishes both columns and implies a gross-to-net factor near 0.66, which would put this closer to 2.8x net in the hand. Carried gross at the operator’s direction; if you want what you actually receive, type a lower number.",
+  "underwriteBase": {
+   "gross": "4.3x-8.0x",
+   "timing": "3-5 years",
+   "score": "85 / 100",
+   "source": "GC underwrite scorecard comparison table"
+  }
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "Rorra builds premium home water filtration — a hardware sale that pulls a recurring replacement-filter subscription behind it, which is the part the underwriting turns on. Each unit sold creates higher-margin recurring revenue without reacquiring the customer. Held directly as an SPV; also a portfolio company of the SpaceStation fund, so there is indirect exposure through that position too.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC. GC underwrite scorecard comparison table (2026)."
 }

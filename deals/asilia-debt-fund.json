@@ -1,11 +1,11 @@
 {
- "slug": "asilia-gc-fund-first",
- "name": "Asilia (first offering)",
+ "slug": "asilia-debt-fund",
+ "name": "Asilia Debt Fund (2025)",
  "aliases": [
-  "Asilia (first offering)",
-  "Asilia first offering",
-  "Asilia 1",
-  "Asilia I",
+  "Asilia Debt Fund",
+  "Asilia Debt Fund 2025",
+  "Asilia Credit Fund I",
+  "ACF1",
   "Asilia GC Fund (first offering)"
  ],
  "sponsor": "Asilia Credit Investments",
@@ -33,9 +33,9 @@
  },
  "dealsInFund": null,
  "singleCompany": false,
- "structure": "A fund of funds taking private-credit exposure with equity participation. Pays a quarterly cash coupon that can be reinvested, with the equity kickers realised toward the end of the term. This is the EARLIER offering: a later Asilia GC Fund was raised on different terms, with a different base case and a different harvest window.",
+ "structure": "The 2025 Asilia offering, a separate vehicle from the 2026 Asilia GC Fund. Senior secured private credit with an equity kicker. Asilia’s Fund I was described in the 2026 sessions as targeting 12-14% and tracking 14-15%, which is consistent with the 12% coupon recorded here.",
  "provisional": true,
- "provisionalNote": "The terms here are recovered from how this deal was recorded before the later offering replaced it, and the NAME needs confirming against the subscription agreement. What is certain is that it is a different vehicle from the later Asilia GC Fund: a 3.27x base case against 5.27x, and kickers realised over years 5-8 against 6-8. If you hold the later one, use 'Asilia GC Fund'.",
+ "provisionalNote": "Terms recovered from how this deal was recorded before the 2026 offering replaced it in the file. CONFIRMED as a genuinely separate vehicle called the Asilia Debt Fund, offered 2025 — but its own numbers have not been checked against its own 2025 documents, which have not been read. The 3.27x in particular is unverified: it is also, to two decimals, what the ACFE sleeve alone produces at 16% over 8 years, so it may have been mis-attributed. If you hold the 2026 vehicle, use \"Asilia GC Fund\" instead.",
  "asOf": "2026-09-25",
  "source": "Recorded terms for the earlier offering, as read by the holder. Not verified by GC."
 }

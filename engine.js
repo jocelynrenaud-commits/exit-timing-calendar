@@ -51,8 +51,10 @@ const CFG = {
        v1.13 SpaceStation rebuilt from its Partnership Agreement, and a fund card now lists
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
-             Rainmaker documented */
-  version: 'v1.14',
+             Rainmaker documented
+       v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
+             Rorra's hold corrected from 10 years to 4 */
+  version: 'v1.15',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
