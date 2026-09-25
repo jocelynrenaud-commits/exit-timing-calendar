@@ -30,8 +30,10 @@ const CFG = {
        v1.2  a fund's sell-down is a window off its own terms, not a deal count
        v1.3  three tabs, shared deal files, and the tool is renamed Private Deals
        v1.4  bug sweep: short names no longer inherit another deal's terms; quotes in a
-             deal name no longer break its card */
-  version: 'v1.4',
+             deal name no longer break its card
+       v1.5  a Fund / Single deal column, said outright instead of inferred; Asilia's
+             shared terms flagged as under review after a holder caught them */
+  version: 'v1.5',
   released: '24 Sep 2026',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
@@ -144,8 +146,19 @@ function buildBook(rows) {
        fund sells down over years. Someone holding one company with a preferred return
        types 1 in the deals column to say so. Venture is the other way round: a single
        deal unless declared otherwise, which stays the cautious reading of a blank. */
-    const single = declared && deals === 1;
-    const isFund = kind === 'income' ? !single : deals > 1;
+    /* An explicit Fund / Single deal column, because asking people to express that as a
+       COUNT was indirect. Someone who knows their position is a fund should be able to
+       write "Fund" rather than work out how many properties are in it. A typed value here
+       beats every inference below. The count still decides PRICING for venture at 20+;
+       this decides only whether the payout is staged. */
+    const typ = String(r.vehicle || '').trim().toLowerCase();
+    const saysSingle = /^(single|spv|one |direct|company)/.test(typ) || typ === 'single deal';
+    const saysFund = /fund|pool|syndicat|portfolio/.test(typ);
+
+    const single = saysSingle || (!saysFund && declared && deals === 1);
+    const isFund = saysFund ? true
+      : saysSingle ? false
+      : (kind === 'income' ? !single : deals > 1);
     const liq = isFund
       ? liqWindow(hold, num(r.liqFrom), num(r.liqTo), kind !== 'income')
       : null;
@@ -390,6 +403,7 @@ function applyDealFile(row, f) {
   const blank = (v) => v == null || String(v).trim() === '';
   const out = Object.assign({}, row);
   if (blank(out.assetClass) && f.assetClass) out.assetClass = f.assetClass;
+  if (blank(out.vehicle) && f.vehicle) out.vehicle = f.singleCompany ? 'Single deal' : f.vehicle;
   if (blank(out.coupon) && t.couponPct != null) out.coupon = t.couponPct;
   if (blank(out.hold) && t.holdYears) out.hold = t.holdYears;
   if (blank(out.moic) && t.sponsorMoic) out.moic = t.sponsorMoic;

@@ -62,6 +62,9 @@
                      'portfolio companies', 'positions in fund', 'deal count']],
     // optional liquidity window, in FUND-YEARS from funding. A GP who says "years five
     // through eight" can say exactly that; leaving them blank uses the default rule.
+    // Fund or Single deal, said outright. Clearer than asking for a count, and it is
+    // what people already know about their own positions.
+    ['vehicle',     ['fund or single', 'fund / single', 'type', 'vehicle', 'fund?', 'structure']],
     ['liqFrom',     ['liquidity from', 'payout from', 'sell-down from', 'distributions from']],
     ['liqTo',       ['liquidity to', 'payout to', 'sell-down to', 'distributions to']],
     ['name',        ['deal name', 'deal', 'name', 'investment', 'position']],
@@ -336,6 +339,15 @@
         if (t.mgmtFee != null) bits.push(['Mgmt fee', pct(t.mgmtFee)]);
         if (t.carry) bits.push(['Carry', t.carry]);
         if (t.ubtiDrag != null) bits.push(['UBTI drag', pct(t.ubtiDrag)]);
+        /* A deal file whose terms are being checked says so ON THE CARD. A shared file
+           that is quietly wrong is worse than no shared file, because it looks
+           authoritative and nobody re-reads their own documents. */
+        if (d.provisional) {
+          h += '<div style="margin:14px 0 4px;padding:11px 13px;border-radius:8px;'
+            + 'background:#FDF3EC;border:1px solid #F0D3BE;font-size:13px;line-height:1.6;'
+            + 'color:#7A3A15"><b>These shared terms are being checked.</b> '
+            + esc(d.provisionalNote || '') + '</div>';
+        }
         h += '<div class="note" style="margin:16px 0 6px"><b>' + esc(d.sponsor) + '</b> · '
           + esc(d.vehicle) + ' · ' + esc(d.subStrategy || d.assetClass) + '</div>'
           + '<div class="row" style="margin-bottom:8px">'

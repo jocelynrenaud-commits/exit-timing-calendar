@@ -30,8 +30,10 @@
   },
   "dealsInFund": null,
   "singleCompany": false,
-  "structure": "Evergreen credit fund of funds across three sleeves: senior credit, Walnut, and opportunistic. Current income is recyclable; equity kickers realise late in the term.",
+  "structure": "Credit fund. The three-sleeve description below is from the first offering and is being confirmed against the current one. Asilia Credit Evergreen Fund is a different vehicle: one conservative sleeve, no exit, high-teens annual return.",
   "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
   "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC.",
+  "provisional": true,
+  "provisionalNote": "TERMS UNDER REVIEW. These were taken from the FIRST offering. A holder has flagged that the current Asilia GC Fund offering differs, and that Asilia Credit Evergreen Fund (ACEF) is a SEPARATE vehicle: one conservative sleeve rather than three, no exit, and a stated annual return in the high teens. Check your own subscription documents before relying on anything here, and type over any field that does not match. Your own numbers always win."
 }
