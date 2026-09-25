@@ -106,6 +106,7 @@
       if (m.commitment != null && m.name != null) { hi = i; map = m; break; }
     }
     if (hi < 0) return { error: 'Could not find a header row with a deal name and a commitment column.' };
+    LASTMAP = map;   // remembered so the age note can say whether this is an older sheet
     const out = [], skipped = [];
     for (let i = hi + 1; i < aoa.length; i++) {
       const r = aoa[i] || [];
@@ -128,6 +129,16 @@
     return { rows: out, map, skipped };
   }
 
+  /* Which of the newer optional columns did this sheet have? Kristin's tracker stopped
+     at Override likely and she had no way to know a newer one existed. The sheet carries
+     its version in cell A1 of Positions, but an OLD sheet has no version to read, so the
+     honest test is whether any of the newer headers were found at all. */
+  function trackerAge(map) {
+    const recent = ['deals', 'liqFrom', 'liqTo', 'thesis', 'vehicle'];
+    const found = recent.filter((f) => map && map[f] != null);
+    return { found: found.length, total: recent.length };
+  }
+
   function validate(rows, skipped) {
     const problems = [];
     rows.forEach((r) => {
@@ -138,6 +149,17 @@
     });
     (skipped || []).forEach((n) => problems.push(n + ': looks like a deal but has no commitment, so it was left out'));
     return problems;
+  }
+
+  function ageNote(map) {
+    const a = trackerAge(map);
+    if (a.found > 0) return '';
+    return '<div class="err" style="background:#F0F5FB;border-color:#C9D8E8;color:#2B4058">'
+      + '<b>This looks like an older tracker.</b> It works, and nothing you have typed is '
+      + 'wasted. A newer one adds a few optional columns: whether a position is a fund or a '
+      + 'single deal, when a sponsor says it pays out, and your own note on why you did it. '
+      + 'All of them can be left blank. The current tracker is marked '
+      + Engine.CFG.version + ' in the top-left cell of its Positions tab.</div>';
   }
 
   /* ── panels ──────────────────────────────────────────────────────────────── */
@@ -669,6 +691,8 @@
   }
 
   /* ── intake ──────────────────────────────────────────────────────────────── */
+  let LASTMAP = null;      // the header map from the sheet just read, for the age note
+
   async function load(rows, skipped) {
     // fill blanks from the shared deal files BEFORE validating, so a term that GC already
     // knows does not get reported as something the holder failed to supply
@@ -680,11 +704,12 @@
         + (problems.length ? '<br>' + problems.slice(0, 6).map(esc).join('<br>') : '') + '</div>';
       return;
     }
-    $('#intakeErr').innerHTML = problems.length
+    const age = ageNote(LASTMAP);
+    $('#intakeErr').innerHTML = age + (problems.length
       ? '<div class="err"><b>Loaded ' + BOOK.length + ' positions, with ' + problems.length
         + ' thing' + (problems.length > 1 ? 's' : '') + ' worth fixing.</b> Nothing was guessed at; these rows '
         + 'are running on whatever was there.<br>' + problems.slice(0, 8).map(esc).join('<br>') + '</div>'
-      : '';
+      : '');
     MODE = 'all'; DIST = 'all'; TAB = 'dash'; OPEN = {};
     render();
     $('#out').scrollIntoView({ behavior: 'smooth', block: 'start' });
