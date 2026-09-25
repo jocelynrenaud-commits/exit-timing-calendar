@@ -47,8 +47,10 @@ const CFG = {
        v1.11 both Eephus funds rebuilt from their PPMs: the class ladders are real, and
              Fund II pays 9% at the top where Fund I stops at 8%
        v1.12 BlueBird rebuilt from its PPM and decks -- the terms were already right, the
-             description of what it is was not */
-  version: 'v1.12',
+             description of what it is was not
+       v1.13 SpaceStation rebuilt from its Partnership Agreement, and a fund card now lists
+             what the fund actually holds */
+  version: 'v1.13',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.

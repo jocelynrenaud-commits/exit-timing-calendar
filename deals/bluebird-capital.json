@@ -13,7 +13,7 @@
  "subStrategy": "Special situations, single company",
  "terms": {
   "couponPct": 0.15,
-  "couponNote": "15% preferred, CUMULATIVE. It accrues and must be paid in full before any return of capital and before the GP takes carry — but the PPM does not promise an annual cheque. The GP \"expects to reinvest net revenues\" and distributes \"at certain intervals at the General Partner’s sole discretion\". So the total is owed; the TIMING is not contractual.",
+  "couponNote": "15% preferred, CUMULATIVE, paid before any return of capital and before the GP takes carry. The PPM reserves distribution timing to the GP’s discretion and says it expects to reinvest net revenues — but the GP has confirmed directly that the plan is to pay it ANNUALLY, which is how the model treats it.",
   "holdYears": 7,
   "holdNote": "Fund term is 7 years, extendable by the GP at its sole discretion for two successive one-year periods, so up to 9.",
   "equityKicker": 0.15,
@@ -35,6 +35,5 @@
  "asOf": "2026-09-25",
  "source": "PPM of Bluebird Capital Group, LP (January 2025), the First Call investor deck and the January 2026 Last Call pitch deck.",
  "singleCompanyNote": "Several acquisitions, one platform, one exit. The deal count is not what matters here; the exit being a single trade sale is.",
- "variesByHolder": [],
- "cashTimingNote": "This tool shows the 15% as annual cash, which is the most optimistic reading of the timing. The amount is right over the life of the deal; individual years may pay less or nothing while the GP reinvests, and catch up later."
+ "variesByHolder": []
 }

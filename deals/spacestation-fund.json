@@ -1,29 +1,108 @@
 {
-  "slug": "spacestation-fund",
-  "name": "SpaceStation Fund",
-  "aliases": [
-    "SpaceStation Fund",
-    "SPVC Ventures Fund I",
-    "SpaceStation",
-    "SPVC"
-  ],
-  "sponsor": "SPVC Ventures Fund I, L.P.",
-  "assetClass": "VC",
-  "vehicle": "Fund",
-  "subStrategy": "Early-stage venture, diversified",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": 3.96,
-    "capitalCalls": "Quarterly, ~5% of commitment",
-    "minimum": 250000
-  },
-  "liquidity": null,
-  "dealsInFund": 40,
-  "dealsNote": "13 companies held as at Sep 2026, expected past 40 by the time it distributes. A fund of 20+ is priced on the fund outcome table rather than the single-deal power law.",
-  "singleCompany": false,
-  "structure": "Diversified early-stage venture fund. Called quarterly and expected to hold 40+ companies, so it neither returns zero the way one company can nor pays out on a single date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+ "slug": "spacestation-fund",
+ "name": "SpaceStation Fund",
+ "aliases": [
+  "SpaceStation Fund",
+  "SPVC Ventures Fund I",
+  "SpaceStation",
+  "SPVC"
+ ],
+ "sponsor": "SPVC Ventures Fund I, L.P.",
+ "assetClass": "VC",
+ "vehicle": "Fund",
+ "subStrategy": "Early-stage venture, diversified",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 10,
+  "sponsorMoic": 3.96,
+  "capitalCalls": "Called over roughly three and a half years against a five-year investment period, in tranches as deals are done rather than on a fixed schedule.",
+  "minimum": 250000,
+  "holdNote": "Ten years from the Final Closing, extendable by the GP for two one-year periods at its discretion and further with Advisory Board consent. The investment period is five years.",
+  "mgmtFee": 0.02,
+  "mgmtFeeNote": "2.00% of each Limited Partner’s COMMITMENT during the investment period, stepping down afterwards. On committed capital, not on income.",
+  "carry": "20% to the General Partner"
+ },
+ "liquidity": null,
+ "dealsInFund": 37,
+ "dealsNote": "13 companies held as at Sep 2026, expected past 40 by the time it distributes. A fund of 20+ is priced on the fund outcome table rather than the single-deal power law.",
+ "singleCompany": false,
+ "structure": "An early-stage venture fund backing consumer brands and consumer technology across pre-seed, seed and Series A. It buys a portfolio, so it is priced on the fund outcome table rather than the single-deal power law, and its proceeds are spread over a sell-down window rather than a single exit date.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Partnership Agreement and Subscription Agreement of SPVC Ventures Fund I, L.P. Holdings list from the sponsor H1 2026 LP report.",
+ "dealsInFundNote": "The GP targets a final portfolio in the mid-to-high 30s, with about 20% of the fund reserved for follow-ons and no single position expected to exceed ~10%. Modelled at 37. Well above the 20-deal line, so it is priced as a fund rather than as a single company.",
+ "liquidityNote": "The Partnership Agreement states a term and an investment period but no distribution schedule, so no GP-stated payout window is recorded and the model falls back to its default rule. Not invented.",
+ "holdings": {
+  "asOf": "2026-09-25",
+  "source": "Sponsor H1 2026 semi-annual report to Limited Partners",
+  "note": "What the fund currently holds. Eleven companies so far against a target final portfolio in the mid-to-high 30s, so this list will keep growing.",
+  "companies": [
+   {
+    "name": "Tuff Pops",
+    "stage": "Pre-Seed",
+    "category": "Consumer Product",
+    "what": "High-protein frozen treats built around taste and texture rather than a nutrition claim."
+   },
+   {
+    "name": "Modern Games (ÆRTHLINGS)",
+    "stage": "Seed",
+    "category": "Consumer Product",
+    "what": "A toys-to-life platform pairing NFC-enabled collectible creatures with a companion mobile game."
+   },
+   {
+    "name": "Glidance",
+    "stage": "Seed",
+    "category": "Consumer Technology",
+    "what": "A self-guiding mobility aid for blind and low-vision users that actively steers around obstacles."
+   },
+   {
+    "name": "Nooshee",
+    "stage": "Pre-Seed",
+    "category": "Consumer Technology",
+    "what": "A sleep-compatible breast pump, letting mothers pump lying down or asleep."
+   },
+   {
+    "name": "Hetal Retail",
+    "stage": "Seed",
+    "category": "Consumer Adjacent",
+    "what": "A retail intelligence platform giving consumer brands real-time visibility into what is happening on shelf."
+   },
+   {
+    "name": "Rorra",
+    "stage": "Seed",
+    "category": "Consumer Product",
+    "what": "Premium home water filtration with a recurring replacement-filter subscription."
+   },
+   {
+    "name": "Campo Grande",
+    "stage": "Series A",
+    "category": "Consumer Product",
+    "what": "Building the leading U.S. brand for premium Ibérico pork across DTC, foodservice and retail."
+   },
+   {
+    "name": "The90",
+    "stage": "Pre-Seed",
+    "category": "Consumer Technology",
+    "what": "A preventative skin-health platform; a jewellery-style wearable measuring real-time UV exposure."
+   },
+   {
+    "name": "JRNYS",
+    "stage": "Series A",
+    "category": "Consumer Technology",
+    "what": "A talent-led house of longevity brands on shared clinical, pharmacy and fulfilment infrastructure."
+   },
+   {
+    "name": "Orion",
+    "stage": "Series A",
+    "category": "Consumer Technology",
+    "what": "An AI sleep system using biometric data to heat and cool the bed through the night."
+   },
+   {
+    "name": "All Things Dairy",
+    "stage": "Seed",
+    "category": "Consumer Product",
+    "what": "A creator-led dairy brand with premium butter and high-protein cottage cheese."
+   }
+  ]
+ }
 }

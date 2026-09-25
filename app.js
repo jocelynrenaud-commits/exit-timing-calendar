@@ -455,6 +455,25 @@
         }
 
         h += '<p class="note">' + esc(d.structure || '') + '</p>';
+
+        /* WHAT THE FUND ACTUALLY HOLDS.
+           A fund card that lists only terms tells you the shape of the wrapper and nothing
+           about what is inside it. Where a sponsor has published its portfolio, it goes here
+           -- names and a line each, never their financials. */
+        const H = d.holdings;
+        if (H && H.companies && H.companies.length) {
+          h += '<div class="note" style="margin:16px 0 6px"><b>What it holds</b> · '
+            + H.companies.length + ' companies'
+            + (H.asOf ? ' as at ' + esc(H.asOf) : '') + '</div>'
+            + (H.note ? '<p class="note" style="margin:0 0 8px">' + esc(H.note) + '</p>' : '')
+            + H.companies.map((c) => '<div style="padding:6px 0;border-top:1px solid var(--rule);'
+                + 'font-size:12.5px"><b>' + esc(c.name) + '</b>'
+                + (c.stage ? ' <span style="color:var(--muted);font-size:11px">' + esc(c.stage)
+                    + (c.category ? ' · ' + esc(c.category) : '') + '</span>' : '')
+                + '<div class="note" style="margin:2px 0 0">' + esc(c.what || '') + '</div></div>').join('')
+            + (H.source ? '<p class="note" style="margin-top:8px;color:var(--muted)">Source: '
+                + esc(H.source) + '</p>' : '');
+        }
         if (d.liquidity && d.liquidity.source) {
           h += '<p class="note" style="margin-top:6px">Pays out over years '
             + d.liquidity.fromYear + ' to ' + d.liquidity.toYear + ' from funding. '
