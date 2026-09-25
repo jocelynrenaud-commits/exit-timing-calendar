@@ -63,9 +63,7 @@
   "hold": 8,
   "coupon": 0.12,
   "moic": 3.27,
-  "conviction": "High",
-  "liqFrom": 5,
-  "liqTo": 8
+  "conviction": "High"
  },
  {
   "name": "SpaceStation Fund",
