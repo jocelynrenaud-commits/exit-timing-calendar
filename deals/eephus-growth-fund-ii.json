@@ -12,13 +12,19 @@
  "subStrategy": "Syndicated real estate, multi-property",
  "terms": {
   "couponPct": 0.06,
-  "couponNote": "Class A-4, quarterly.",
+  "couponNote": "Tiered by share class, set by how much you invest, and the ladder is NOT the same as Fund I. A-1 ($1M+) 9%, A-2 ($500k+) 8%, A-3 ($250k+) 8%, A-4 ($100k+) 7%, A-5 ($50k+) 6%. Annualised and non-compounding, on Unreturned Capital Value.",
   "holdYears": 5,
   "holdNote": "PPM states a 5-7 year hold.",
   "equityKicker": 0.5,
   "sponsorMoic": 1.75,
   "mgmtFee": 0.02,
-  "minimum": 50000
+  "minimum": 50000,
+  "couponAccrual": "Accrues from the LATER of the date you fund or the date the Company deploys your contribution. Contributions made on different dates accrue separately.",
+  "mgmtFeeNote": "2% of effective gross income from the properties, paid monthly. On income, not on committed capital.",
+  "carry": "30% catch-up to Class B, then 70/30 to a 15% IRR, then 50/50",
+  "carryNote": "Preferred returns first, with 30% of those distributions credited to a Class B catch-up account; then Class B until the catch-up is cleared; then 70/30 until Class A reach a 15% IRR; then 50/50.",
+  "minimumNote": "$50,000 buys the lowest class (A-5).",
+  "offeringSize": 30000000
  },
  "liquidity": {
   "fromYear": 4,
@@ -29,33 +35,53 @@
  "singleCompany": false,
  "structure": "Second vintage of the Eephus real estate fund. Same structure as Fund I.",
  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
- "asOf": "2026-09-24",
- "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC.",
+ "asOf": "2026-09-25",
+ "source": "Private Placement Memorandum and Operating Agreement of Eephus Growth Fund II, LLC dated 30 Dec 2025, plus the Class A-5 subscription agreement and the 506(c) business plan.",
  "variesByHolder": [
   "couponPct"
  ],
- "variesNote": "Your preferred rate depends on your share class: 8% for A-1 and A-2, 7% for A-3, 6% for A-4. This file carries 6%. The documents do not say what sets the class — if it is ticket size, tell me the breakpoints and the tool will pick your rate automatically. Until then, type your rate into your tracker; what you type wins.",
+ "variesNote": "Your preferred rate is set by how much you invested, and the tool now works your class out from your commitment. Fund II runs a finer ladder than Fund I and pays 9% at the top: 9% from $1M, 8% from $250k, 7% from $100k, 6% from $50k.",
  "tiers": {
-  "basis": "class",
-  "unknownBreakpoints": true,
-  "source": "Tiered by share class: A-1/A-2 8%, A-3 7%, A-4 6%. The documents state the RATE per class but not what sets the class, so this cannot be resolved from a commitment yet.",
+  "basis": "commitment",
+  "source": "PPM, Offering Structure table and the Preferred Return definition: units are $1,000 each and each class states a minimum unit count.",
   "bands": [
    {
-    "label": "Class A-1 / A-2",
+    "min": 50000,
+    "max": 100000,
+    "label": "Class A-5 ($50k+)",
     "terms": {
-     "couponPct": 0.08
+     "couponPct": 0.06
     }
    },
    {
-    "label": "Class A-3",
+    "min": 100000,
+    "max": 250000,
+    "label": "Class A-4 ($100k+)",
     "terms": {
      "couponPct": 0.07
     }
    },
    {
-    "label": "Class A-4",
+    "min": 250000,
+    "max": 500000,
+    "label": "Class A-3 ($250k+)",
     "terms": {
-     "couponPct": 0.06
+     "couponPct": 0.08
+    }
+   },
+   {
+    "min": 500000,
+    "max": 1000000,
+    "label": "Class A-2 ($500k+)",
+    "terms": {
+     "couponPct": 0.08
+    }
+   },
+   {
+    "min": 1000000,
+    "label": "Class A-1 ($1M+)",
+    "terms": {
+     "couponPct": 0.09
     }
    }
   ]

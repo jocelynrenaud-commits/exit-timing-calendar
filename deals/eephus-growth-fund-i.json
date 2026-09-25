@@ -12,13 +12,19 @@
  "subStrategy": "Syndicated real estate, multi-property",
  "terms": {
   "couponPct": 0.06,
-  "couponNote": "Class A-4. Tiered by class: A-1/A-2 8%, A-3 7%, A-4 6%. Non-compounding, on unreturned capital.",
+  "couponNote": "Tiered by share class, and the class is set by how much you invest. A-1 ($500k+) 8%, A-2 ($250k+) 8%, A-3 ($100k+) 7%, A-4 ($50k+) 6%. Annualised and NON-COMPOUNDING, on Unreturned Capital Contributions.",
   "holdYears": 5,
   "holdNote": "PPM states a 5-7 year hold; the economics reconcile at 5.",
   "equityKicker": 0.5,
   "sponsorMoic": 1.8,
   "mgmtFee": 0.02,
-  "minimum": 50000
+  "minimum": 50000,
+  "couponAccrual": "Accrues from the LATER of the date you fund or the date the Company deploys your contribution, so the clock can start after your money goes in.",
+  "mgmtFeeNote": "2.0% monthly asset management fee on EFFECTIVE GROSS INCOME from the assets, not on committed capital. It is not comparable to a 2% fund-level fee.",
+  "carry": "30% to Class B after the preferred, then Class A to a 20% ARR, then 50/50",
+  "carryNote": "Distributable Cash: preferred returns first in class order, then 100% to Class B until they have 30% of all Distributable Cash, then to Class A until a 20% average annual return, then 50/50 between Class A and Class B.",
+  "minimumNote": "$50,000 buys the lowest class (A-4). Higher classes need larger cheques.",
+  "offeringSize": 15000000
  },
  "liquidity": {
   "fromYear": 4,
@@ -29,33 +35,45 @@
  "singleCompany": false,
  "structure": "Syndicated real estate fund holding several properties. Pays a quarterly preferred return from current income, with an equity share on the sale of the assets.",
  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
- "asOf": "2026-09-24",
- "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC.",
+ "asOf": "2026-09-25",
+ "source": "Private Placement Memorandum and Operating Agreement of Eephus Growth Fund, LLC (final), plus the Class A-4 subscription agreement.",
  "variesByHolder": [
   "couponPct"
  ],
- "variesNote": "Your preferred rate depends on your share class: 8% for A-1 and A-2, 7% for A-3, 6% for A-4. This file carries 6%. The documents do not say what sets the class — if it is ticket size, tell me the breakpoints and the tool will pick your rate automatically. Until then, type your rate into your tracker; what you type wins.",
+ "variesNote": "Your preferred rate is set by how much you invested, and the tool now works your class out from your commitment. 8% at $250k and above, 7% from $100k, 6% from $50k.",
  "tiers": {
-  "basis": "class",
-  "unknownBreakpoints": true,
-  "source": "Tiered by share class: A-1/A-2 8%, A-3 7%, A-4 6%. The documents state the RATE per class but not what sets the class, so this cannot be resolved from a commitment yet.",
+  "basis": "commitment",
+  "source": "PPM, Offering Structure table and the Preferred Returns section: units are $1,000 each and each class states a minimum unit count.",
   "bands": [
    {
-    "label": "Class A-1 / A-2",
+    "min": 50000,
+    "max": 100000,
+    "label": "Class A-4 ($50k+)",
     "terms": {
-     "couponPct": 0.08
+     "couponPct": 0.06
     }
    },
    {
-    "label": "Class A-3",
+    "min": 100000,
+    "max": 250000,
+    "label": "Class A-3 ($100k+)",
     "terms": {
      "couponPct": 0.07
     }
    },
    {
-    "label": "Class A-4",
+    "min": 250000,
+    "max": 500000,
+    "label": "Class A-2 ($250k+)",
     "terms": {
-     "couponPct": 0.06
+     "couponPct": 0.08
+    }
+   },
+   {
+    "min": 500000,
+    "label": "Class A-1 ($500k+)",
+    "terms": {
+     "couponPct": 0.08
     }
    }
   ]

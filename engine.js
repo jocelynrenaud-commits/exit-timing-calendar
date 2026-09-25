@@ -43,8 +43,10 @@ const CFG = {
              term is not the same for every holder, and prints the footnotes it was
              already carrying
        v1.10 where a sponsor prices by ticket size, the tool now picks your class from your
-             commitment instead of telling you to work it out yourself */
-  version: 'v1.10',
+             commitment instead of telling you to work it out yourself
+       v1.11 both Eephus funds rebuilt from their PPMs: the class ladders are real, and
+             Fund II pays 9% at the top where Fund I stops at 8% */
+  version: 'v1.11',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
