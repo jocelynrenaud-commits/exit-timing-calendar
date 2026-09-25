@@ -49,8 +49,10 @@ const CFG = {
        v1.12 BlueBird rebuilt from its PPM and decks -- the terms were already right, the
              description of what it is was not
        v1.13 SpaceStation rebuilt from its Partnership Agreement, and a fund card now lists
-             what the fund actually holds */
-  version: 'v1.13',
+             what the fund actually holds
+       v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
+             Rainmaker documented */
+  version: 'v1.14',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -143,7 +145,17 @@ function buildBook(rows) {
     const hold = num(r.hold) || 10;
     const fy = parseInt(r.yearFunded, 10) || CFG.yearFrom;
     const coupon = num(r.coupon);
+    /* WHEN NOBODY HAS GIVEN US A MULTIPLE.
+       A venture row with no multiple and no coupon used to fall back to 5.0x in silence, and
+       5.0x is not a neutral number -- it is a strong claim. Rainmaker is the case that made
+       this matter: neither its offering documents nor the underwriting call produce a sponsor
+       base case at all, because the deal is sold on multiple expansion rather than a
+       projected MOIC. So anyone loading it got a confident 5.0x that no human ever said.
+       The fallback stays (the model needs a number) but it is now FLAGGED, so the card can
+       say the figure is the tool's convention rather than anybody's projection. */
+    const moicGiven = num(r.moic) > 0;
     const moic = num(r.moic) || (coupon ? 1 + coupon * hold : 5);
+    const moicAssumed = !moicGiven && !(coupon > 0);
 
     // residual exit multiple, so the coupon is never double counted
     let exitMult = moic;
@@ -192,7 +204,7 @@ function buildBook(rows) {
       kind,
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
-      exitMult, deals, isFund, diversified, branches, scales, liq,
+      exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed,
       deal: r._deal || null,          // the shared file this matched, if any
       overrides: r._ovr || [],        // fields the holder typed over that file
       tier: r._tier || null,          // the band this commitment landed in, if resolvable

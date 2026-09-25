@@ -378,7 +378,8 @@
         + row('Still callable', x.uncalled ? money(x.uncalled) : DASH, x.uncalled ? 'neg' : 'z')
         + row('Year funded', x.fy)
         + '</div><div><div class="note" style="margin:10px 0 4px"><b>What the model makes of it</b></div>'
-        + row('Exits at', mult(x.exitMult) + (x.coupon ? ' residual' : ''))
+        + row('Exits at', mult(x.exitMult) + (x.coupon ? ' residual' : '')
+          + (x.moicAssumed ? ' <span style="color:#9A5B14;font-size:10px">assumed</span>' : ''))
         + row('Expected exit', money(e.exit) + '  ' + mult(e.mult))
         + (e.pref > 0 ? row('Preferred over the hold', money(e.pref), 'pos') : '')
         + row('Pays out', x.spread ? payWindow(x) : payWindow(x) + ' (single date)')
@@ -502,6 +503,16 @@
                 + '</span></span></div>').join('')
             + '</div>';
         }
+      }
+      /* A multiple nobody supplied must not look like one somebody did. */
+      if (x.moicAssumed) {
+        h += '<div style="margin:12px 0 4px;padding:10px 12px;border-radius:8px;'
+          + 'background:#FDF6EE;border:1px solid #E6C79A;font-size:12.5px;line-height:1.6;'
+          + 'color:#7A4A15"><b>Nobody has given this deal a multiple, so the tool assumed one.</b> '
+          + 'It is using ' + mult(x.moic) + ', which is this tool\u2019s convention for a venture '
+          + 'deal with nothing to exit on \u2014 not the sponsor\u2019s projection and not a figure '
+          + 'anyone quoted. Put your own number in the Sponsor MOIC column and it will be used '
+          + 'instead.</div>';
       }
       if (x.thesis) {
         h += '<div class="note" style="margin:16px 0 4px"><b>Why you did it</b></div>'

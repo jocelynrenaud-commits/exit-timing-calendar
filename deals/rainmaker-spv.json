@@ -1,25 +1,53 @@
 {
-  "slug": "rainmaker-spv",
-  "name": "Rainmaker SPV",
-  "aliases": [
-    "Rainmaker SPV",
-    "Rainmaker",
-    "Rainmaker SPV - Plan A"
-  ],
-  "sponsor": "Spacestation Investments (AngelList syndicate)",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": null
-  },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+ "slug": "rainmaker-spv",
+ "name": "Rainmaker SPV",
+ "aliases": [
+  "Rainmaker SPV",
+  "Rainmaker",
+  "Rainmaker SPV - Plan A"
+ ],
+ "sponsor": "Spacestation Investments (SPV) · Rainmaker Technology Corporation",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Cloud seeding / water production",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 10,
+  "sponsorMoic": null,
+  "sponsorMoicNote": "THERE IS NO SPONSOR BASE CASE FOR THIS DEAL. Neither the offering materials nor the June 2026 underwriting call produced a target MOIC or IRR — it is sold on multiple expansion, not on a projected multiple. Entry is a SAFE at a $450M post-money cap, about 10x forward revenue. The upside framing given was that $450M looks like a modest markup IF the company reaches $100B+, which is a framing, not a projection. Put your own number in if you hold this.",
+  "holdNote": "Founder messaging was roughly five years while keeping control. An IPO was described as not viable until well past unicorn status, so 5+ years; the underwriting modelled exits across 2030-2035. Secondary sale is the more likely early liquidity route than IPO or acquisition.",
+  "minimum": 10000,
+  "minimumNote": "$10,000 minimum into the SPV; up to $6M of allocation was offered to GC.",
+  "mgmtFee": null,
+  "feeNote": "Accessed through a Spacestation-sponsored AngelList SPV, NOT the main fund. Fees are FRONT-LOADED at roughly 8-10% in year one, described as economically similar to 2-and-20 over the life. That drag comes off the top of whatever the company does.",
+  "instrument": "SAFE, $450M post-money cap",
+  "instrumentNote": "A bare SAFE: no liquidation preference and no rights at the time of the call. The side letter was expected to carry information rights and a 20% discount; pro-rata was being pursued but not guaranteed, and MFN and major-investor status were thought unlikely. The cap rose from $350M to $450M within weeks, roughly a 28% premium to the Series B.",
+  "qsbs": false,
+  "qsbsNote": "Does NOT qualify for QSBS — the company exceeds the gross-assets threshold."
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "Rainmaker Technology Corporation, a cloud-seeding and water-production company, held through a Spacestation-sponsored SPV on a SAFE. The return is pure venture multiple expansion — no yield, no preference, no downside protection. The bull case rests on the company being classified as sovereign infrastructure (\"American Dynamism\", ~28x revenue comps) rather than as a drone company (~5x) or water infrastructure (~3x); entry at ~10x forward revenue is cheap against the first frame and two to three times overpriced against the others.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Spacestation underwriting call and founder Q&A, Salt Lake City, 13 and 16 June 2026 (Granola transcripts); the GC deal-comparison IC memo; the Rainmaker pitch deck and deal memo. The pitch decks are image-only and carry no extractable text.",
+ "liquidityNote": "One company, so it exits on one date rather than selling down. Spacestation controls any SPV-level secondary decision on behalf of all LPs, so the timing is not the holder’s to choose.",
+ "keyRisks": [
+  "Comp frame. The whole case turns on which cohort the market puts it in: ~28x, ~5x or ~3x.",
+  "Validation. Efficacy evidence was largely internal at the time of the call; third-party publication was the keystone and had not landed.",
+  "Regulatory and public perception around cloud seeding, notwithstanding existing permits.",
+  "Single mechanism. Silver-iodide flares were the only method in use, with no fallback discussed.",
+  "Hardware scaling from roughly $4M to $40M to $100M of revenue in 24 months is a field-operations problem, not a software one.",
+  "A bare SAFE with no preference, in a deal priced at a premium to its own last round.",
+  "First-time founder at this scale, partially mitigated by the executive bench."
+ ],
+ "reportedFigures": {
+  "note": "Operating figures as reported on the June 2026 calls. The two sessions did not agree with each other, which is recorded rather than reconciled.",
+  "revenue": "One session gave $0 (2023), $14M (2024), $41M (2025) with $100M+ projected in year three; another gave ~$15M (2025) and a $42.6M 2026 target.",
+  "margin": "Contribution margin ~42%, with an automation target near 80%. ~$1M contract minimum.",
+  "balance": "Post-close cash $80M+, burn $2-3M/month, roughly 30 months of runway."
+ },
+ "provisional": true,
+ "provisionalNote": "Terms here come from the underwriting call and the IC memo rather than from an executed SAFE or side letter. Several mechanics were still open at the time: whether the cap is cap-only or cap plus discount, whether the SAFE is pre- or post-money, the scope of any MFN, and what a holder receives on an acquisition before conversion. If you have the executed documents, they beat everything here."
 }
