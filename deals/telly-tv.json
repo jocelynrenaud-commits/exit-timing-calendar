@@ -20,8 +20,7 @@
   "instrument": "SAFE, $600M pre-money valuation cap",
   "instrumentNote": "An INSIDER round: Spacestation’s second investment in Telly, following a 2024 SAFE at a $150M valuation. So this entry is 4x their own prior entry, eighteen months later.",
   "minimum": 5000,
-  "spvFees": "5% management fee + 20% carry (preferential; standard is 8% + 20%)",
-  "spvFeeNote": "YOUR SPV FEE IS 5%, NOT 8% — AND IT IS EARNED AT THE FUND, NOT THE DEAL. The executed side letter sets Standard SPV Terms of an 8% management fee and 20% carry, with Preferential Terms of 5% and 20% for an investor who has committed $250,000 to the sponsor’s fund. That $250,000 is the SpaceStation Fund commitment itself, not extra money put into this deal — committing to the fund buys a fee discount across the SPVs Spacestation sponsors. THE DEPENDENCY IS WORTH KNOWING: the discount is contingent on the full $250,000 actually being subscribed at the Fund’s first closing and on remaining a non-defaulting partner. Fail either and a Make-Whole Amount falls due — the difference between 8%/20% and what was charged — on every SPV that carries this letter, deducted from distributions if unpaid. So the uncalled balance on the SpaceStation Fund is more binding than an ordinary capital call: defaulting would cost the fund position AND the fee terms on the SPVs beside it."
+  "spvFees": "5% management fee + 20% carry (preferential; standard is 8% + 20%)"
  },
  "liquidity": null,
  "dealsInFund": 1,
@@ -43,5 +42,6 @@
  "variesByHolder": [
   "spvFees"
  ],
- "variesNote": "YOUR SPV FEE DEPENDS ON WHETHER YOU COMMITTED TO THE FUND, so two holders of this same SPV can be paying different rates. Standard SPV Terms are an 8% management fee and 20% carry. Preferential Terms of 5% and 20% apply to an investor who has committed $250,000 to the sponsor’s fund — and that commitment is the SpaceStation Fund position itself, not extra money in this deal. Check which set your own side letter gives you before reading the fee line as yours."
+ "variesNote": "YOUR SPV FEE DEPENDS ON WHETHER YOU COMMITTED TO THE FUND, so two holders of this same SPV can be paying different rates. Standard SPV Terms are an 8% management fee and 20% carry. Preferential Terms of 5% and 20% apply to an investor who has committed $250,000 to the sponsor’s fund — and that commitment is the SpaceStation Fund position itself, not extra money in this deal. Check which set your own side letter gives you before reading the fee line as yours.",
+ "spvFeeDetail": "YOUR SPV FEE IS 5%, NOT 8% — AND IT IS EARNED AT THE FUND, NOT THE DEAL. The executed side letter sets Standard SPV Terms of an 8% management fee and 20% carry, with Preferential Terms of 5% and 20% for an investor who has committed $250,000 to the sponsor’s fund. That $250,000 is the SpaceStation Fund commitment itself, not extra money put into this deal — committing to the fund buys a fee discount across the SPVs Spacestation sponsors. THE DEPENDENCY IS WORTH KNOWING: the discount is contingent on the full $250,000 actually being subscribed at the Fund’s first closing and on remaining a non-defaulting partner. Fail either and a Make-Whole Amount falls due — the difference between 8%/20% and what was charged — on every SPV that carries this letter, deducted from distributions if unpaid. So the uncalled balance on the SpaceStation Fund is more binding than an ordinary capital call: defaulting would cost the fund position AND the fee terms on the SPVs beside it."
 }

@@ -1,0 +1,35 @@
+{
+ "name": "Amplifi Companies",
+ "aliases": [
+  "Amplifi Companies",
+  "Amplifi",
+  "Amplifi Co"
+ ],
+ "sponsor": "Amplifi Companies (Reg CF SAFE)",
+ "assetClass": "VC",
+ "vehicle": "SAFE",
+ "subStrategy": "Asset manager / platform company",
+ "uwScore": 79,
+ "terms": {
+  "couponPct": null,
+  "sponsorMoic": 6.9,
+  "sponsorMoicNote": "Base ~6.9x gross MOIC over 8 years, with ~28.9x modelled as the upside over 10. The file carries the base. Both figures are described as modelled rather than underwritten, which is a meaningful distinction for a company whose value depends on a product that has not launched.",
+  "holdYears": 8,
+  "holdNote": "Base 8 years; the upside case is modelled at 10."
+ },
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "liquidity": null,
+ "structure": "An early position in the manager itself rather than in any one of its deals — an interval fund wrapper plus the distribution engine that feeds it. The return comes from a FEE FRANCHISE: if assets under management arrive and stay, the economics compound on the management company. Held as a Reg CF SAFE.",
+ "keyRisks": [
+  "The thesis depends on a product that has not launched. The scorecard is explicit that underwriting hinges on the interval fund launching and on AUM conversion and retention.",
+  "A SAFE has no maturity and no coupon; it converts on a priced round that has to happen.",
+  "Buying the manager means concentrated exposure to one firm’s distribution, which is correlated with every other deal sourced through it.",
+  "Lowest score of the fund-and-platform set at 79/100."
+ ],
+ "modelFit": "Priced on the single-deal venture table: roughly 30% of outcomes at zero, a median at about 1.0x, and the sponsor’s own multiple only in the best tenth of outcomes. For a revenue-generating consumer business that downside is drawn more harshly than the facts warrant.",
+ "source": "Amplifi deal scorecard comparison tables, captured from the Ancient Crunch scorecard and the Aerolane underwrite session, and supplied by a GC member in September 2026. These are SUMMARY figures: the underlying memo for this deal has not been read, so the terms here are thinner than on a card built from offering documents.",
+ "provisional": "Built from a summary table rather than the deal’s own documents. Treat the terms as indicative until the memo is read.",
+ "slug": "amplifi-companies",
+ "asOf": "2026-09-26"
+}

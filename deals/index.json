@@ -1,43 +1,59 @@
 {
  "about": "Index of shareable deal files. The app matches a row in your tracker to one of these by name or alias and fills in the terms, so you only have to type your own numbers. A deal that is not listed still works; you just supply its terms yourself.",
- "asOf": "2026-09-25",
+ "asOf": "2026-09-26",
  "deals": [
   {
-   "slug": "eephus-growth-fund-i",
-   "name": "Eephus Growth Fund I",
+   "slug": "aerolane",
+   "name": "Aerolane",
    "aliases": [
-    "Eephus Growth Fund I",
-    "Eephus I",
-    "Eephus Fund I"
+    "Aerolane",
+    "Aerolane",
+    "Aerolane - Plan A"
    ],
-   "assetClass": "Real Estate",
-   "vehicle": "Fund",
-   "sponsor": "Eephus Growth Fund, LLC"
-  },
-  {
-   "slug": "eephus-growth-fund-ii",
-   "name": "Eephus Growth Fund II",
-   "aliases": [
-    "Eephus Growth Fund II",
-    "Eephus II",
-    "Eephus Fund II"
-   ],
-   "assetClass": "Real Estate",
-   "vehicle": "Fund",
-   "sponsor": "Eephus Growth Fund, LLC"
-  },
-  {
-   "slug": "bluebird-capital",
-   "name": "BlueBird Capital",
-   "aliases": [
-    "BlueBird Capital",
-    "BlueBird Capital (Tranche 1)",
-    "BlueBird Capital (Tranche 2)",
-    "Bluebird"
-   ],
-   "assetClass": "Private Equity",
+   "assetClass": "VC",
    "vehicle": "SPV",
-   "sponsor": "BlueBird Capital Group, LP"
+   "sponsor": "Spacestation / Belltower Fund Group, Ltd."
+  },
+  {
+   "slug": "aerthlings",
+   "name": "AERTHLINGS",
+   "aliases": [
+    "AERTHLINGS",
+    "AERTHLINGS",
+    "AERTHLINGS - Plan A"
+   ],
+   "assetClass": "VC",
+   "vehicle": "SPV",
+   "sponsor": "Spacestation 89 / Spacestation Investments 1, LLC"
+  },
+  {
+   "slug": "amplifi-companies",
+   "name": "Amplifi Companies",
+   "aliases": [
+    "Amplifi Companies",
+    "Amplifi",
+    "Amplifi Co"
+   ],
+   "assetClass": "VC",
+   "vehicle": "SAFE",
+   "sponsor": "Amplifi Companies (Reg CF SAFE)"
+  },
+  {
+   "slug": "asilia-credit-fund-evergreen",
+   "name": "Asilia Credit Fund Evergreen (Fund II)",
+   "aliases": [
+    "ACEF",
+    "ACF2",
+    "ACFE",
+    "Asilia Credit Evergreen",
+    "Asilia Credit Evergreen Fund",
+    "Asilia Credit Fund Evergreen",
+    "Asilia Credit Fund II",
+    "Asilia Credit Investments Fund II"
+   ],
+   "assetClass": "Private Credit",
+   "vehicle": "Fund",
+   "sponsor": "Asilia Credit Investments"
   },
   {
    "slug": "asilia-debt-fund",
@@ -67,29 +83,65 @@
    "sponsor": "Asilia Credit Investments"
   },
   {
-   "slug": "spacestation-fund",
-   "name": "SpaceStation Fund",
+   "slug": "bluebird-capital",
+   "name": "BlueBird Capital",
    "aliases": [
-    "SpaceStation Fund",
-    "SPVC Ventures Fund I",
-    "SpaceStation",
-    "SPVC"
+    "BlueBird Capital",
+    "BlueBird Capital (Tranche 1)",
+    "BlueBird Capital (Tranche 2)",
+    "Bluebird"
    ],
-   "assetClass": "VC",
-   "vehicle": "Fund",
-   "sponsor": "SPVC Ventures Fund I, L.P."
+   "assetClass": "Private Equity",
+   "vehicle": "SPV",
+   "sponsor": "BlueBird Capital Group, LP"
   },
   {
-   "slug": "aerolane",
-   "name": "Aerolane",
+   "slug": "eephus-growth-fund-i",
+   "name": "Eephus Growth Fund I",
    "aliases": [
-    "Aerolane",
-    "Aerolane",
-    "Aerolane - Plan A"
+    "Eephus Growth Fund I",
+    "Eephus I",
+    "Eephus Fund I"
+   ],
+   "assetClass": "Real Estate",
+   "vehicle": "Fund",
+   "sponsor": "Eephus Growth Fund, LLC"
+  },
+  {
+   "slug": "eephus-growth-fund-ii",
+   "name": "Eephus Growth Fund II",
+   "aliases": [
+    "Eephus Growth Fund II",
+    "Eephus II",
+    "Eephus Fund II"
+   ],
+   "assetClass": "Real Estate",
+   "vehicle": "Fund",
+   "sponsor": "Eephus Growth Fund, LLC"
+  },
+  {
+   "slug": "freaks-of-nature",
+   "name": "Freaks of Nature",
+   "aliases": [
+    "Freaks of Nature",
+    "FoN",
+    "Freaks of Nature Skincare"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
-   "sponsor": "Spacestation / Belltower Fund Group, Ltd."
+   "sponsor": "Amplifi / GC SPV · Freaks of Nature"
+  },
+  {
+   "slug": "malbon",
+   "name": "Malbon",
+   "aliases": [
+    "Malbon",
+    "Malbon Golf",
+    "Malbon Golf Co"
+   ],
+   "assetClass": "VC",
+   "vehicle": "SPV",
+   "sponsor": "Amplifi / GC SPV · Malbon Golf"
   },
   {
    "slug": "next-life-sciences",
@@ -104,16 +156,30 @@
    "sponsor": "Spacestation 87 / Spacestation Investments 1, LLC"
   },
   {
-   "slug": "turbo-insurance",
-   "name": "Turbo Insurance",
+   "slug": "nooshee",
+   "name": "Nooshee",
    "aliases": [
-    "Turbo Insurance",
-    "Turbo Insurance",
-    "Turbo Insurance - Plan A"
+    "Nooshee",
+    "Nooshée",
+    "Nooshee Inc"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
-   "sponsor": "Amplifi Turbo LLC"
+   "sponsor": "Amplifi / GC SPV · Nooshee"
+  },
+  {
+   "slug": "philo-hospitality-fund-i",
+   "name": "Philo Hospitality Fund I",
+   "aliases": [
+    "Philo Hospitality Fund I",
+    "Philo Hospitality Fund 1",
+    "Philo Hospitality",
+    "Philo Ventures",
+    "Philo Fund I"
+   ],
+   "assetClass": "Real Estate",
+   "vehicle": "Fund",
+   "sponsor": "Philo Ventures"
   },
   {
    "slug": "rainmaker-spv",
@@ -128,18 +194,6 @@
    "sponsor": "Spacestation Investments (AngelList syndicate)"
   },
   {
-   "slug": "aerthlings",
-   "name": "AERTHLINGS",
-   "aliases": [
-    "AERTHLINGS",
-    "AERTHLINGS",
-    "AERTHLINGS - Plan A"
-   ],
-   "assetClass": "VC",
-   "vehicle": "SPV",
-   "sponsor": "Spacestation 89 / Spacestation Investments 1, LLC"
-  },
-  {
    "slug": "rorra",
    "name": "Rorra",
    "aliases": [
@@ -150,6 +204,31 @@
    "assetClass": "VC",
    "vehicle": "SPV",
    "sponsor": "Spacestation / Belltower Fund Group, Ltd."
+  },
+  {
+   "slug": "spacestation-fund",
+   "name": "SpaceStation Fund",
+   "aliases": [
+    "SpaceStation Fund",
+    "SPVC Ventures Fund I",
+    "SpaceStation",
+    "SPVC"
+   ],
+   "assetClass": "VC",
+   "vehicle": "Fund",
+   "sponsor": "SPVC Ventures Fund I, L.P."
+  },
+  {
+   "slug": "stix",
+   "name": "STIX",
+   "aliases": [
+    "STIX",
+    "Stix",
+    "STIX Golf"
+   ],
+   "assetClass": "VC",
+   "vehicle": "SPV",
+   "sponsor": "Amplifi / GC SPV · STIX"
   },
   {
    "slug": "telly-tv",
@@ -164,21 +243,16 @@
    "sponsor": "Spacestation 88 / Spacestation Investments 1, LLC"
   },
   {
-   "slug": "asilia-credit-fund-evergreen",
-   "name": "Asilia Credit Fund Evergreen (Fund II)",
+   "slug": "turbo-insurance",
+   "name": "Turbo Insurance",
    "aliases": [
-    "ACEF",
-    "ACF2",
-    "ACFE",
-    "Asilia Credit Evergreen",
-    "Asilia Credit Evergreen Fund",
-    "Asilia Credit Fund Evergreen",
-    "Asilia Credit Fund II",
-    "Asilia Credit Investments Fund II"
+    "Turbo Insurance",
+    "Turbo Insurance",
+    "Turbo Insurance - Plan A"
    ],
-   "assetClass": "Private Credit",
-   "vehicle": "Fund",
-   "sponsor": "Asilia Credit Investments"
+   "assetClass": "VC",
+   "vehicle": "SPV",
+   "sponsor": "Amplifi Turbo LLC"
   }
  ]
 }

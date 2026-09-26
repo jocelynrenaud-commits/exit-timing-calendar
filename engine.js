@@ -52,11 +52,13 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.17 a preferred return is no longer certain: it is impaired by the same outcome
+             draw as the exit, so the fund that hands back less also pays less
        v1.16 IRR by deal, asset class and scenario; a Marked Up MOIC column that drives a
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.16',
+  version: 'v1.17',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -125,6 +127,19 @@ const CFG = {
      eighteen -- into a single bar jammed against the right edge, exactly where the
      interesting tail is. Extended to 4.5x and the bin count raised to match, so the
      bars are the same width and there is simply more chart. */
+  /* HOW MUCH OF A PREFERRED RETURN ACTUALLY ARRIVES, by how the deal turned out.
+     A preferred return is contractual, not guaranteed: a sponsor who is not earning can
+     suspend it, and the fund most likely to suspend it is the fund that is also about to
+     hand back less than plan. So this is keyed to the SAME outcome draw as the exit, not
+     to an independent one. Shares of the scheduled preferred that get paid:
+         equity written off      pays a couple of early years, then stops
+         well below plan         most of it
+         below plan              nearly all of it
+         at or above plan        all of it
+     These are judgements, not findings, and they are deliberately in CFG where they can be
+     argued with rather than buried in the loop. */
+  prefPaid: { writeOff: 0.25, wellBelow: 0.70, below: 0.90, onPlan: 1.00 },
+
   histBins: 40,
   histMax: 4.0,        // multiple on committed; anything above gathers into the last bin
   yearFrom: 2026,
@@ -300,6 +315,22 @@ function callSchedule(book, years) {
 /* Preferred returns, also deterministic. This is the most optimistic assumption in the
    model and the app says so on screen: a sponsor CAN suspend a coupon, and if that is
    on the table the income sleeve's floor is softer than it looks here. */
+/* The share of a position's scheduled preferred return that gets paid, given the exit
+   multiple drawn for it on this path. `m` is the already-drawn outcome, so no extra random
+   number is taken and the draw order -- and therefore every existing figure that does not
+   involve a preferred return -- is untouched. */
+function prefFactor(b, m) {
+  if (!(b.coupon > 0)) return 0;
+  const P = CFG.prefPaid;
+  /* For an income position the table SCALES the sponsor's multiple, so m / exitMult
+     recovers the band that was drawn: 0 for a write-off, up to 1 for the full case. */
+  const r = (b.scales && b.exitMult > 0) ? (m / b.exitMult) : (m > 0 ? 1 : 0);
+  if (!(r > 0.001)) return P.writeOff;
+  if (r < 0.65) return P.wellBelow;
+  if (r < 0.95) return P.below;
+  return P.onPlan;
+}
+
 function couponSchedule(book, years) {
   const out = {};
   for (const y of years) out[y] = 0;
@@ -372,7 +403,12 @@ function dealStream(b, off, m) {
     for (let k = 0; k < CFG.callYears; k++) f.push([b.fy + 1 + k, -b.uncalled / CFG.callYears]);
   }
   if (b.coupon > 0) {
-    for (let k = 1; k <= b.hold; k++) f.push([b.fy + k, b.commitment * b.coupon]);
+    /* Impaired by the same draw the exit uses. An IRR computed on a preferred return that
+       never fails would disagree with the cash tables beside it. */
+    const pf = prefFactor(b, m);
+    if (pf > 0) {
+      for (let k = 1; k <= b.hold; k++) f.push([b.fy + k, b.commitment * b.coupon * pf]);
+    }
   }
   const cash = b.commitment * m;
   if (cash > 0) {
@@ -436,10 +472,13 @@ function simulate(book, opts) {
   for (let y = CFG.yearFrom; y <= CFG.yearTo; y++) years.push(y);
   if (!book.length) return null;
 
-  const coupon = couponSchedule(book, years);
+  /* The CONTRACTUAL schedule, still computed, because a reader wants to know what was
+     promised as well as what the model expects to arrive. It is no longer what gets paid. */
+  const couponSched = couponSchedule(book, years);
   const calls = callSchedule(book, years);
-  const per = {}, cum = {};
-  for (const y of years) { per[y] = []; cum[y] = []; }
+  const per = {}, cum = {}, cpn = {};
+  for (const y of years) { per[y] = []; cum[y] = []; cpn[y] = []; }
+  const cpnTotals = [];
   const totals = [];
   const rnd = makeRng(20260922);
 
@@ -462,7 +501,8 @@ function simulate(book, opts) {
 
   for (let p = 0; p < paths; p++) {
     const yr = {};
-    for (const y of years) yr[y] = 0;
+    const cp = {};
+    for (const y of years) { yr[y] = 0; cp[y] = 0; }
     const pooled = wantIrr ? [] : null;
     const classFlows = {};
     for (let bi = 0; bi < book.length; bi++) {
@@ -473,6 +513,25 @@ function simulate(book, opts) {
       if (m === null) m = b.exitMult;          // top branch: the full exit
       else if (b.scales) m = m * b.exitMult;   // tight tables scale it
       const cash = b.commitment * m;
+
+      /* The preferred return for THIS future, impaired by how this deal went. Added to the
+         same yr[] bucket the exit proceeds use, so everything downstream -- the cumulative
+         table, the totals, the cone, the histogram -- sees one number and cannot disagree
+         with itself. */
+      if (b.coupon > 0) {
+        const pf = prefFactor(b, m);
+        if (pf > 0) {
+          for (let k = 1; k <= b.hold; k++) {
+            const y = b.fy + k;
+            if (yr[y] != null) {
+              const amt = b.commitment * b.coupon * pf;
+              yr[y] += amt;
+              cp[y] += amt;
+            }
+          }
+        }
+      }
+
       /* BEFORE the early return below, because a position that returns nothing is not an
          absence of data -- it is a -100% IRR, and it is 30% of the outcomes for a single
          venture deal. Skipping it here would quietly drop the entire left tail. */
@@ -507,13 +566,17 @@ function simulate(book, opts) {
       }
     }
     let run = 0, tot = 0;
+    let cpTot = 0;
     for (const y of years) {
-      const v = yr[y] + coupon[y];
+      const v = yr[y];
       per[y].push(v);
+      cpn[y].push(cp[y]);
+      cpTot += cp[y];
       run += v; cum[y].push(run);
       tot += v;
     }
     totals.push(tot);
+    cpnTotals.push(cpTot);
 
     /* THE RULE THIS WHOLE FEATURE TURNS ON. A portfolio IRR is the IRR of the pooled cash
        flow, solved ONCE per run and only then ranked across runs. It is not the average of
@@ -541,7 +604,11 @@ function simulate(book, opts) {
 
   const byYear = years.map((y) => ({
     year: y,
-    coupon: coupon[y],
+    /* The TYPICAL preferred return now, not the contractual one, so this column and the
+       median beside it describe the same future. `couponScheduled` carries what the
+       documents promise. */
+    coupon: q(cpn[y], 0.50),
+    couponScheduled: couponSched[y],
     calls: calls[y],
     med: q(per[y], 0.50),
     odds: per[y].filter((v) => v > 0).length / per[y].length,
@@ -566,7 +633,9 @@ function simulate(book, opts) {
     histBins: CFG.histBins, histMax: CFG.histMax,
     totals: {
       committed, funded, uncalled,
-      coupon: years.reduce((a, y) => a + coupon[y], 0),
+      coupon: q(cpnTotals, 0.50),
+      couponScheduled: years.reduce((a, y) => a + couponSched[y], 0),
+      couponP10: q(cpnTotals, 0.10),
       calls: years.reduce((a, y) => a + calls[y], 0),
       p10: q(totals, 0.10), p50: q(totals, 0.50),
       mean: mean(totals), p90: q(totals, 0.90),
@@ -781,5 +850,5 @@ function applyDealFile(row, f) {
 }
 
 const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier,
-                 irrOf, dealStream, sponsorCaseIrr, paperTrack };
+                 irrOf, dealStream, sponsorCaseIrr, paperTrack, prefFactor };
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;

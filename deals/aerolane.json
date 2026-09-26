@@ -14,14 +14,13 @@
   "couponPct": null,
   "holdYears": 8,
   "sponsorMoic": 8.0,
-  "sponsorMoicNote": "Base case is 8-12x MOIC at 50-70% IRR, from the deal memo’s sensitivity analysis on a $100M post-money entry. The file carries 8.0x — the LOW end — because the model puts this figure in the winner branch. NOTE THE BASIS: this is entry-to-exit on the company, BEFORE the SPV’s 8% upfront fee and 20% carry, so what reaches the holder is meaningfully less. The file previously carried 10.0x, which was the midpoint of a range nobody had recorded. Worth knowing where that range comes from: the 8-12x is from the WRITTEN memo. The pitch and underwrite calls produced no formal MOIC model at all — they framed outcomes as a $3-5B IPO valuation at roughly $300M revenue and 30% EBITDA margins, and discussed 20-50x secondary returns as possible rather than forecast.",
+  "sponsorMoicNote": "Base case is 8-12x MOIC at 50-70% IRR, from the deal memo’s sensitivity analysis on a $100M post-money entry. The file carries 8.0x — the LOW end — because the model puts this figure in the winner branch. NOTE THE BASIS: this is entry-to-exit on the company, BEFORE the SPV’s 8% upfront fee and 20% carry, so what reaches the holder is meaningfully less. The file previously carried 10.0x, which was the midpoint of a range nobody had recorded. Worth knowing where that range comes from: the 8-12x is from the WRITTEN memo. The pitch and underwrite calls produced no formal MOIC model at all — they framed outcomes as a $3-5B IPO valuation at roughly $300M revenue and 30% EBITDA margins, and discussed 20-50x secondary returns as possible rather than forecast. A LATER SCORECARD QUOTES \"~50x gross MOIC sensitivity\" FOR THIS DEAL. That is a sensitivity ceiling on the most favourable certification and scaling assumptions, not a base case, and it is not what this card models. The gap between 8x and 50x is the size of the assumption being made about the FAA timeline.",
   "holdNote": "7-10 years for a full exit; 3-5 years for a strategic acquisition or a partial secondary. Management projects an IPO in 2032-2033. Modelled at 8. Previously 10.",
   "instrument": "SAFE (C-Series) with MFN, $100M post-money cap, 10% discount",
   "instrumentNote": "SAFE into the C-Series. Post-money cap $100,000,000 with a 10% discount and MFN, converting at the LOWER of the cap or the next round’s valuation, triggered by a financing above $25M. The round is a $20M SAFE described on the call as fully subscribed by internal investors with Spacestation the sole external participant, due to close 3 April 2026. ~$25M raised previously across a seed round and earlier SAFE notes. Primary issuance into Edge Logistics, Inc. (d/b/a Aerolane), a Delaware C-Corp.",
   "minimum": 10000,
   "minimumNote": "$10,000, set deliberately high enough to avoid hitting the 250-investor SPV cap before the allocation cap.",
-  "spvFees": "8% upfront management fee covering 10 years, plus 20% carry",
-  "spvFeeNote": "The 8% is charged UP FRONT and covers the full ten years — not 8% a year — so it is roughly 0.8%/yr equivalent, but it all comes out at the start. Carry is 20% on exit."
+  "spvFees": "8% upfront management fee covering 10 years, plus 20% carry"
  },
  "liquidity": null,
  "dealsInFund": 1,
@@ -82,5 +81,7 @@
  "phases": {
   "phase1": "Conversions of existing certified aircraft, operating under existing formation-flight and banner-towing rules rather than new rulemaking. This is the near-term revenue.",
   "phase2": "Clean-sheet, eventually unmanned cargo gliders. Materially more complex approvals and the main timeline risk. Most of the Ameriflight value sits here."
- }
+ },
+ "uwScore": 89.5,
+ "spvFeeDetail": "The 8% is charged UP FRONT and covers the full ten years — not 8% a year — so it is roughly 0.8%/yr equivalent, but it all comes out at the start. Carry is 20% on exit."
 }

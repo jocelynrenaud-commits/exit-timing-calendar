@@ -1,0 +1,34 @@
+{
+ "name": "Malbon",
+ "aliases": [
+  "Malbon",
+  "Malbon Golf",
+  "Malbon Golf Co"
+ ],
+ "sponsor": "Amplifi / GC SPV · Malbon Golf",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Consumer brand, secondary common",
+ "uwScore": 85.5,
+ "terms": {
+  "couponPct": null,
+  "sponsorMoic": 2.4,
+  "sponsorMoicNote": "Base range 2.4x–3.0x gross MOIC over 4–5 years, with a 5.2x–6.7x upside over 5–7 years. The file carries 2.4x, the low end of the BASE range.",
+  "holdYears": 5,
+  "holdNote": "Base 4–5 years; upside case runs 5–7. Modelled at 5."
+ },
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "liquidity": null,
+ "structure": "A premium golf lifestyle brand already at real scale, bought as SECONDARY COMMON rather than a primary round — so this is buying an existing holder out, not funding the company. Upside leans on international licensing and joint ventures.",
+ "keyRisks": [
+  "Multi-channel execution: wholesale, owned retail and international licensing all have to work at once, and the scorecard names that complexity as the underwriting risk.",
+  "Secondary common sits behind any preferred stack already on the cap table.",
+  "A lifestyle brand’s value is tied to remaining culturally current, which is not something a model can underwrite."
+ ],
+ "modelFit": "Priced on the single-deal venture table: roughly 30% of outcomes at zero, a median at about 1.0x, and the sponsor’s own multiple only in the best tenth of outcomes. For a revenue-generating consumer business that downside is drawn more harshly than the facts warrant.",
+ "source": "Amplifi deal scorecard comparison tables, captured from the Ancient Crunch scorecard and the Aerolane underwrite session, and supplied by a GC member in September 2026. These are SUMMARY figures: the underlying memo for this deal has not been read, so the terms here are thinner than on a card built from offering documents.",
+ "provisional": "Built from a summary table rather than the deal’s own documents. Treat the terms as indicative until the memo is read.",
+ "slug": "malbon",
+ "asOf": "2026-09-26"
+}

@@ -1,0 +1,60 @@
+{
+ "name": "Philo Hospitality Fund I",
+ "aliases": [
+  "Philo Hospitality Fund I",
+  "Philo Hospitality Fund 1",
+  "Philo Hospitality",
+  "Philo Ventures",
+  "Philo Fund I"
+ ],
+ "sponsor": "Philo Ventures",
+ "assetClass": "Real Estate",
+ "vehicle": "Fund",
+ "subStrategy": "Value-add hospitality, national-park-adjacent",
+ "uwScore": 85.5,
+ "terms": {
+  "couponPct": 0,
+  "couponNote": "THE 8% IS A HURDLE, NOT A CHEQUE. It is the preferred return in the distribution waterfall — the level LPs must clear before the sponsor participates — and it is not a quarterly payment you can plan around. The memo is explicit that the return path is \"execute and sell\", not refinance-and-return-capital-early. So this file records no current preferred return, and the money is modelled as arriving at the sale.",
+  "holdYears": 6,
+  "holdNote": "Target hold 72 months, stated in the memo. Deployment period 12 months.",
+  "sponsorMoic": 2.08,
+  "sponsorMoicNote": "The sponsor’s own base case: 2.08x LP MOIC and a 17.37% LP IRR over 72 months, AFTER GP fees and carry. That is unusually well specified — most cards here carry a gross figure — so read it as directly comparable to what you would actually receive. The memo’s own sensitivity runs 1.0x at breakeven to 2.39x at the upside.",
+  "sponsorIrr": 0.1737,
+  "prefHurdle": 0.08,
+  "waterfall": "8% preferred return, then a 50/50 GP catch-up to 20% of total distributions, then 80/20 to a 14% LP IRR, 70/30 above 14%, and 50/50 above 20%.",
+  "mgmtFee": "1.0% annual asset management fee on contributed equity",
+  "mgmtFeeNote": "Plus a 1.0% acquisition fee and a 1.0% disposition fee. All three are waived for commitments of $1 million or more, so a smaller LP carries the full load.",
+  "minimum": 150000,
+  "offeringSize": "$15.0M of LP equity, targeting 3 assets",
+  "deploymentPeriod": "12 months; undeployed cash sits in a high-yield money market account"
+ },
+ "liquidity": {
+  "fromYear": 5,
+  "toYear": 6,
+  "source": "Execute-and-sell at the end of the 72-month hold; no early refinance assumed"
+ },
+ "dealsInFund": 3,
+ "singleCompany": false,
+ "structure": "A $15 million closed-end fund buying three light- to mid-value-add hotels in drive-to leisure and national-park-adjacent markets across the western U.S. The thesis is specific rather than a commodity property play: independent or weakly flagged assets in gateway markets, bought from a fragmented and unsophisticated seller base, then improved with institutional-grade revenue management, brand refresh, OTA optimisation and phased renovation of roughly $20,000–$30,000 per key. Philo is vertically integrated — acquisitions, operations, development and marketing in one platform — which matters more here than in most real estate, because the return depends on operational execution rather than market appreciation. Hotels stay open during renovation, phased by floor or wing, which preserves interim cash flow.",
+ "scenarios": {
+  "note": "The memo’s own independent sensitivity cases, all net to LPs over ~6 years.",
+  "breakeven": "0.0% IRR / 1.0x — requires NOI to fall about 29.6% AND the exit cap to widen 100 bps",
+  "moderateDownside": "11.14% IRR / 1.62x — NOI down 10%, exit cap up 100 bps",
+  "sponsorBase": "17.37% IRR / 2.08x",
+  "upside": "20.84% IRR / 2.39x — NOI up 5%, exit cap down 50 bps"
+ },
+ "sponsorTrackRecord": "Philo Ventures was founded in 2020, is family-office backed, and reports $229 million of AUM and 50 employees. Five hospitality assets held today: Broken Spur Inn (Capitol Reef UT, 61 keys), Tammah (Jackson Hole WY, 11 keys), The Landing (Ketchikan AK, 107 keys), Zion Promenade (St George UT, 52 keys) and Surfside Resort (Rockaway Beach OR, 70 keys). ONLY ONE IS A COMPLETED VALUE-ADD CYCLE. Broken Spur is the real proof point: bought for $4.3M, $1.44M of renovation, NOI from $525K to $828K (up 58%), now marked at $9.2M. Tammah shows early appreciation ($2.9M build cost against a $4.2M mark). The other three are still at basis. This is also Philo’s first time raising outside capital from retail investors.",
+ "keyRisks": [
+  "THREE ASSETS IS THREE ASSETS. One underperformer — a renovation delay, a demand shock, a failed brand transition — can consume a disproportionate share of the downside cushion at the portfolio level, particularly if it is also the asset with the most leverage or capex complexity.",
+  "Negative leverage. The sample asset is modelled at a 7.98% all-in debt rate on 70% LTC. At that cost, any shortfall in stabilised NOI or any widening of the exit cap compresses equity returns quickly.",
+  "Exit-market dependence. Refinance is set to \"No\" in the sample model, which makes the strategy effectively execute-and-sell. That is not disqualifying, but it leaves the fund more exposed to capital-markets timing than a manager who proves out by refinancing and returning capital early.",
+  "ADR dependence in seasonal markets. A flat average-daily-rate environment would materially impair the projections.",
+  "The 9.0% exit cap is defensible but not conservative for sub-institutional, independent, seasonal assets; the memo itself suggests a 50–150 bps wider sensitivity is fair.",
+  "First outside-capital retail fund, so reporting cadence, investor communications and admin rigour matter more than usual. The team also replaced its construction lead and has not yet completed a full renovation cycle under the new process.",
+  "Thin realised track record: three of five existing assets are still marked at basis."
+ ],
+ "modelFit": "A NOTE ON HOW THIS TOOL PRICES IT, because the fit is poor and saying so is the point. This is a leveraged three-asset real estate fund whose own breakeven case needs a 30% NOI collapse AND 100 bps of cap widening before LPs lose money. The tool prices any position with no current preferred return on a venture power law that puts roughly 30% of outcomes at ZERO, which for this fund is not conservative, it is close to impossible. The timing is right — the payout is staged across the back of the hold — but the downside is drawn far too harshly. There is no real-asset fund branch table in the engine yet; it is on the backlog.",
+ "source": "Philo Hospitality Fund I Growth Circle IC memorandum (Executive Summary, Deal Overview, Sponsor Overview, Operating Model, Market Analysis, Portfolio and Pipeline, Financial Summary and Underwriting, Stress Test and Exit Scenarios, Key Rationale and Risks) and the final fund scorecard, 85.5/100. Supplied by a GC member, September 2026.",
+ "slug": "philo-hospitality-fund-i",
+ "asOf": "2026-09-26"
+}

@@ -1,0 +1,34 @@
+{
+ "name": "Nooshee",
+ "aliases": [
+  "Nooshee",
+  "Nooshée",
+  "Nooshee Inc"
+ ],
+ "sponsor": "Amplifi / GC SPV · Nooshee",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Maternal health hardware / femtech",
+ "uwScore": 86,
+ "terms": {
+  "couponPct": null,
+  "sponsorMoic": 8.4,
+  "sponsorMoicNote": "Base 8.4x gross MOIC, with 22.4x modelled as the upside. The file carries the BASE, because it is stated as a base rather than a range, and the upside is modelled rather than underwritten.",
+  "holdYears": 5,
+  "holdNote": "Stated ~5 years, base and upside both modelled on that horizon."
+ },
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "liquidity": null,
+ "structure": "A sleep-compatible breast pump — a category reset rather than an incremental product, letting mothers pump lying down or asleep. The scorecard credits a strong IP moat. This company also appears in the SpaceStation Fund holdings list, so a holder of both has more exposure to it than either position shows on its own.",
+ "keyRisks": [
+  "Hardware quality and returns at scale. The scorecard names manufacturing scale, quality and product returns as the key risk, which is the usual way a good consumer hardware idea fails.",
+  "A category reset has no comparable demand history to underwrite against.",
+  "Possible double exposure: Nooshee is also held inside the SpaceStation Fund."
+ ],
+ "modelFit": "Priced on the single-deal venture table: roughly 30% of outcomes at zero, a median at about 1.0x, and the sponsor’s own multiple only in the best tenth of outcomes. For a revenue-generating consumer business that downside is drawn more harshly than the facts warrant.",
+ "source": "Amplifi deal scorecard comparison tables, captured from the Ancient Crunch scorecard and the Aerolane underwrite session, and supplied by a GC member in September 2026. These are SUMMARY figures: the underlying memo for this deal has not been read, so the terms here are thinner than on a card built from offering documents.",
+ "provisional": "Built from a summary table rather than the deal’s own documents. Treat the terms as indicative until the memo is read.",
+ "slug": "nooshee",
+ "asOf": "2026-09-26"
+}

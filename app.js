@@ -581,8 +581,8 @@
       + 'is too wide for a single figure to mean much.</p>'
       + '<p class="note"><b>What happens when everything goes wrong at once.</b> The model draws '
       + 'each deal independently. In a real downturn they move together, which makes any '
-      + 'diversification benefit here look better than it probably is. The other optimistic '
-      + 'assumption is that the preferred return always pays, and a sponsor can suspend one.</p>'
+      + 'diversification benefit here look better than it probably is. This is now the single '
+      + 'most optimistic thing the model does.</p>'
       + '<p class="note"><b>The difference your fee class makes.</b> Management fees and carry '
       + 'are shown on a deal card but are <b>not modelled</b>. The model runs on the sponsor&rsquo;s '
       + 'quoted multiple, which is already stated net to the investor, so applying fees again '
@@ -746,9 +746,13 @@
       + 'outsized winner drags the average above what most futures deliver, so the average describes a book you '
       + 'do not own. You get one draw.'
       + (T.coupon > 0 ? ' <b>' + money(T.coupon) + ' of the Typical row is preferred return</b> '
-        + '\u2014 rent-like payments your sponsors are contracted to pay while you wait, rather '
-        + 'than money from selling anything. That part does not depend on any deal working out. '
-        + 'The rest does.' : '')
+        + '\u2014 rent-like payments your sponsors are contracted to make while you wait, rather '
+        + 'than money from selling anything. Your documents promise '
+        + money(T.couponScheduled) + ' of it. <b>The tool does not assume all of that arrives.</b> '
+        + 'A sponsor who is not earning can suspend a preferred return, and the fund most likely '
+        + 'to suspend one is the fund that also hands back less than plan \u2014 so the two move '
+        + 'together here rather than independently. In a bad run this book collects '
+        + money(T.couponP10) + '.' : '')
       + '</p>'
       + '<table><tr><th class="l">Scenario</th><th>Total received</th><th>Profit</th><th>Multiple</th></tr>'
       + line('Bad run (10th percentile)', T.p10, false)
@@ -798,15 +802,15 @@
     const band = (b) => '<td>' + rate(b.p10) + '</td><td class="b">' + rate(b.p50)
       + '</td><td>' + rate(b.p90) + '</td>';
 
-    let h = '<div class="card"><h2>What rate of return that works out to</h2>';
+    let h = '<div class="card"><h2>Annual rate of return</h2>';
 
     /* Say what the reader is looking at BEFORE the table. Two caveats matter more than any
        figure in it, and a reader who meets them afterwards has already drawn a conclusion. */
     h += '<p class="note"><b>Every figure here is a yearly rate.</b> 12% means the money grew '
       + 'at 12% a year, compounding, over the life of the position \u2014 not 12% in total. '
-      + 'Where a deal pays you along the way, the rate assumes you put that cash back to work '
-      + 'at the same return; if it sits in your account instead, you will do slightly worse '
-      + 'than the number says.</p>';
+      + 'It is worked out the standard way a sponsor or a fund does it: the rate at which the '
+      + 'deal\u2019s actual cash flows balance. <b>Nothing is assumed about what you do with '
+      + 'money once it comes back to you.</b></p>';
     h += '<p class="note"><b>This counts cash, not marks.</b> Every dollar in these figures is '
       + 'money actually returned, so they will read lower than an IRR a sponsor reports \u2014 '
       + 'theirs includes what a position is currently carried at. Neither is wrong; they are '
@@ -842,6 +846,29 @@
     h += '<p class="note">Read this as a <b>range</b>, not a prediction. Out of 100 possible '
       + 'futures, about 10 come out worse than the Bad run column and about 10 come out better '
       + 'than the Good run column. The other 80 land somewhere in between.</p>';
+
+    /* The first question anyone asks of this table, and it deserves a straight answer rather
+       than being left to look like an error. Three causes, and only the third is arguable. */
+    if (R.byClass.income && R.byClass.venture) {
+      h += '<p class="note"><b>Why the income sleeves come out ahead of venture here, and why '
+        + 'that is not a mistake.</b> Three separate reasons:<br>'
+        + '<b>1. Money back sooner is worth more, and a yearly rate is built to say so.</b> Two '
+        + 'deals that both return 2.26x over the same seven years score 16.8% and 12.4% if one '
+        + 'pays you along the way and the other pays only at the end. Same total, same horizon. '
+        + 'Venture ties your capital up for the whole hold; an income sleeve gives it back '
+        + 'progressively and you have it to use.<br>'
+        + '<b>2. The odds are genuinely different.</b> A single venture deal is modelled with a '
+        + '30% chance of returning nothing at all and a typical outcome of just your money back. '
+        + 'An income sleeve carries a 5% chance of a write-off. That is not a thumb on the '
+        + 'scale, it is what the two asset classes do.<br>'
+        + '<b>3. A preferred return is contractual and an exit is not.</b> One is a promise a '
+        + 'sponsor has to try to keep; the other is a hope. This tool now models a preferred '
+        + 'return that can fall short \u2014 see the note under the lifetime table \u2014 but '
+        + 'even impaired it is a firmer claim than an exit multiple.<br>'
+        + 'The honest summary: venture is where the big outcomes live, and you can see that in '
+        + 'the Good run column of the by-deal table. It is a worse place to look for a '
+        + '<i>rate</i>, because a rate punishes waiting.</p>';
+    }
 
     h += '<h3>By deal</h3>';
     h += '<p class="note"><b>Three columns, three different questions.</b><br>'
@@ -1092,9 +1119,53 @@
         + 'same as its stated life, because a fund can finish paying out and wind up afterwards. If a sponsor '
         + 'has told you "years five through eight", put 5 and 8 in the two liquidity columns. Left blank it '
         + 'runs over the back 40% of the hold, which is roughly what most sponsors describe anyway.'],
-      ['What this assumes', 'That the preferred return always pays, and that deals fail independently of one another. '
-        + 'Both are optimistic. A sponsor can suspend a preferred return, and in a real downturn outcomes move '
-        + 'together, which would make the blended picture less flattering than it looks.'],
+      ['What a yearly return means here',
+        'A multiple tells you how much came back. A yearly return tells you how fast. If you '
+        + 'put in $100 and got $226 back after seven years, the multiple is 2.26x and the '
+        + 'yearly return is about 12%: $100 growing at 12% a year for seven years lands at $226. '
+        + 'It is worked out from the actual dates money moved, the same way a sponsor works out '
+        + 'the figure in their own documents. Nothing is assumed about what you do with the cash '
+        + 'once it is back in your hands.'],
+      ['Why two deals with the same multiple can have very different yearly returns',
+        'Because a yearly return counts the waiting. Telly is modelled at 5.0x over ten years '
+        + 'and Rorra at 4.3x over four. Rorra has the smaller multiple and roughly three times '
+        + 'the yearly return, because your money is only tied up for four years and then you '
+        + 'have it back to do something else with. If you care about total dollars, read the '
+        + 'multiple. If you care about how hard your money is working while it sits there, read '
+        + 'the yearly return. They answer different questions and they will often disagree.'],
+      ['Sponsor case, and why it is usually far above Typical',
+        'Sponsor case is the sponsor\u2019s own target multiple, expressed as a yearly rate. '
+        + 'Typical is what this tool expects once the chance of things going wrong is counted. '
+        + 'The gap is not the tool calling anyone dishonest. It is that a sponsor\u2019s number '
+        + 'is what happens if the plan works, and the tool puts that outcome in the best one in '
+        + 'ten. The other nine futures are what makes Typical lower.'],
+      ['Chance of losing it all',
+        'The odds, not an amount. 31% means that in 31 of every 100 simulated futures, that deal '
+        + 'pays back nothing at all. It is a positive number because it counts how OFTEN, not '
+        + 'how much. A single early-stage company really does fail about a third of the time; a '
+        + 'fund holding twenty of them essentially never goes to zero, which is why funds and '
+        + 'single deals are priced differently here.'],
+      ['Committed, funded, and still callable',
+        'Committed is what you signed up for. Funded is what has actually left your account. '
+        + 'Still callable is the difference, and it is a binding obligation, not an option \u2014 '
+        + 'the sponsor can ask for it and you have to pay. It matters for planning, because a '
+        + 'capital call landing in a year with no incoming cash is the most useful thing this '
+        + 'calendar can show you. Every return figure here is measured against the FULL '
+        + 'commitment, not just what you have paid in so far, because by the time a deal exits '
+        + 'the whole commitment will have been called.'],
+      ['A preferred return is not guaranteed, and the tool no longer pretends it is',
+        'Until v1.17 the model paid every preferred return in full in every single future, which '
+        + 'made the income sleeves look steadier than they are. It does not any more. How much '
+        + 'arrives is tied to how the deal turned out, using the SAME draw as the exit rather '
+        + 'than a separate one \u2014 because the fund that hands back less than plan is the same '
+        + 'fund that stopped paying. A position that writes off its equity pays about a quarter '
+        + 'of its scheduled preferred return; one that lands well below plan pays about 70%; '
+        + 'one near plan pays about 90%. Those shares are judgements, not findings, and they are '
+        + 'in one place in the code so they can be argued with.'],
+      ['What this still assumes', 'That deals fail independently of one another. That is '
+        + 'optimistic: in a real downturn outcomes move together, which would make the blended '
+        + 'picture less flattering than it looks here. It is the biggest remaining hole in the '
+        + 'model and it is a harder one to fix honestly.'],
     ];
     return '<div class="card"><h2>Reading these tables</h2>'
       + G.map(([t, d]) => '<div class="glos"><div class="t">' + t + '</div><div class="d">' + d + '</div></div>').join('')

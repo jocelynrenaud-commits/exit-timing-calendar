@@ -15,7 +15,7 @@
   "holdYears": 4,
   "sponsorMoic": 4.3,
   "holdNote": "3-5 years per the GC underwrite scorecard; modelled at 4. This file previously carried 10 years, which was not from any document and put the proceeds in the wrong decade — a far bigger error than any multiple.",
-  "sponsorMoicNote": "4.3x, the LOW end of the GC underwrite’s 4.3x-8.0x base case over 3-5 years (scored 85/100). NOTE THE BASIS: this is a GROSS figure, before SPV economics and dilution. Rainmaker’s underwrite publishes both columns and implies a gross-to-net factor near 0.66, which would put this closer to 2.8x net in the hand. Carried gross at the operator’s direction; if you want what you actually receive, type a lower number.",
+  "sponsorMoicNote": "4.3x, the LOW end of the GC underwrite’s 4.3x-8.0x base case over 3-5 years (scored 85/100). NOTE THE BASIS: this is a GROSS figure, before SPV economics and dilution. Rainmaker’s underwrite publishes both columns and implies a gross-to-net factor near 0.66, which would put this closer to 2.8x net in the hand. Carried gross at the operator’s direction; if you want what you actually receive, type a lower number. A LATER SCORECARD WIDENS THE RANGE to roughly 2.0x–17.3x gross, depending on exit year and exit multiple, against the memo’s 4.3x–8.0x. The low end of that wider range sits BELOW the figure carried here, so the downside is softer than this card shows if the later view is the current one.",
   "underwriteBase": {
    "gross": "4.3x-8.0x",
    "timing": "3-5 years",
@@ -29,5 +29,6 @@
  "structure": "Rorra builds premium home water filtration — a hardware sale that pulls a recurring replacement-filter subscription behind it, which is the part the underwriting turns on. Each unit sold creates higher-margin recurring revenue without reacquiring the customer. Held directly as an SPV; also a portfolio company of the SpaceStation fund, so there is indirect exposure through that position too.",
  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
  "asOf": "2026-09-25",
- "source": "GC underwrite scorecard comparison table (2026): 85/100, base case 4.3x-8.0x gross over 3-5 years. No sponsor documents of its own have been read yet — the business description and the hold come from the underwrite, not from a PPM."
+ "source": "GC underwrite scorecard comparison table (2026): 85/100, base case 4.3x-8.0x gross over 3-5 years. No sponsor documents of its own have been read yet — the business description and the hold come from the underwrite, not from a PPM.",
+ "uwScore": 85
 }
