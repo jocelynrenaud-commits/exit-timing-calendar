@@ -976,6 +976,23 @@
     }
     h += '</tbody></table>';
 
+    /* Size against speed. Placed directly under the by-deal table, because it is the same
+       two columns of that table plotted against each other. */
+    const scat = moicIrrChart(R.byDeal);
+    if (scat) {
+      h += '<h3>Size against speed</h3>';
+      h += '<p class="note">Every deal, plotted twice over: how much the sponsor says comes '
+        + 'back along the bottom, and that same case as a yearly rate up the side. <b>The only '
+        + 'thing that moves a deal up or down is how long it takes.</b> Bubble size is what you '
+        + 'committed; income sleeves are gold and venture is purple.<br>'
+        + '<b>High and to the left</b> returns less money but returns it quickly. <b>Low and to '
+        + 'the right</b> returns a great deal, slowly. Neither is better \u2014 they answer '
+        + 'different questions, and a book usually wants both. What the chart is good for is '
+        + 'spotting a deal that is asking you to wait a long time without offering the multiple '
+        + 'to justify it.</p>'
+        + scat;
+    }
+
     /* The paper track. Shown only when the holder has actually marked something up, and
        separated from everything above by saying plainly that it is not in any of it. */
     const P = R.paper;
@@ -998,6 +1015,79 @@
 
     h += '</div>';
     return h;
+  }
+
+  /* SIZE AGAINST SPEED. x is the sponsor's multiple, y is that same multiple expressed as
+     a yearly rate, so the only thing separating two deals on the y-axis is how long they
+     take. A deal high and to the LEFT returns less money but returns it fast; low and to
+     the RIGHT returns a lot, slowly. Drawn as inline SVG like every other chart here, so
+     there is no library to load. */
+  function moicIrrChart(deals) {
+    const pts = deals.filter((d) => d.sponsorCase != null && d.sponsorMoic > 0);
+    if (pts.length < 3) return '';
+    const W = 880, H = 340, L = 62, R = 22, T = 20, B = 54;
+    const iw = W - L - R, ih = H - T - B;
+
+    const maxX = Math.max.apply(null, pts.map((d) => d.sponsorMoic));
+    const maxY = Math.max.apply(null, pts.map((d) => d.sponsorCase));
+    /* A 14x position next to a 1.9x one flattens everything into the left margin on a
+       linear axis, so the multiple axis is logarithmic. Rates stay linear. */
+    const lx = (v) => Math.log(Math.max(1, v));
+    const xHi = lx(Math.max(2, maxX)) * 1.04;
+    const yHi = Math.max(0.1, maxY) * 1.12;
+    const X = (v) => L + iw * (lx(v) / xHi);
+    const Y = (v) => T + ih - (Math.max(0, v) / yHi) * ih;
+    const maxC = Math.max.apply(null, pts.map((d) => d.commitment || 1));
+
+    let g = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img">';
+
+    for (const m of [1, 2, 3, 5, 8, 12, 20]) {
+      if (m > Math.max(2, maxX) * 1.15) continue;
+      const gx = X(m);
+      g += '<line x1="' + gx.toFixed(1) + '" y1="' + T + '" x2="' + gx.toFixed(1) + '" y2="' + (T + ih)
+        + '" stroke="#EDF1F6"/>'
+        + '<text x="' + gx.toFixed(1) + '" y="' + (H - 30) + '" text-anchor="middle" font-size="10" '
+        + 'fill="#6B7A8C">' + m + 'x</text>';
+    }
+    const yStep = yHi > 0.6 ? 0.2 : (yHi > 0.3 ? 0.1 : 0.05);
+    for (let v = 0; v <= yHi; v += yStep) {
+      const gy = Y(v);
+      g += '<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (L + iw) + '" y2="' + gy.toFixed(1)
+        + '" stroke="#EDF1F6"/>'
+        + '<text x="' + (L - 8) + '" y="' + (gy + 3).toFixed(1) + '" text-anchor="end" font-size="10" '
+        + 'fill="#6B7A8C">' + Math.round(v * 100) + '%</text>';
+    }
+
+    for (const d of pts.slice().sort((a, b) => (b.commitment || 0) - (a.commitment || 0))) {
+      const col = d.kind === 'income' ? '#B17930' : '#7B5EA7';
+      const r = 5 + 9 * Math.sqrt((d.commitment || 1) / maxC);
+      g += '<circle cx="' + X(d.sponsorMoic).toFixed(1) + '" cy="' + Y(d.sponsorCase).toFixed(1)
+        + '" r="' + r.toFixed(1) + '" fill="' + col + '" opacity="0.30" stroke="' + col
+        + '" stroke-width="1.6"/>';
+    }
+    /* Label only where a label can be read: the extremes on each axis, which are the deals
+       that make the point. Labelling all twenty would be unreadable. */
+    const byX = pts.slice().sort((a, b) => b.sponsorMoic - a.sponsorMoic);
+    const byY = pts.slice().sort((a, b) => b.sponsorCase - a.sponsorCase);
+    const named = new Set([byX[0], byX[byX.length - 1], byY[0], byY[byY.length - 1]]);
+    for (const d of named) {
+      const x = X(d.sponsorMoic), y = Y(d.sponsorCase);
+      const left = x > L + iw * 0.62;
+      g += '<text x="' + (left ? x - 12 : x + 12).toFixed(1) + '" y="' + (y - 11).toFixed(1)
+        + '" text-anchor="' + (left ? 'end' : 'start') + '" font-size="11" font-weight="600" '
+        + 'fill="#141A22">' + esc(d.name.length > 26 ? d.name.slice(0, 24) + '\u2026' : d.name)
+        + '</text>'
+        + '<text x="' + (left ? x - 12 : x + 12).toFixed(1) + '" y="' + (y + 1).toFixed(1)
+        + '" text-anchor="' + (left ? 'end' : 'start') + '" font-size="10" fill="#6B7A8C">'
+        + mult(d.sponsorMoic) + ' over ' + d.hold + ' yrs</text>';
+    }
+
+    g += '<text x="' + (L + iw / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" '
+      + 'fill="#6B7A8C">The sponsor\u2019s multiple \u2014 how much comes back (log scale)</text>'
+      + '<text x="14" y="' + (T + ih / 2) + '" text-anchor="middle" font-size="11" fill="#6B7A8C" '
+      + 'transform="rotate(-90 14 ' + (T + ih / 2) + ')">Same case as a yearly rate</text>'
+      + '</svg>';
+    return g;
   }
 
   function coneChart(rows, committed, raw) {
