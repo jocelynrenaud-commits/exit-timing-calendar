@@ -102,15 +102,10 @@
  },
  {
   "name": "Telly TV",
-  "assetClass": "VC",
   "commitment": 5000,
   "funded": 5000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "hold": 10,
-  "coupon": "",
-  "moic": 1.78,
-  "conviction": "Low",
-  "deals": 1
+  "conviction": "Low"
  }
 ]

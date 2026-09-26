@@ -22,9 +22,9 @@
   "instrument": "SAFE, $30M post-money cap, 20% discount",
   "instrumentNote": "Seed round closed February 2025 at a $30M post-money valuation led by MGA Entertainment, then REOPENED to let Spacestation in — so the entry is the same $30M cap roughly ten months after the round priced, with the retail commitments already secured in between. 20% discount. ~$5.5M raised previously, most of it from MGA. The executed agreement gives the conversion as the $30M post-money cap OR a 20% discount, WHICHEVER IS BETTER FOR THE INVESTOR at conversion.",
   "minimum": 5000,
-  "spvFees": "8% administration fee + 20% carry",
+  "spvFees": "5% management fee + 20% carry (preferential; standard is 8% + 20%)",
   "nextRound": "$5-6M planned for early 2026 to fund global expansion and user acquisition, targeting a $50-60M post-money valuation — a 1.7-2.0x markup on this entry. Moose Toys expected to lead or anchor.",
-  "spvFeeNote": "Confirmed in the executed subscription agreement for Spacestation 89: \"Administrative Fees: 8% Administration Fee\" and \"Carry Percentage: means 20%\". The 8% is paid OUT OF the subscription amount, so less than the full cheque reaches the company.",
+  "spvFeeNote": "YOUR SPV FEE IS 5%, NOT 8%. The executed side letter gives Standard SPV Terms of an 8% management fee and 20% carry, but Preferential Terms of a 5% fee and 20% carry for an investor committing $250,000 to SPVC Fund 1. A $250,000 Fund Commitment is recorded, so the preferential rate applies. IT IS CONTINGENT: if the full $250,000 is not subscribed and accepted at the Fund’s first closing, or the holder becomes a defaulting partner, a Make-Whole Amount falls due — the difference between what would have been paid at 8%/20% and what was actually charged — and unpaid make-whole is deducted from distributions. The Spacestation 89 side letter for this deal carries the identical structure and the SAME $250,000 Fund Commitment as the Telly side letter — it is one commitment underpinning both fee discounts, not two.",
   "sideLetter": "A side letter WAS executed — unusually for an SPV LP — covering this SPV and SPVC Fund 1, the first commingled fund to be managed by Spacestation affiliates. It controls over the SPV agreements where the two conflict. Governed by Delaware law."
  },
  "liquidity": null,

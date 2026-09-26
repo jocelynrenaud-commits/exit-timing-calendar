@@ -1,25 +1,43 @@
 {
-  "slug": "telly-tv",
-  "name": "Telly TV",
-  "aliases": [
-    "Telly TV",
-    "Telly TV",
-    "Telly TV - Plan A"
-  ],
-  "sponsor": "Spacestation 88 / Spacestation Investments 1, LLC",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": 1.78
-  },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+ "slug": "telly-tv",
+ "name": "Telly TV",
+ "aliases": [
+  "Telly",
+  "Telly TV",
+  "Telly TV - Plan A",
+  "Telly, Inc."
+ ],
+ "sponsor": "Spacestation Investments (SPVC 88) · Telly, Inc.",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Consumer hardware / adtech / data monetisation",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 10,
+  "sponsorMoic": 5.0,
+  "sponsorMoicNote": "NO FORMAL RETURN WAS DISCLOSED. Two figures were discussed instead: the founder targets a $10B exit, roughly 20x on the $600M cap, and the Q&A’s own conservative view was a $3-5B exit, roughly 5-6x. The file carries 5.0x — the low end of the CONSERVATIVE case, not the founder target — because the tool puts this figure in the winner branch. It previously carried 1.78x, which came from no document and sat below even the cautious case. For scale, Roku was cited as a comparator at a $3.2B value on similar revenue.",
+  "holdNote": "NOT DOCUMENTED. No exit date was stated in any session. A multi-billion next round was expected within about a year and the company is scaling hard on a credit facility, which argues for something shorter than the 10-year default the file keeps. On the question list.",
+  "instrument": "SAFE, $600M pre-money valuation cap",
+  "instrumentNote": "An INSIDER round: Spacestation’s second investment in Telly, following a 2024 SAFE at a $150M valuation. So this entry is 4x their own prior entry, eighteen months later.",
+  "minimum": 5000,
+  "spvFees": "5% management fee + 20% carry (preferential; standard is 8% + 20%)",
+  "spvFeeNote": "YOUR SPV FEE IS 5%, NOT 8%. The executed side letter gives Standard SPV Terms of an 8% management fee and 20% carry, but Preferential Terms of a 5% fee and 20% carry for an investor committing $250,000 to SPVC Fund 1. A $250,000 Fund Commitment is recorded, so the preferential rate applies. IT IS CONTINGENT: if the full $250,000 is not subscribed and accepted at the Fund’s first closing, or the holder becomes a defaulting partner, a Make-Whole Amount falls due — the difference between what would have been paid at 8%/20% and what was actually charged — and unpaid make-whole is deducted from distributions."
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "Telly gives away premium 55-inch 4K TVs for free in exchange for advertising access and user data. The set has two screens: a standard 4K panel on top and an always-on interactive display below carrying personalised ads and widgets. Users complete around 140 data points at signup, which is the targeting moat. Revenue comes from programmatic ads, direct ad sales (State Farm, Toyota, Pepsi, Disney), data licensing (EDO, Paramount, iSpot) and partnership offers. THE UNIT ECONOMICS ARE THE WHOLE ARGUMENT: a TV costs $600-750 to put in a home and returns $900-1,000 in its first year, so it pays back in roughly 7-8 months and then runs profitably for four or more years, with 85% of revenue retained after delivery costs and churn under 3%. Engagement is claimed at 6.5+ hours a day against a 3.3 hour national average, generating 500-600 daily ad opportunities per device. For contrast, Samsung, Sony and Roku were described as earning $35-38 of ARPU a YEAR.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "GC deal snapshot; Telly sales-pitch and Q&A notes; Spacestation 88 Series Operating Agreement (29 Sep 2025), the executed SPV Subscription Agreement and the executed Side Letter (9 Oct 2025); Granola transcripts of the 7 Jan 2026 sales pitch and Q&A.",
+ "scaleplan": "A $320M credit facility was signed shortly before the round (rounded to $350M in the Q&A), funding a push to 350,000+ units and a $200M+ revenue run rate by the following summer at 50-60% EBITDA margins. Waitlist around 900,000.",
+ "keyRisks": [
+  "DEPLOYED-UNIT COUNT IS INCONSISTENT ACROSS SOURCES. The deal snapshot says 15,000+ units deployed with 10,000 more by mid-October; the pitch said \"tens of thousands\"; the Q&A recorded 5,000-8,000 shipped. On a company whose entire thesis is units in homes, that is the number that most needs to be right, and three sources give three answers.",
+  "Hardware execution: scaling production and fulfilment against a ~900,000 waitlist is a physical problem, not a software one.",
+  "Privacy and adoption. The product is a free TV in exchange for being watched. Opt-in and compliance measures were described, but tracking concerns could cap uptake.",
+  "Key-person risk. The founder’s \"$10B or nothing\" posture was flagged in the sessions as possible ego risk.",
+  "Financing and dilution. The scale plan runs on debt and future equity; pro-rata was requested but not guaranteed.",
+  "Entry price. This is 4x Spacestation’s own 2024 entry at $150M, eighteen months on.",
+  "Diligence gaps flagged in the sessions: unclear shipped-unit count, unclear total invested in Telly, and open questions on non-compete details."
+ ]
 }
