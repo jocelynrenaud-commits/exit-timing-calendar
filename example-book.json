@@ -5,7 +5,8 @@
   "funded": 50000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "conviction": "Medium"
+  "conviction": "Medium",
+  "thesis": "Income floor. Quarterly cash I can plan a year around, with an equity kicker on the sale."
  },
  {
   "name": "Eephus Growth Fund II",
@@ -37,7 +38,8 @@
   "funded": 19000,
   "uncalled": 81000,
   "yearFunded": 2026,
-  "conviction": "High"
+  "conviction": "High",
+  "thesis": "Highest coupon in the book and a credit-tilted base case. Sized for the income, not the kicker."
  },
  {
   "name": "SpaceStation Fund",
@@ -45,7 +47,8 @@
   "funded": 75000,
   "uncalled": 175000,
   "yearFunded": 2025,
-  "conviction": "Medium"
+  "conviction": "Medium",
+  "thesis": "The only thing I own that can return many times what I put in. Sized so it can go badly."
  },
  {
   "name": "Next Life Sciences - Plan A",

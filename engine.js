@@ -120,8 +120,13 @@ const CFG = {
 
   callYears: 3,        // an uncalled commitment is drawn down over roughly this long
   paths: 6000,
-  histBins: 30,
-  histMax: 3.0,        // multiple on committed; anything above gathers into the last bin
+  /* The bar width is what matters, not the bin count: at 0.10x a reader can see the
+     shape. The range used to stop at 3.0x, which put 5.7% of futures -- one run in
+     eighteen -- into a single bar jammed against the right edge, exactly where the
+     interesting tail is. Extended to 4.5x and the bin count raised to match, so the
+     bars are the same width and there is simply more chart. */
+  histBins: 40,
+  histMax: 4.0,        // multiple on committed; anything above gathers into the last bin
   yearFrom: 2026,
   yearTo: 2042,
 };
@@ -566,7 +571,10 @@ function simulate(book, opts) {
       p10: q(totals, 0.10), p50: q(totals, 0.50),
       mean: mean(totals), p90: q(totals, 0.90),
       stackedP90: byYear.reduce((a, r) => a + r.p90, 0),
-      shareAbove3x: hist[CFG.histBins - 1],
+      /* The share sitting in the final bar, whatever the range happens to be. The old
+         name said 3x and would have started lying the moment the range moved. */
+      shareAtCap: hist[CFG.histBins - 1],
+      shareAbove3x: hist[CFG.histBins - 1],   // deprecated alias, kept for one version
     },
   };
   // the tie-out that proves the cumulative panel and the totals are one model

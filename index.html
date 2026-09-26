@@ -195,7 +195,7 @@
     <div class="rel">
       <span class="tag">v1.14 &nbsp;&middot;&nbsp; 25 Sep 2026</span>
       <h4>A multiple nobody gave you no longer looks like one somebody did</h4>
-      <p><b>If a venture deal has no multiple and no coupon, this tool falls back to 5.0x.</b> It
+      <p><b>If a venture deal has no multiple and no preferred return, this tool falls back to 5.0x.</b> It
         always has. What it never did was tell you &mdash; so a number the tool invented sat on the
         card looking exactly like a sponsor&rsquo;s projection. <b>5.0x is not a neutral
         assumption, it is a strong claim.</b> The card now says when the figure was assumed, and
@@ -307,7 +307,7 @@
         both cases the tiering was written down in the file all along and nothing put it on
         screen. Check your own class and type your figure in; what you type wins.</p>
       <p><b>Cards also print the footnotes the terms were already carrying</b> &mdash; which
-        share class a rate refers to, what a hold actually means, whether a coupon compounds.
+        share class a rate refers to, what a hold actually means, whether a preferred return compounds.
         That text existed since the files were written and had never been displayed.</p>
       <p><b>Said out loud on the Background tab:</b> management fees and carry are shown on a
         card but are <b>not modelled</b>. The model runs on the sponsor&rsquo;s quoted
@@ -320,7 +320,7 @@
       <h4>Three reading bugs, found by pointing a new test suite at the spreadsheet</h4>
       <p>None of these could be seen on screen. The page rendered normally in every case,
         which is what made them worth finding.</p>
-      <p><b>A percentage typed as text was read as a whole number.</b> If your coupon cell
+      <p><b>A percentage typed as text was read as a whole number.</b> If your preferred return cell
         contained the text <code>8%</code> rather than a number formatted as a percentage,
         it was read as <b>8</b> &mdash; a preferred return of 800% a year. Excel usually
         hides this, because a percent-formatted cell really holds 0.08. A <b>CSV does
@@ -433,7 +433,7 @@
         what the sponsors project, and what the same deals are <b>expected</b> to return once the
         outcomes that go nowhere are weighted in. Most tools show you only the first.</p>
       <p>There is also a year-by-year table of capital calls going out against preferred income
-        coming in. Exits are deliberately not on it: a coupon is promised and an exit is hoped
+        coming in. Exits are deliberately not on it: a preferred return is promised and an exit is hoped
         for, and adding them together is the most misleading thing one of these tools can do.
         Exits stay on the Liquidity Outlook tab.</p>
 
@@ -459,7 +459,7 @@
         investments it held. That was the wrong question. Whether a fund sells down over
         time has nothing to do with how many things are in it &mdash; it is simply what
         funds do.</p>
-      <p>So anything paying a preferred return or a coupon is now treated as a fund
+      <p>So anything paying a preferred return or a preferred return is now treated as a fund
         automatically, and pays out over a window, with nothing to fill in. If you hold a
         <b>single company</b> that pays a preferred return, put <b>1</b> in the Deals in
         fund column and it will exit on one date instead, the way a company being bought

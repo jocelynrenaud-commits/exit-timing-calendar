@@ -89,7 +89,12 @@
     ['funded',      ['funded to date', 'funded', 'paid in', 'contributed']],
     ['uncalled',    ['uncalled', 'unfunded', 'remaining', 'callable']],
     ['hold',        ['hold', 'hold (yrs)', 'hold years', 'term', 'fund life', 'horizon']],
-    ['coupon',      ['coupon', 'coupon %', 'preferred', 'pref', 'preferred return']],
+    /* 'coupon' stays FIRST and stays supported. The community calls these preferred
+       returns and the app now says so everywhere a member reads, but every tracker
+       already filled in says Coupon, and breaking those to tidy up the wording would
+       be the worst possible trade. */
+    ['coupon',      ['coupon', 'coupon %', 'preferred return %', 'preferred return',
+                     'preferred', 'pref', 'pref %']],
     /* BEFORE `moic`, and it has to stay there, for exactly the reason `yearFunded` sits
        before `funded`. Header matching is `k === n || k.startsWith(n)`, so a column headed
        "MOIC (marked up)" starts with "moic" and would be read as the SPONSOR's multiple --
@@ -167,7 +172,7 @@
     rows.forEach((r) => {
       const where = r.name;
       if (!Engine.num(r.moic) && !Engine.num(r.coupon))
-        problems.push(where + ': no sponsor multiple and no coupon, so there is nothing to exit on');
+        problems.push(where + ': no sponsor multiple and no preferred return, so there is nothing to exit on');
       if (!parseInt(r.yearFunded, 10)) problems.push(where + ': no year funded');
     });
     (skipped || []).forEach((n) => problems.push(n + ': looks like a deal but has no commitment, so it was left out'));
@@ -305,7 +310,7 @@
     h += '<div class="card"><h2>Capital calls against preferred income</h2>'
       + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
       + 'money the documents promise you. Exits are not here on purpose: an exit is a hope and a '
-      + 'coupon is a promise, and adding them together is how these tools mislead. Exits live on '
+      + 'preferred return is a promise, and adding them together is how these tools mislead. Exits live on '
       + 'the Liquidity Outlook tab.</p>'
       + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
       + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
@@ -456,7 +461,7 @@
         }
 
         /* The footnotes the terms carry: which class, what the hold really means, whether
-           the coupon compounds. Recorded since the files were written and never displayed. */
+           the preferred return compounds. Recorded since the files were written and never displayed. */
         const notes = Object.keys(t).filter((k) => /Note$/.test(k) && t[k]);
         if (notes.length) {
           const label = { couponNote: 'Preferred', holdNote: 'Hold', moicNote: 'Sponsor MOIC',
@@ -540,16 +545,17 @@
       ['Commitment, not funded', 'Exit proceeds run off the full commitment, because the whole '
         + 'commitment is called long before any exit lands. Using funded-to-date understated '
         + 'one real book by 48%.'],
-      ['A coupon is already inside the multiple', 'A sponsor MOIC is total distributions over '
+      ['A preferred return is already inside the multiple', 'A sponsor MOIC is total distributions over '
         + 'invested capital, so a preferred return paid along the way is part of it. Showing the '
-        + 'coupon separately AND exiting at the full multiple counts that cash twice.'],
+        + 'preferred return separately AND exiting at the full multiple counts that cash twice.'],
       ['A fund is not one big deal', 'A fund of 20 or more companies cannot return zero the way '
         + 'one company can, and it does not pay out on a single date. It gets its own outcome '
         + 'table and sells down over a window.'],
-      ['Two kinds of percentile', 'Per-year percentiles rank each year separately and cannot be '
-        + 'added. Cumulative percentiles add each future up first and rank once, so they can. '
-        + 'Mixing them overstated one book by 69%.'],
-      ['Contractual and speculative never sum', 'A coupon is promised; an exit is hoped for. They '
+      ['The year-by-year column does not add up', 'Each year there is ranked on its own, so a '
+        + 'good 2030 and a good 2034 come from different futures. Adding them builds a future '
+        + 'nobody had, and on a real book that overstated the total by 69%. The by-the-end-of-year '
+        + 'table is the one you can read down.'],
+      ['Contractual and speculative never sum', 'A preferred return is promised; an exit is hoped for. They '
         + 'appear on different panels and never inside the same total.'],
     ];
     $('#tabbody').innerHTML = '<div class="card"><h2>What this does</h2>'
@@ -571,8 +577,8 @@
       + '<p class="note"><b>What anything is worth today.</b> Private marks are stale by '
       + 'construction and usually flattering. Current value is whatever the last sponsor '
       + 'statement said.</p>'
-      + '<p class="note"><b>Anything precise beyond about seven years.</b> The honest answer that '
-      + 'far out is that the range is wide, and a precise-looking number would be false.</p>'
+      + '<p class="note"><b>Anything precise beyond about seven years.</b> The range that far out '
+      + 'is too wide for a single figure to mean much.</p>'
       + '<p class="note"><b>What happens when everything goes wrong at once.</b> The model draws '
       + 'each deal independently. In a real downturn they move together, which makes any '
       + 'diversification benefit here look better than it probably is. The other optimistic '
@@ -620,10 +626,11 @@
     /* distribution */
     if (series.length > 1) {
       const active = series.find((s) => s.key === DIST);
-      h += '<div class="card"><h2>The shape of the book</h2>'
-        + '<p class="note">Percentiles give you three points. This is the whole distribution, which is where '
-        + 'the argument lives. Each curve is where 3,000 simulated futures landed, as a multiple on capital '
-        + 'committed, with anything above 3x gathered into the last bar.</p>'
+      h += '<div class="card"><h2>Outcome distribution</h2>'
+        + '<p class="note">Where 3,000 simulated futures landed, measured as a multiple on the capital '
+        + 'committed. The three percentile figures above are three points on this curve; this is the '
+        + 'full shape. Anything above ' + series[0].st.histMax.toFixed(1) + 'x is gathered into the '
+        + 'last bar.</p>'
         + '<div class="row" style="margin-top:12px">'
         + series.map((s) => btn('dist', s.key, s.label)).join('') + '</div>'
         + distChart(series, DIST)
@@ -636,15 +643,15 @@
     /* the positions */
     h += '<div class="card"><h2>The book, ' + book.length + ' positions</h2>'
       + '<p class="note">Exit proceeds run off the <b>commitment</b>, not off what is funded so far, because '
-      + 'the whole commitment is called long before any exit lands. Anything paying a coupon exits on the '
-      + '<b>residual</b> multiple: a sponsor MOIC already contains the coupon, so exiting at the full multiple '
-      + 'while also counting the coupon would count that cash twice. A <b>fund</b> does not exit on a '
+      + 'the whole commitment is called long before any exit lands. Anything paying a preferred return exits on the '
+      + '<b>residual</b> multiple: a sponsor MOIC already contains the preferred return, so exiting at the full multiple '
+      + 'while also counting the preferred return would count that cash twice. A <b>fund</b> does not exit on a '
       + 'single date, so its proceeds are spread over its sell-down window rather than dropped into one '
-      + 'year. Anything paying a coupon is assumed to be a fund unless you put 1 in the deals column to '
+      + 'year. Anything paying a preferred return is assumed to be a fund unless you put 1 in the deals column to '
       + 'say it is a single company. A venture fund holding ' + Engine.CFG.fundMinDeals + '+ deals also '
       + 'stops being priced like a single company.</p>'
       + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
-      + '<th>Uncalled</th><th>Coupon</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
+      + '<th>Uncalled</th><th>Preferred return</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
       + book.slice().sort((p, q) => p.name.localeCompare(q.name, 'en', { sensitivity: 'base' }))
         .map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
         + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
@@ -662,13 +669,13 @@
 
     /* year by year */
     const yrRows = st.byYear.filter((r) => r.p90 > 0 || r.calls > 0 || r.coupon > 0);
-    h += '<div class="card"><h2>What happens IN each year</h2>'
+    h += '<div class="card"><h2>Cash flow by year</h2>'
       + '<p class="note">Each year is ranked on its own across the simulated futures, so the future sitting in '
       + 'the middle in one year is a <b>different</b> future from the middle one in another. '
       + '<span class="warn">This table cannot be added down.</span> Stacking the good-run column gives '
       + money(T.stackedP90) + ' against a real lifetime figure of ' + money(T.p90) + '. Use it to find the thin '
       + 'years, then use the next panel to plan.</p>'
-      + '<table><tr><th class="l">Year</th><th>Coupon</th><th>Capital calls</th>'
+      + '<table><tr><th class="l">Year</th><th>Preferred return</th><th>Capital calls</th>'
       + '<th>Typical year (median)</th><th>Odds of any cash</th><th>Good run (90th pct)</th></tr>'
       + yrRows.map((r) => '<tr><td class="l b">' + r.year + '</td>'
         + '<td class="' + (r.coupon ? 'pos' : 'z') + '">' + (r.coupon ? money(r.coupon) : DASH) + '</td>'
@@ -680,7 +687,7 @@
     /* cumulative */
     const cumRows = st.cum.filter((r) => r.p90 > 0);
     const lastY = cumRows.length ? cumRows[cumRows.length - 1].year : null;
-    h += '<div class="card"><h2>How much has arrived BY the end of each year</h2>'
+    h += '<div class="card"><h2>Cumulative cash received</h2>'
       + '<p class="note">Take one simulated future and add up every dollar it produced up to that year. Do that '
       + 'for all of them, then sort. <b>This is the one to plan against</b>, because every figure is a real total '
       + 'a real future actually reached, so it is safe to read down. Subtracting one row from another is a rough '
@@ -712,10 +719,9 @@
         ? ', a good run in ' + beGood + (beBad ? ' and a bad one in ' + beBad : ' and a bad run not at all')
         : '';
       h += '<div class="card"><h2>The cone of outcomes</h2>'
-        + '<p class="note">The table above, drawn. The shaded band is the range from a bad future to a '
-        + 'good one and the line through it is the typical future; the band widening is the point, '
-        + 'because it is the honest picture of how little is settled early and how much is settled late. '
-        + 'The dashed line is getting your money back.</p>'
+        + '<p class="note">The table above, drawn. The shaded band runs from a bad future to a good '
+        + 'one, with the typical future as the line through it. The band widens over time because '
+        + 'less is settled in the early years. The dashed line marks the return of your capital.</p>'
         + coneChart(cumRows, T.committed, raw)
         + '<p class="note" style="margin-top:10px">' + says + edges + '. Read the band as a range of '
         + 'whole futures rather than a range for that year on its own: each simulated future was '
@@ -733,13 +739,16 @@
     };
     h += irrCard(st, book);
 
-    h += '<div class="card"><h2>What this book returns over its life</h2>'
+    h += '<div class="card"><h2>Lifetime returns</h2>'
       + '<p class="note">Profit is measured against the <b>full ' + money(T.committed) + ' committed</b>, not '
       + 'against the uncalled balance. Netting only what is left to fund ignores the ' + money(T.funded)
       + ' already in, and makes a thin result look healthy. <b>Read the median, not the average.</b> One '
       + 'outsized winner drags the average above what most futures deliver, so the average describes a book you '
       + 'do not own. You get one draw.'
-      + (T.coupon > 0 ? ' Of the figures below, ' + money(T.coupon) + ' is contractual coupon.' : '')
+      + (T.coupon > 0 ? ' <b>' + money(T.coupon) + ' of the Typical row is preferred return</b> '
+        + '\u2014 rent-like payments your sponsors are contracted to pay while you wait, rather '
+        + 'than money from selling anything. That part does not depend on any deal working out. '
+        + 'The rest does.' : '')
       + '</p>'
       + '<table><tr><th class="l">Scenario</th><th>Total received</th><th>Profit</th><th>Multiple</th></tr>'
       + line('Bad run (10th percentile)', T.p10, false)
@@ -793,6 +802,11 @@
 
     /* Say what the reader is looking at BEFORE the table. Two caveats matter more than any
        figure in it, and a reader who meets them afterwards has already drawn a conclusion. */
+    h += '<p class="note"><b>Every figure here is a yearly rate.</b> 12% means the money grew '
+      + 'at 12% a year, compounding, over the life of the position \u2014 not 12% in total. '
+      + 'Where a deal pays you along the way, the rate assumes you put that cash back to work '
+      + 'at the same return; if it sits in your account instead, you will do slightly worse '
+      + 'than the number says.</p>';
     h += '<p class="note"><b>This counts cash, not marks.</b> Every dollar in these figures is '
       + 'money actually returned, so they will read lower than an IRR a sponsor reports \u2014 '
       + 'theirs includes what a position is currently carried at. Neither is wrong; they are '
@@ -817,27 +831,31 @@
     if (R.byClass.venture && solo.length > 2) {
       const med = solo.map((d) => d.p50).sort((a, b) => a - b)[Math.floor(solo.length / 2)];
       if (R.byClass.venture.p50 > med + 0.02) {
-        h += '<p class="note"><b>Worth reading those two venture rows against each other.</b> '
-          + 'Taken one at a time, the typical single venture deal in this book returns '
-          + rate(med) + '. Held together as a sleeve, the typical outcome is '
-          + rate(R.byClass.venture.p50) + '. Nothing about any deal changed \u2014 only that '
-          + 'there are ' + solo.length + ' of them.</p>';
+        h += '<p class="note"><b>Compare the two venture rows.</b> Taken one at a time, the '
+          + 'typical single venture deal in this book returns ' + rate(med) + '. Held together as '
+          + 'a sleeve of ' + solo.length + ', the typical outcome is '
+          + rate(R.byClass.venture.p50) + '. The deals are identical in both cases; only the '
+          + 'number of them differs.</p>';
       }
     }
 
-    h += '<p class="note">Read as a <b>range</b>, not a forecast. Bad run is the 10th '
-      + 'percentile of simulated futures and good run the 90th, so a tenth of futures are '
-      + 'worse than the left column and a tenth better than the right.</p>';
+    h += '<p class="note">Read this as a <b>range</b>, not a prediction. Out of 100 possible '
+      + 'futures, about 10 come out worse than the Bad run column and about 10 come out better '
+      + 'than the Good run column. The other 80 land somewhere in between.</p>';
 
     h += '<h3>By deal</h3>';
-    h += '<p class="note"><b>Two columns here answer different questions.</b> <i>Sponsor '
-      + 'case</i> is the sponsor\u2019s own multiple, reached at the expected exit \u2014 what '
-      + 'they are effectively claiming. <i>Typical</i> is what this tool expects once the '
-      + 'chance of failure is priced in. The gap between them is the argument, and for a '
-      + 'single deal it is usually wide: a sponsor\u2019s figure sits in the best tenth of '
-      + 'outcomes, so it is not what a median future delivers.</p>';
+    h += '<p class="note"><b>Three columns, three different questions.</b><br>'
+      + '<b>Sponsor case</b> is their own multiple turned into a yearly rate. Rorra at 4.3x '
+      + 'over four years is 44% a year, because 4.3x IS 44% compounded four times. It is what '
+      + 'the sponsor is claiming, not a prediction.<br>'
+      + '<b>Typical</b> is what this tool expects once the chance of failure is counted. For a '
+      + 'single deal the gap is usually huge, because a sponsor\u2019s number only happens in '
+      + 'the best one outcome in ten.<br>'
+      + '<b>Chance of losing it all</b> is the odds, not an amount. 31% means that in 31 of '
+      + 'every 100 futures that deal pays back nothing at all. It is a positive number because '
+      + 'it counts how often, not how much.</p>';
     h += '<table><thead><tr><th class="l">Deal</th><th>Sponsor MOIC</th><th>Sponsor case</th>'
-      + '<th>Typical</th><th>Good run</th><th>Total loss</th></tr></thead><tbody>';
+      + '<th>Typical</th><th>Good run</th><th>Chance of losing it all</th></tr></thead><tbody>';
     for (const d of R.byDeal.slice().sort((a, b) => (b.sponsorCase || -9) - (a.sponsorCase || -9))) {
       h += '<tr><td class="l">' + esc(d.name) + '</td>'
         + '<td>' + mult(d.sponsorMoic) + '</td>'
@@ -981,11 +999,14 @@
     const X = (m) => L + iw * (m / HI), Y = (v) => T + ih - (v / maxY) * ih;
 
     let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img">';
-    for (let g = 0; g <= 6; g++) {
-      const gm = g * 0.5, gx = X(gm);
+    /* Gridlines derived from the range rather than fixed at six half-steps, so the axis
+       cannot silently disagree with the data when the range changes. */
+    const gstep = HI > 3.5 ? 1.0 : 0.5, gcount = Math.round(HI / gstep);
+    for (let g = 0; g <= gcount; g++) {
+      const gm = g * gstep, gx = X(gm);
       s += '<line x1="' + gx + '" y1="' + T + '" x2="' + gx + '" y2="' + (T + ih) + '" stroke="#EDF1F6"/>'
         + '<text x="' + gx + '" y="' + (H - 26) + '" text-anchor="middle" font-size="10" fill="#6B7A8C">'
-        + gm.toFixed(1) + 'x' + (g === 6 ? '+' : '') + '</text>';
+        + gm.toFixed(1) + 'x' + (g === gcount ? '+' : '') + '</text>';
     }
     const area = (hist, col, op, w) => {
       let d = 'M' + X(0) + ' ' + Y(0);
@@ -1043,21 +1064,27 @@
 
   function glossary(T) {
     const G = [
-      ['Typical (median)', 'Rank every simulated future and take the middle one. $0 for a year means that in '
-        + 'more than half of futures, nothing at all arrives that year. The median matters more than the average '
-        + 'here because one outsized winner drags an average above what most futures actually deliver.'],
-      ['Odds of any cash', 'How often that year pays anything. It replaces a 10th-percentile column, which on a '
-        + 'book like this reads zero in every single year and so tells you nothing.'],
-      ['Good run (90th pct)', 'Better than 9 futures out of 10, for that year on its own. Large figures are real, '
-        + 'because several deals can land in the same year.'],
-      ['Two kinds of percentile', 'Per-year percentiles rank each year separately and CANNOT be added. Cumulative '
-        + 'percentiles add each future up first and rank once, so they can. Same word, opposite behaviour, and '
-        + 'mixing them is the commonest way a table like this overstates by most of its own value.'],
-      ['Coupon versus multiple', 'A sponsor MOIC already contains the coupon paid along the way, so anything '
-        + 'paying a coupon exits here on the residual. Otherwise that cash gets counted twice.'],
+      ['Typical', 'The tool plays your book out 6,000 times. Line those futures up from worst to best '
+        + 'and this is the one in the middle. If a year shows $0, it means more than half the time nothing '
+        + 'arrives that year at all. Use this rather than the average: one big winner pulls an average up '
+        + 'above what most futures actually pay you, and you only get one future.'],
+      ['Odds of any cash', 'How often that year pays anything at all. It is here instead of a bad-run column, '
+        + 'which on a book like this reads $0 in every single year and tells you nothing.'],
+      ['Good run', 'Out of 100 futures, only 10 do better than this in that year. Big numbers here are real: '
+        + 'several deals can happen to land in the same year.'],
+      ['Why you cannot add the year-by-year column down', 'The two tables count differently, and this is the '
+        + 'one thing worth getting right. In the year-by-year table each year is ranked on its own, so the '
+        + 'good run in 2030 and the good run in 2034 are different futures. Adding them builds a future '
+        + 'nobody had. On a real book that overstated the lifetime figure by 69%. The by-the-end-of-year '
+        + 'table adds each future up FIRST and ranks once, so every number there is a real total that one '
+        + 'real future reached. That one you can read straight down.'],
+      ['Why a preferred return is taken out of the exit', 'When a sponsor quotes a multiple, that '
+        + 'number already includes the preferred return they pay you along the way. So if the tool paid you '
+        + 'the preferred return AND then sold at the full multiple, it would be paying you the same money '
+        + 'twice. The exit here is the multiple with those payments taken back out.'],
       ['A fund is not a big deal', 'Two separate things. WHEN it pays: a fund sells down over several years '
-        + 'instead of exiting on a date, so its proceeds are spread across a window. Anything paying a coupon '
-        + 'is treated as a fund, because most coupon-paying vehicles are one; put 1 in the deals column to say '
+        + 'instead of exiting on a date, so its proceeds are spread across a window. Anything paying a preferred return '
+        + 'is treated as a fund, because most vehicles that pay one are funds; put 1 in the deals column to say '
         + 'a position is a single company and it exits on one date instead. HOW MUCH it returns: a venture fund '
         + 'holding ' + Engine.CFG.fundMinDeals + '+ companies gets its own outcome table, because the '
         + 'single-deal power law carries a 30% chance of returning zero and a fund that size cannot do that.'],
@@ -1065,7 +1092,7 @@
         + 'same as its stated life, because a fund can finish paying out and wind up afterwards. If a sponsor '
         + 'has told you "years five through eight", put 5 and 8 in the two liquidity columns. Left blank it '
         + 'runs over the back 40% of the hold, which is roughly what most sponsors describe anyway.'],
-      ['What this assumes', 'That the coupon always pays, and that deals fail independently of one another. '
+      ['What this assumes', 'That the preferred return always pays, and that deals fail independently of one another. '
         + 'Both are optimistic. A sponsor can suspend a preferred return, and in a real downturn outcomes move '
         + 'together, which would make the blended picture less flattering than it looks.'],
     ];
