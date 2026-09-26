@@ -320,7 +320,11 @@
       + '<p class="note">Tap a deal for its terms. Anything marked <b>shared</b> comes from a '
       + 'deal file everyone can use, so nobody retypes the same preferred rate thirteen times. '
       + 'Your own numbers always win over it.</p>'
-      + b.map(dealCard).join('') + '</div>';
+      /* Alphabetical. The book arrives in spreadsheet-row order, which is whatever order the
+         holder happened to type things in and is no help at all when you are looking for one
+         deal in thirteen. localeCompare so accented and punctuated names sort sensibly. */
+      + b.slice().sort((p, q) => p.name.localeCompare(q.name, 'en', { sensitivity: 'base' }))
+          .map(dealCard).join('') + '</div>';
 
     $('#tabbody').innerHTML = h;
     document.querySelectorAll('[data-deal]').forEach((el) => {
@@ -633,7 +637,8 @@
       + 'stops being priced like a single company.</p>'
       + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
       + '<th>Uncalled</th><th>Coupon</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
-      + book.map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
+      + book.slice().sort((p, q) => p.name.localeCompare(q.name, 'en', { sensitivity: 'base' }))
+        .map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
         + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
         + (b.kind === 'venture' ? 'Venture' : esc(b.cls)) + '</td>'
         + '<td class="' + (b.isFund ? 'b' : 'z') + '">' + (b.isFund ? (b.deals > 1 ? b.deals : 'fund') : '1') + '</td>'
