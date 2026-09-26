@@ -1,25 +1,114 @@
 {
-  "slug": "aerthlings",
-  "name": "AERTHLINGS",
-  "aliases": [
-    "AERTHLINGS",
-    "AERTHLINGS",
-    "AERTHLINGS - Plan A"
-  ],
-  "sponsor": "Spacestation 89 / Spacestation Investments 1, LLC",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": 10.0
+ "slug": "aerthlings",
+ "name": "AERTHLINGS",
+ "aliases": [
+  "AERTHLINGS",
+  "AERTHLINGS - Plan A",
+  "Aerthlings",
+  "Modern Games",
+  "Modern Games (AERTHLINGS)",
+  "ÆRTHLINGS"
+ ],
+ "sponsor": "Spacestation Investments (SPV) · Modern Games",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Connected toys and mobile game IP",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 8,
+  "sponsorMoic": 10.0,
+  "sponsorMoicNote": "THERE IS NO DOCUMENTED BASE CASE. The underwriting session framed a range instead: worst case $8M revenue at a $30-50M valuation, best case $50M revenue at a $250M valuation, described as \"up to a 10x return\" on the $30M entry. The 10x carried here is that BEST case — which is the right place for it, because this tool puts the sponsor figure in the winner branch, where roughly one outcome in ten lands. The worst case in that same range is 1.0x-1.7x. The file previously carried 10x with nothing behind it; the number has not moved, but it is now sourced and correctly labelled.",
+  "holdNote": "The IC underwrite calls it \"a 5-10 year hold with no guaranteed liquidity path\". Modelled at 8, the midpoint. Worth holding against one of its own stated risks: Skylanders, Amiibo and Disney Infinity all started explosively and collapsed once the novelty faded, so a long hold is not obviously the safe assumption here.",
+  "instrument": "SAFE, $30M post-money cap, 20% discount",
+  "instrumentNote": "Seed round closed February 2025 at a $30M post-money valuation led by MGA Entertainment, then REOPENED to let Spacestation in — so the entry is the same $30M cap roughly ten months after the round priced, with the retail commitments already secured in between. 20% discount. ~$5.5M raised previously, most of it from MGA. The executed agreement gives the conversion as the $30M post-money cap OR a 20% discount, WHICHEVER IS BETTER FOR THE INVESTOR at conversion.",
+  "minimum": 5000,
+  "spvFees": "8% administration fee + 20% carry",
+  "nextRound": "$5-6M planned for early 2026 to fund global expansion and user acquisition, targeting a $50-60M post-money valuation — a 1.7-2.0x markup on this entry. Moose Toys expected to lead or anchor.",
+  "spvFeeNote": "Confirmed in the executed subscription agreement for Spacestation 89: \"Administrative Fees: 8% Administration Fee\" and \"Carry Percentage: means 20%\". The 8% is paid OUT OF the subscription amount, so less than the full cheque reaches the company.",
+  "sideLetter": "A side letter WAS executed — unusually for an SPV LP — covering this SPV and SPVC Fund 1, the first commingled fund to be managed by Spacestation affiliates. It controls over the SPV agreements where the two conflict. Governed by Delaware law."
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "Modern Games builds ÆRTHLINGS, a connected-play platform: NFC-embedded collectible toys that hatch a procedurally generated digital creature when scanned into a mobile game. Think Pokémon card packs crossed with Skylanders, minus the $69 proprietary reader — phones and Switch controllers already have NFC, which is the barrier that capped Skylanders. THE COMMERCIAL IDEA IS THE REVENUE SPLIT: Moose Toys keeps 90% of toy sales and pays Modern Games a 10% royalty, while on DIGITAL the split inverts — Modern Games keeps 90% and Moose takes 10%. So Moose funds the manufacturing, distribution and marketing, and every toy sold is effectively a paid user-acquisition event for a digital business Modern Games owns almost outright. Retail subsidises customer acquisition for the high-margin half.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Spacestation investment memo for Modern Games / ÆRTHLINGS (Executive Summary, Deal Terms, Product, Moose and MGA partnerships, Skylanders case study, U.S. and Australia launches, Market Overview, Team, Financial Model); GC deal snapshot; Granola transcripts of four Modern Games sessions including the 7 Jan 2026 terms discussion and the 13 Jun 2026 launch update.",
+ "partners": {
+  "Moose Toys": "Global master toy licensee and launch partner — a top-10 global manufacturer (Bluey, Magic Mixies, Shopkins, MrBeast Lab), ~$1B annual revenue, $100M+ a year in marketing. Takes all the downside: manufacturing, inventory, logistics, retail negotiation. Initial three-year term to March 2028 with NO minimum guarantee, but ~$4M committed to the U.S. launch with no payback against royalties. A second three-year term carries a $3M minimum guarantee.",
+  "MGA Entertainment": "Lead investor in the seed round. One of the largest privately held toy companies in the world (L.O.L. Surprise!, $25B+ cumulative retail). Piloted and validated the physical-to-digital funnel with Modern Games through the Miniverse mobile game. Stayed on the cap table after losing the commercialisation bid to Moose."
+ },
+ "traction": {
+  "Australia (Oct 2025, PAX)": "Sold through 2,400 units in under 36 hours from a small shared booth, 3,400 in roughly 53 hours, and left the show early having sold out. The mobile game hit #2 in Adventure Games on iOS in Australia within 48 hours. Majority of buyers were adult collectors rather than children.",
+  "U.S. launch": "Walmart and Target both committed to nationwide distribution pre-launch, with a guaranteed minimum of 500 Walmart endcaps. Moose raised its production forecast from 1.6M units to over 4M on the back of the Australian result.",
+  "Post-launch (to June 2026)": "U.S. launch occurred 26 March 2026. Eleven weeks in: 23,000 DTC units and $231K of DTC revenue, plus 1,000 Amazon units sold out in three weeks. Read that against the 2-4M unit retail forecast — DTC is not the retail channel, but it is the first hard number available."
+ },
+ "financialModel": {
+  "note": "Modern Games’ own 2026 projection, from the memo.",
+  "toys": "Moose forecasts a minimum 2M toy sales for 2026 with capacity for 4M. At a $7.99 MSRP and a 10% royalty, that is roughly $1M of toy royalty revenue in the base case.",
+  "digital": "At least 1.74M players expected in 2026. Benchmark revenue-per-download runs $3.24 (Animal Crossing Pocket Camp) to $18.62 (Genshin Impact); the model assumes $3.50-$7.00, between Pocket Camp and Pokémon GO, giving $6-12M of digital revenue at margins above 70%.",
+  "total": "Total projected 2026 revenue $7-13M.",
+  "sensitivity": "Revenue spans $8.09M (2M toys at $3.50 RPD) to $49.24M (4M toys at $13.00 RPD). That 6x spread on the revenue line is the single widest assumption in the deal."
+ },
+ "valuationContext": "Mobile gaming IP typically trades at 1.7x-7.5x EV/Revenue and 10x-20x EBITDA; toy and franchise assets at 1x-3x EV/Revenue. Private comps mean 4.48x revenue / 9.93x EBITDA; public comps mean 4.69x revenue / 8.70x EBITDA. Modern Games sits across both, which is the argument for the higher end.",
+ "keyRisks": [
+  "VALUATION BEFORE PROOF. $30M post-money, pre-revenue and pre-launch, justified primarily by partner access. The IC underwrite puts it bluntly: \"This is pricing in success, not optionality,\" and the $50-60M next round \"assumes flawless execution\".",
+  "NO CONTROL. Pure SAFE holders: no voting rights, no board seat, no information rights except through Spacestation. \"A trust-based bet, not a control-based investment.\"",
+  "PARTNER DEPENDENCY. Moose controls manufacturing, inventory, retail pricing and marketing execution. ÆRTHLINGS is economically exposed but operationally dependent, with limited recourse if Moose deprioritises it.",
+  "CATEGORY HISTORY IS BRUTAL. Skylanders, Amiibo and Disney Infinity all had explosive starts and collapsed once novelty faded. Skylanders reached $4.5B in retail sales and Activision stopped making them by 2016. Retention, not launch hype, decides this.",
+  "Revenue-per-download spans $3.50 to $13.00 in the model — a 6x spread, and it drives most of the value because digital is where Modern Games keeps 90%.",
+  "No documented base-case exit multiple. The 10x is a best case.",
+  "Early DTC numbers ($231K over eleven weeks post-launch) are small against a 2-4M unit forecast."
+ ],
+ "discrepancy": "THE GC DEAL SNAPSHOT CONTRADICTS ITSELF AND THE MEMO. It states \"10x markup expected in next round (projected $50M-$60M valuation in early 2026)\". A $30M entry moving to $50-60M is a 1.7-2.0x markup, which is exactly what the Spacestation memo says. The \"10x markup\" line is wrong — 10x has been imported from the underwriting session’s BEST-CASE exit, which is a different thing entirely from a next-round markup.",
+ "icUnderwrite": {
+  "source": "ÆRTHLINGS VC Underwriting Memo (IC version)",
+  "verdict": "PROCEED — WITH POSITION DISCIPLINE",
+  "overall": "3.5 / 5",
+  "scores": {
+   "Team & advisors": "4.5/5",
+   "Distribution access": "5/5",
+   "Business model control": "2/5",
+   "Valuation discipline": "2.5/5",
+   "Category risk": "2/5",
+   "Upside potential": "4.5/5",
+   "Governance / rights": "2/5"
   },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+  "coreQuestion": "\"Are we underwriting a venture-scale IP platform, or partner-dependent execution risk at a full valuation?\" Its own closing test: if Moose and MGA were removed tomorrow, would ÆRTHLINGS still justify $30M on what the company itself controls?",
+  "positioning": "\"Treat as optionality, not conviction capital. Size assuming binary outcomes. Not a load-the-boat deal — a small bet on a potentially massive IP.\" Re-evaluate once retention data is real, retail sell-through is proven, and a priced round is imminent.",
+  "structuralRead": "Capital-light, but also CONTROL-light.",
+  "exitPaths": [
+   {
+    "path": "Strategic acquisition",
+    "likelihood": "Medium",
+    "note": "Most likely. Mattel, Hasbro, a media company."
+   },
+   {
+    "path": "IPO",
+    "likelihood": "Low",
+    "note": "Only if the franchise explodes."
+   },
+   {
+    "path": "Long hold / zombie",
+    "likelihood": "Medium",
+    "note": "The risk if digital underperforms."
+   },
+   {
+    "path": "Secondary liquidity",
+    "likelihood": "Unclear",
+    "note": "No guarantees."
+   }
+  ],
+  "assumptionsBeingMade": [
+   "2-4M toy units shipped",
+   "20%+ conversion from toy to app install",
+   "Sustainable ARPU of $10-30",
+   "Strong retention, D7 around 15%"
+  ],
+  "gaps": [
+   "Retention data is not yet auditable",
+   "Conversion metrics are projected",
+   "Royalty cash-flow timing unclear — paid on shipment or on sell-through?"
+  ]
+ }
 }

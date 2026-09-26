@@ -86,16 +86,11 @@
  },
  {
   "name": "AERTHLINGS",
-  "assetClass": "VC",
   "commitment": 10000,
   "funded": 10000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "hold": 10,
-  "coupon": "",
-  "moic": 10.0,
-  "conviction": "Low",
-  "deals": 1
+  "conviction": "Low"
  },
  {
   "name": "Rorra",
