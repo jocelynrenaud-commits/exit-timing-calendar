@@ -869,13 +869,24 @@
       + 'flows and solves once, which is why the book\u2019s number can sit well above the '
       + 'typical deal inside it.</p>';
 
-    h += '<table><thead><tr><th class="l">Book</th><th>Bad run</th><th>Typical</th>'
-      + '<th>Good run</th></tr></thead><tbody>';
+    /* Commitment-weighted, because a $250,000 ten-year position says more about how long
+       the sleeve is tied up than a $5,000 four-year one does. */
+    const avgHold = (kind) => {
+      const rows = book.filter((b) => !kind || b.kind === kind);
+      const c = rows.reduce((a, b) => a + b.commitment, 0);
+      return c > 0 ? rows.reduce((a, b) => a + b.hold * b.commitment, 0) / c : 0;
+    };
+    h += '<table><thead><tr><th class="l">Book</th><th>Typical hold</th><th>Bad run</th>'
+      + '<th>Typical</th><th>Good run</th></tr></thead><tbody>';
     const CLS = [['income', 'Income sleeves'], ['venture', 'Venture']];
     for (const [k, lbl] of CLS) {
-      if (R.byClass[k]) h += '<tr><td class="l">' + lbl + '</td>' + band(R.byClass[k]) + '</tr>';
+      if (R.byClass[k]) {
+        h += '<tr><td class="l">' + lbl + '</td>'
+          + '<td>' + avgHold(k).toFixed(1) + ' yrs</td>' + band(R.byClass[k]) + '</tr>';
+      }
     }
-    h += '<tr><td class="l b">Whole book</td>' + band(R.portfolio) + '</tr>';
+    h += '<tr><td class="l b">Whole book</td><td class="b">' + avgHold(null).toFixed(1)
+      + ' yrs</td>' + band(R.portfolio) + '</tr>';
     h += '</tbody></table>';
 
     /* The diversification result, which is the most useful thing this panel produces and is
@@ -918,6 +929,25 @@
         + 'The honest summary: venture is where the big outcomes live, and you can see that in '
         + 'the Good run column of the by-deal table. It is a worse place to look for a '
         + '<i>rate</i>, because a rate punishes waiting.</p>';
+
+      /* The follow-up question, which is a good one: is venture only behind because it is
+         held longer? Partly. The Typical hold column is there so the reader can see the
+         gap, and this says how much of the difference it accounts for. */
+      h += '<p class="note"><b>Is venture only behind because it is held longer?</b> Partly, '
+        + 'and the Typical hold column above is there so you can see the gap. <b>A yearly rate '
+        + 'already divides by the years</b> \u2014 that is what makes a four-year deal and a '
+        + 'ten-year deal comparable at all \u2014 so there is nothing further to adjust for. '
+        + 'But dividing by more years is a real hurdle. On this book, holding the venture '
+        + 'positions for five years instead of their actual 8 to 10 would lift the sleeve from '
+        + '7.2% to 13.8% a year, and its good run from 15% to 45%. So <b>most of the good-run '
+        + 'gap is the waiting</b>, and venture would win that column outright on equal terms.<br>'
+        + '<b>What the waiting does not explain is the middle.</b> Even shortened to five '
+        + 'years, venture\u2019s typical outcome still sits below the income sleeves, because '
+        + 'the typical single venture deal returns <b>exactly your money back</b> \u2014 and '
+        + '1.0x is 0% a year whether it takes four years or twenty. Duration cannot rescue a '
+        + 'multiple of one. Put the other way round: to match the income sleeves\u2019 18% a '
+        + 'year, a venture deal needs <b>2.3x over five years, or 5.3x over ten</b>. That is '
+        + 'the real cost of the long hold, and it is why venture has to aim so high.</p>';
     }
 
     h += '<h3>By deal</h3>';
@@ -931,10 +961,12 @@
       + '<b>Chance of losing it all</b> is the odds, not an amount. 31% means that in 31 of '
       + 'every 100 futures that deal pays back nothing at all. It is a positive number because '
       + 'it counts how often, not how much.</p>';
-    h += '<table><thead><tr><th class="l">Deal</th><th>Sponsor MOIC</th><th>Sponsor case</th>'
-      + '<th>Typical</th><th>Good run</th><th>Chance of losing it all</th></tr></thead><tbody>';
+    h += '<table><thead><tr><th class="l">Deal</th><th>Hold</th><th>Sponsor MOIC</th>'
+      + '<th>Sponsor case</th><th>Typical</th><th>Good run</th>'
+      + '<th>Chance of losing it all</th></tr></thead><tbody>';
     for (const d of R.byDeal.slice().sort((a, b) => (b.sponsorCase || -9) - (a.sponsorCase || -9))) {
       h += '<tr><td class="l">' + esc(d.name) + '</td>'
+        + '<td>' + d.hold + ' yrs</td>'
         + '<td>' + mult(d.sponsorMoic) + '</td>'
         + '<td>' + rate(d.sponsorCase) + '</td>'
         + '<td class="b">' + rate(d.p50) + '</td>'
