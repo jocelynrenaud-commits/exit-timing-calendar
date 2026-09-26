@@ -110,5 +110,9 @@
    "Conversion metrics are projected",
    "Royalty cash-flow timing unclear — paid on shipment or on sell-through?"
   ]
- }
+ },
+ "variesByHolder": [
+  "spvFees"
+ ],
+ "variesNote": "YOUR SPV FEE DEPENDS ON WHETHER YOU COMMITTED TO THE FUND, so two holders of this same SPV can be paying different rates. Standard SPV Terms are an 8% management fee and 20% carry. Preferential Terms of 5% and 20% apply to an investor who has committed $250,000 to SPVC Fund 1 — and that commitment is the SpaceStation Fund position itself, not extra money in this deal. Check which set your own side letter gives you before reading the fee line as yours."
 }

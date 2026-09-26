@@ -90,6 +90,14 @@
     ['uncalled',    ['uncalled', 'unfunded', 'remaining', 'callable']],
     ['hold',        ['hold', 'hold (yrs)', 'hold years', 'term', 'fund life', 'horizon']],
     ['coupon',      ['coupon', 'coupon %', 'preferred', 'pref', 'preferred return']],
+    /* BEFORE `moic`, and it has to stay there, for exactly the reason `yearFunded` sits
+       before `funded`. Header matching is `k === n || k.startsWith(n)`, so a column headed
+       "MOIC (marked up)" starts with "moic" and would be read as the SPONSOR's multiple --
+       silently turning a holder's paper mark into a forecast input, which is the one thing
+       this feature must never do. Listed first, the marked-up aliases win the header.
+       Aliases are kept long deliberately: a bare 'mark' would capture "Market Value". */
+    ['markedUpMoic', ['marked up moic', 'marked-up moic', 'markup moic', 'marked up multiple',
+                      'moic (marked up)', 'moic marked up', 'current moic', 'paper moic']],
     ['moic',        ['sponsor moic', 'moic', 'multiple', 'expected moic', 'target multiple']],
     ['conviction',  ['conviction', 'confidence']],
     // the holder's own words. Personal, so it lives in THEIR tracker, never in a
@@ -584,7 +592,7 @@
 
   function renderOutlook() {
     const book = subset(MODE);
-    const st = Engine.simulate(book, { paths: 6000 });
+    const st = Engine.simulate(book, { paths: 6000, irr: true });
     if (!st) { $('#out').innerHTML = '<div class="card">No positions in this view.</div>'; return; }
     const T = st.totals;
 
@@ -723,6 +731,8 @@
         + '<td class="' + (profit < 0 ? 'neg' : (bold ? 'b' : '')) + '">' + money(profit) + '</td>'
         + '<td class="' + (bold ? 'b' : '') + '">' + mult(v / T.committed) + '</td></tr>';
     };
+    h += irrCard(st, book);
+
     h += '<div class="card"><h2>What this book returns over its life</h2>'
       + '<p class="note">Profit is measured against the <b>full ' + money(T.committed) + ' committed</b>, not '
       + 'against the uncalled balance. Netting only what is left to fund ignores the ' + money(T.funded)
@@ -761,6 +771,108 @@
      These are cumulative percentiles, which is the only kind that may be read down a column:
      each simulated future is totalled first and the totals are ranked once. So the bad edge
      is one coherent bad future, not a bad year stitched to a bad year. */
+  /* An IRR, or an honest word instead of one. The three cases that are NOT a number all
+     have to read differently: nothing invested is unanswerable, losing everything is -100%
+     and not 0%, and a return faster than the solver's bracket is a bound rather than a
+     figure. Printing 0% for any of them would be the worst error this panel could make. */
+  function rate(v) {
+    if (v == null) return '<span class="muted">n/a</span>';
+    if (v <= -0.9999) return '<span class="neg">\u2212100%</span>';
+    if (v >= 9.999) return '&gt;1000%';
+    const t = (100 * v).toFixed(1) + '%';
+    return v < 0 ? '<span class="neg">\u2212' + t.replace('-', '') + '</span>' : t;
+  }
+
+  function irrCard(st, book) {
+    const R = st.irr;
+    if (!R) return '';
+    const band = (b) => '<td>' + rate(b.p10) + '</td><td class="b">' + rate(b.p50)
+      + '</td><td>' + rate(b.p90) + '</td>';
+
+    let h = '<div class="card"><h2>What rate of return that works out to</h2>';
+
+    /* Say what the reader is looking at BEFORE the table. Two caveats matter more than any
+       figure in it, and a reader who meets them afterwards has already drawn a conclusion. */
+    h += '<p class="note"><b>This counts cash, not marks.</b> Every dollar in these figures is '
+      + 'money actually returned, so they will read lower than an IRR a sponsor reports \u2014 '
+      + 'theirs includes what a position is currently carried at. Neither is wrong; they are '
+      + 'answering different questions. <b>And a portfolio IRR is not the average of its '
+      + 'deals\u2019.</b> IRR is not additive. Every figure below pools the underlying cash '
+      + 'flows and solves once, which is why the book\u2019s number can sit well above the '
+      + 'typical deal inside it.</p>';
+
+    h += '<table><thead><tr><th class="l">Book</th><th>Bad run</th><th>Typical</th>'
+      + '<th>Good run</th></tr></thead><tbody>';
+    const CLS = [['income', 'Income sleeves'], ['venture', 'Venture']];
+    for (const [k, lbl] of CLS) {
+      if (R.byClass[k]) h += '<tr><td class="l">' + lbl + '</td>' + band(R.byClass[k]) + '</tr>';
+    }
+    h += '<tr><td class="l b">Whole book</td>' + band(R.portfolio) + '</tr>';
+    h += '</tbody></table>';
+
+    /* The diversification result, which is the most useful thing this panel produces and is
+       invisible unless the two rows are read against each other. Stated only when it is
+       actually true of the book in front of the reader. */
+    const solo = R.byDeal.filter((d) => d.kind === 'venture' && d.lossShare > 0.2);
+    if (R.byClass.venture && solo.length > 2) {
+      const med = solo.map((d) => d.p50).sort((a, b) => a - b)[Math.floor(solo.length / 2)];
+      if (R.byClass.venture.p50 > med + 0.02) {
+        h += '<p class="note"><b>Worth reading those two venture rows against each other.</b> '
+          + 'Taken one at a time, the typical single venture deal in this book returns '
+          + rate(med) + '. Held together as a sleeve, the typical outcome is '
+          + rate(R.byClass.venture.p50) + '. Nothing about any deal changed \u2014 only that '
+          + 'there are ' + solo.length + ' of them.</p>';
+      }
+    }
+
+    h += '<p class="note">Read as a <b>range</b>, not a forecast. Bad run is the 10th '
+      + 'percentile of simulated futures and good run the 90th, so a tenth of futures are '
+      + 'worse than the left column and a tenth better than the right.</p>';
+
+    h += '<h3>By deal</h3>';
+    h += '<p class="note"><b>Two columns here answer different questions.</b> <i>Sponsor '
+      + 'case</i> is the sponsor\u2019s own multiple, reached at the expected exit \u2014 what '
+      + 'they are effectively claiming. <i>Typical</i> is what this tool expects once the '
+      + 'chance of failure is priced in. The gap between them is the argument, and for a '
+      + 'single deal it is usually wide: a sponsor\u2019s figure sits in the best tenth of '
+      + 'outcomes, so it is not what a median future delivers.</p>';
+    h += '<table><thead><tr><th class="l">Deal</th><th>Sponsor MOIC</th><th>Sponsor case</th>'
+      + '<th>Typical</th><th>Good run</th><th>Total loss</th></tr></thead><tbody>';
+    for (const d of R.byDeal.slice().sort((a, b) => (b.sponsorCase || -9) - (a.sponsorCase || -9))) {
+      h += '<tr><td class="l">' + esc(d.name) + '</td>'
+        + '<td>' + mult(d.sponsorMoic) + '</td>'
+        + '<td>' + rate(d.sponsorCase) + '</td>'
+        + '<td class="b">' + rate(d.p50) + '</td>'
+        + '<td>' + rate(d.p90) + '</td>'
+        + '<td>' + (d.lossShare > 0.005 ? Math.round(100 * d.lossShare) + '%'
+          : '<span class="muted">\u2014</span>') + '</td></tr>';
+    }
+    h += '</tbody></table>';
+
+    /* The paper track. Shown only when the holder has actually marked something up, and
+       separated from everything above by saying plainly that it is not in any of it. */
+    const P = R.paper;
+    if (P && P.marked > 0) {
+      h += '<h3>What you believe it is worth now</h3>';
+      h += '<p class="note"><b>None of this is in any figure above, and none of it is cash.</b> '
+        + 'You have marked up ' + P.marked + ' of ' + P.positions + ' position'
+        + (P.positions === 1 ? '' : 's') + '. A markup records a valuation you have been told '
+        + 'about; it is not a liquidity event, it cannot be spent, and a private mark is set by '
+        + 'the person holding the asset and is rarely revised downward. It is here because '
+        + 'waiting five to seven years with no signal at all is worse.</p>';
+      h += '<table><tbody>'
+        + '<tr><td class="l">Cost basis, funded to date</td><td>' + money(P.cost) + '</td></tr>'
+        + '<tr><td class="l">Marked-up value</td><td>' + money(P.nav) + '</td></tr>'
+        + '<tr><td class="l b">Paper gain</td><td class="' + (P.gain < 0 ? 'neg' : 'b') + '">'
+        + money(P.gain) + '</td></tr>'
+        + '<tr><td class="l">On paper</td><td>' + mult(P.multiple) + '</td></tr>'
+        + '</tbody></table>';
+    }
+
+    h += '</div>';
+    return h;
+  }
+
   function coneChart(rows, committed, raw) {
     const W = 880, H = 320, L = 70, R = 104, T = 22, B = 48;
     const iw = W - L - R, ih = H - T - B;

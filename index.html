@@ -138,6 +138,41 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.16 &nbsp;&middot;&nbsp; 26 Sep 2026</span>
+      <h4>IRR, and a column for what you think a position is worth now</h4>
+      <p><b>There is an IRR panel on Liquidity Outlook</b> &mdash; by deal, by asset class, and
+        across the whole book. Two things about it are worth knowing before you read it.</p>
+      <p><b>It counts cash, not marks.</b> Every dollar in it is money actually returned, so it
+        will read LOWER than an IRR a sponsor reports, because theirs includes unrealised
+        carrying value. That gap is the difference between the two methods, not an error in
+        either.</p>
+      <p><b>A portfolio IRR is not the average of its deals&rsquo; IRRs.</b> IRR is not additive.
+        The panel pools every position&rsquo;s cash flow, solves once per simulated future, and
+        ranks the futures after that. On the example book, averaging the thirteen deals instead
+        gives a median of <b>&minus;5.4%</b> against the correct <b>12.4%</b> &mdash; which is
+        the difference between a healthy book and a loss-making one, so it is worth saying out
+        loud.</p>
+      <p><b>The most useful number turned out to be one nobody asked for.</b> Every single
+        venture SPV in the example book has a roughly 30% chance of returning nothing and a
+        median IRR of 0.0%. Pooled as a sleeve, the same eight positions have a median of 7.2%
+        and a P10 of &minus;0.8%. Nothing about any deal changed, only that there are eight of
+        them.</p>
+      <p><b>A sponsor&rsquo;s multiple is now shown as its own IRR.</b> The outcome table puts a
+        sponsor&rsquo;s figure in the top 10% of outcomes only, so at the median and even at a
+        good run it was invisible: four deals with sponsor multiples between 5.5x and 14.2x were
+        printing an identical number. The sponsor case now sits beside the model&rsquo;s own
+        percentiles so the two can be compared directly.</p>
+      <p><b>New optional column: Marked Up MOIC.</b> If you track valuation increases &mdash;
+        your position doubling when a round reprices &mdash; you can record it. It drives a paper
+        track shown <i>beside</i> the cash forecast and never inside it: it moves no cash figure,
+        and it never enters the IRR. Blank means nothing changes, and a tracker from before this
+        version produces identical numbers to the ones it produced yesterday.</p>
+      <p>Thanks to <b>Rick Strauss</b> for asking for IRR by investment, asset class and
+        scenario, and to <b>John Millen</b> for the markup argument &mdash; his reason for
+        tracking paper gains was better than the reason for ignoring them.</p>
+    </div>
+
+    <div class="rel">
       <span class="tag">v1.15 &nbsp;&middot;&nbsp; 25 Sep 2026</span>
       <h4>Three Asilia vehicles, untangled &mdash; and a six-year error on Rorra</h4>
       <p><b>There are three Asilia funds and the tool had been conflating them.</b> Sorted:</p>

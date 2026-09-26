@@ -52,9 +52,11 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.16 IRR by deal, asset class and scenario; a Marked Up MOIC column that drives a
+             paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.15',
+  version: 'v1.16',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -62,7 +64,7 @@ const CFG = {
      "older tracker" notice started telling people to look for a v1.7 stamp in a file that
      correctly says v1.6, and the only way to satisfy it would have been to make everyone
      re-download a spreadsheet identical to the one they already had. */
-  trackerVersion: 'v1.6',
+  trackerVersion: 'v1.7',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
      projected multiple. That number is what the deal returns IF IT WORKS; using it as
@@ -166,6 +168,19 @@ function buildBook(rows) {
     const likely = parseInt(r.exitLikely, 10) || (fy + hold);
     const kind = coupon > 0 ? 'income' : 'venture';
 
+    /* A MARKED-UP MOIC IS NOT A FORECAST INPUT, and this is the only place that has to be
+       said in code, because everything downstream simply never reads it.
+       John Millen's point, which is a fair one: five to seven years is a long time to hold
+       something with no signal at all, so a holder who tracks valuation increases wants to
+       see them. The risk is that a paper gain leaks into a chart about cash. It cannot here.
+       `markedUpMoic` is deliberately NOT folded into `moic`, `exitMult` or `branches`, so the
+       simulation below cannot see it even by accident, and a tracker that leaves the column
+       blank produces numbers identical to one from before the column existed.
+       It is applied to FUNDED, never to commitment: you cannot have a paper gain on capital
+       you have not sent. On a position with $75k in against a $250k commitment, marking the
+       commitment up 2x would claim $500k of value on $75k of money. */
+    const markedUpMoic = num(r.markedUpMoic) > 0 ? num(r.markedUpMoic) : null;
+
     /* How many underlying deals does this position hold? This decides the OUTCOME table
        only. Blank means one, because assuming diversification nobody declared would be
        inventing it. A blank is NOT the same as a typed 1: typing 1 is someone saying
@@ -207,6 +222,8 @@ function buildBook(rows) {
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
       exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed,
+      markedUpMoic,                   // paper only; never reaches the simulation
+      paperNav: markedUpMoic ? funded * markedUpMoic : funded,
       deal: r._deal || null,          // the shared file this matched, if any
       overrides: r._ovr || [],        // fields the holder typed over that file
       tier: r._tier || null,          // the band this commitment landed in, if resolvable
@@ -291,6 +308,103 @@ function couponSchedule(book, years) {
   return out;
 }
 
+/* ── IRR ────────────────────────────────────────────────────────────────────
+   Money-weighted, which is the right convention for private deals: the holder does not
+   choose when capital is called or returned.
+
+   THIS IS A CASH IRR. It counts distributions actually received and no paper marks at
+   all, so it is a DPI-based figure and it will read LOWER than a sponsor's reported IRR,
+   which includes unrealised carrying value. That difference is the whole point and the
+   Background tab says so.
+
+   Bisection rather than Newton: Newton is fragile near the total-loss boundary, and the
+   bracket here is known. 60 iterations on a bracket of 11 is well under a basis point. */
+function irrOf(flows, t0) {
+  let anyPos = false, anyNeg = false;
+  for (const f of flows) { if (f[1] > 1e-9) anyPos = true; if (f[1] < -1e-9) anyNeg = true; }
+  /* Three outcomes that are NOT zero, and showing 0% for any of them would be a lie:
+     no contribution at all is undefined; contributions with nothing back is exactly
+     -100%; and a return so fast it exceeds the bracket is clamped and labelled. */
+  if (!anyNeg) return { r: null, flag: 'no-contribution' };
+  if (!anyPos) return { r: -1, flag: 'total-loss' };
+  const byT = {};
+  for (const f of flows) byT[f[0]] = (byT[f[0]] || 0) + f[1];
+  const ts = Object.keys(byT).map(Number).sort((a, b) => a - b);
+  /* A stream that changes sign more than once can have several real roots, so IRR is
+     genuinely ambiguous there. It does not occur on any book seen so far -- zero cases in
+     78,000 deal-runs -- but a coupon payer with a long call schedule could produce one,
+     and silently returning whichever root bisection lands on would be worse than saying so. */
+  let changes = 0, prev = 0;
+  for (const t of ts) {
+    const sg = byT[t] > 1e-9 ? 1 : (byT[t] < -1e-9 ? -1 : 0);
+    if (sg !== 0 && prev !== 0 && sg !== prev) changes++;
+    if (sg !== 0) prev = sg;
+  }
+  const npv = (rate) => {
+    let acc = 0;
+    for (const t of ts) acc += byT[t] / Math.pow(1 + rate, t - t0);
+    return acc;
+  };
+  let lo = -0.9999, hi = 10;
+  if (npv(lo) < 0) return { r: -1, flag: 'total-loss' };
+  if (npv(hi) > 0) return { r: hi, flag: 'above-bracket' };
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (npv(mid) > 0) lo = mid; else hi = mid;
+  }
+  return { r: (lo + hi) / 2, flag: changes > 1 ? 'multi-sign' : 'ok' };
+}
+
+/* One position's signed cash flow for one path, built from its TERMS rather than from the
+   display grid. The grid starts at CFG.yearFrom; a position funded before that would lose
+   its early calls to the grid's bounds, and an IRR missing its first contributions is
+   flattering. So this reads b.fy directly and is unaffected by the calendar on screen.
+   `off` and `m` are the draws the simulation has already made for this path, passed in so
+   that IRR and the cone describe the SAME futures and no extra number is drawn. */
+function dealStream(b, off, m) {
+  const f = [[b.fy, -b.funded]];
+  if (b.uncalled > 0) {
+    for (let k = 0; k < CFG.callYears; k++) f.push([b.fy + 1 + k, -b.uncalled / CFG.callYears]);
+  }
+  if (b.coupon > 0) {
+    for (let k = 1; k <= b.hold; k++) f.push([b.fy + k, b.commitment * b.coupon]);
+  }
+  const cash = b.commitment * m;
+  if (cash > 0) {
+    const ey = b.likely + off;
+    if (b.spread) {
+      let sw = 0;
+      for (const sp of b.spread) sw += sp[1];
+      for (const sp of b.spread) f.push([ey + sp[0], cash * sp[1] / sw]);
+    } else f.push([ey, cash]);
+  }
+  return f;
+}
+
+/* The sponsor's own case as an IRR: their multiple, at the likely exit, with the real call
+   and coupon schedule. Deterministic, and it exists because of a genuine blind spot -- the
+   single-deal venture table puts the sponsor's multiple in the top 10% only, so at every
+   percentile at or below P90 it is invisible. Four deals with multiples from 5.5x to 14.2x
+   otherwise print an identical number, which is true to the model and reads as a bug. */
+function sponsorCaseIrr(b) {
+  return irrOf(dealStream(b, 0, b.exitMult), b.fy).r;
+}
+
+/* What the holder says their positions are worth now. Cost basis for anything unmarked, so
+   this is never inflated by absence. Kept entirely separate from every cash figure. */
+function paperTrack(book) {
+  let cost = 0, nav = 0, marked = 0;
+  for (const b of book) {
+    cost += b.funded;
+    nav += b.paperNav != null ? b.paperNav : b.funded;
+    if (b.markedUpMoic) marked++;
+  }
+  return {
+    cost, nav, gain: nav - cost, marked, positions: book.length,
+    multiple: cost > 0 ? nav / cost : 0,
+  };
+}
+
 function pick(rnd, branches, fallback) {
   const r = rnd();
   let acc = 0;
@@ -324,16 +438,48 @@ function simulate(book, opts) {
   const totals = [];
   const rnd = makeRng(20260922);
 
+  /* IRR is OPT-IN, and that is deliberate rather than lazy. Everything below this point
+     runs unchanged when it is off, so a caller that does not ask for IRR gets byte-for-byte
+     the output it got before IRR existed. The regression golden depends on that. */
+  const wantIrr = !!opts.irr;
+  const irrDeal = wantIrr ? book.map(() => []) : null;
+  const irrPort = [];
+  const irrClass = {};
+  const irrFlags = {};
+  const classT0 = {};
+  if (wantIrr) {
+    for (const b of book) {
+      if (irrClass[b.kind] == null) { irrClass[b.kind] = []; classT0[b.kind] = b.fy; }
+      if (b.fy < classT0[b.kind]) classT0[b.kind] = b.fy;
+    }
+  }
+  const bookT0 = book.reduce((a, b) => Math.min(a, b.fy), Infinity);
+
   for (let p = 0; p < paths; p++) {
     const yr = {};
     for (const y of years) yr[y] = 0;
-    for (const b of book) {
+    const pooled = wantIrr ? [] : null;
+    const classFlows = {};
+    for (let bi = 0; bi < book.length; bi++) {
+      const b = book[bi];
       const off = pick(rnd, CFG.timing, 4);
       const ey = b.likely + off;
       let m = pick(rnd, b.branches, null);
       if (m === null) m = b.exitMult;          // top branch: the full exit
       else if (b.scales) m = m * b.exitMult;   // tight tables scale it
       const cash = b.commitment * m;
+      /* BEFORE the early return below, because a position that returns nothing is not an
+         absence of data -- it is a -100% IRR, and it is 30% of the outcomes for a single
+         venture deal. Skipping it here would quietly drop the entire left tail. */
+      if (wantIrr) {
+        const fl = dealStream(b, off, m);
+        const res = irrOf(fl, b.fy);
+        irrDeal[bi].push(res.r);
+        irrFlags[res.flag] = (irrFlags[res.flag] || 0) + 1;
+        for (const f of fl) pooled.push(f);
+        if (classFlows[b.kind] == null) classFlows[b.kind] = [];
+        for (const f of fl) classFlows[b.kind].push(f);
+      }
       if (!(cash > 0)) continue;
       if (b.spread) {
         /* A fund sells down over several years rather than exiting on one date.
@@ -363,6 +509,19 @@ function simulate(book, opts) {
       tot += v;
     }
     totals.push(tot);
+
+    /* THE RULE THIS WHOLE FEATURE TURNS ON. A portfolio IRR is the IRR of the pooled cash
+       flow, solved ONCE per run and only then ranked across runs. It is not the average of
+       the deals' IRRs and it is not their commitment-weighted average -- IRR is not additive.
+       On the reference book, averaging gives a median of -5.4% against the correct 12.4%,
+       which is not a rounding artefact, it is the difference between a healthy book and a
+       loss-making one. A test asserts the shipped figure differs from both shortcuts. */
+    if (wantIrr) {
+      irrPort.push(irrOf(pooled, bookT0).r);
+      for (const k of Object.keys(irrClass)) {
+        irrClass[k].push(classFlows[k] ? irrOf(classFlows[k], classT0[k]).r : null);
+      }
+    }
   }
 
   const q = (arr, p) => {
@@ -412,6 +571,42 @@ function simulate(book, opts) {
   };
   // the tie-out that proves the cumulative panel and the totals are one model
   out.ties = Math.abs(cumRows[cumRows.length - 1].p50 - out.totals.p50) < 0.01;
+
+  if (wantIrr) {
+    /* Percentiles over the DEFINED values only. A run where a deal returned nothing is
+       -100% and belongs in the distribution; a run where it had no cash flow at all is
+       undefined and must not be silently counted as a zero. */
+    const qi = (arr, pp) => {
+      const v = arr.filter((x) => x != null).sort((a, b) => a - b);
+      return v.length ? v[Math.floor(pp * (v.length - 1))] : null;
+    };
+    const band = (arr) => ({
+      p10: qi(arr, 0.10), p50: qi(arr, 0.50), p90: qi(arr, 0.90),
+      defined: arr.filter((x) => x != null).length,
+    });
+
+    /* "By scenario" has two defensible readings and they disagree, so both ship and both
+       are labelled. `portfolio` ranks runs BY IRR, which is the honest IRR spread.
+       `byCash` ranks them by total cash returned -- the cone's own basis -- and reports
+       that run's IRR, which is what a reader means when they point at the cone's good line
+       and ask what return it is. A run can return a great deal of money slowly, so on the
+       reference book the good end differs by over four points. */
+    const order = totals.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
+    const atCash = (pp) => irrPort[order[Math.floor(pp * (order.length - 1))]];
+
+    out.irr = {
+      portfolio: band(irrPort),
+      byCash: { p10: atCash(0.10), p50: atCash(0.50), p90: atCash(0.90) },
+      byClass: Object.fromEntries(Object.keys(irrClass).map((k) => [k, band(irrClass[k])])),
+      byDeal: book.map((b, i) => Object.assign({
+        name: b.name, kind: b.kind, commitment: b.commitment,
+        sponsorMoic: b.moic, sponsorCase: sponsorCaseIrr(b), hold: b.hold,
+        lossShare: irrDeal[i].filter((x) => x != null && x <= -0.9999).length / (irrDeal[i].length || 1),
+      }, band(irrDeal[i]))),
+      flags: irrFlags,
+      paper: paperTrack(book),
+    };
+  }
   return out;
 }
 
@@ -577,5 +772,6 @@ function applyDealFile(row, f) {
   return out;
 }
 
-const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier };
+const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier,
+                 irrOf, dealStream, sponsorCaseIrr, paperTrack };
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
