@@ -52,15 +52,16 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
-       v1.18 size against speed: a sponsor multiple plotted against the same case as a
-             yearly rate, and the hold shown beside every return figure
+       v1.19 the hold is shown beside every return figure. A size-against-speed scatter
+             was tried in v1.18 and withdrawn the same day as too confusing to read
+       v1.18 superseded within the day by v1.19; see that entry
        v1.17 a preferred return is no longer certain: it is impaired by the same outcome
              draw as the exit, so the fund that hands back less also pays less
        v1.16 IRR by deal, asset class and scenario; a Marked Up MOIC column that drives a
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.18',
+  version: 'v1.19',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
