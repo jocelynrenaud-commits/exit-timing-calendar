@@ -1,25 +1,86 @@
 {
-  "slug": "aerolane",
-  "name": "Aerolane",
-  "aliases": [
-    "Aerolane",
-    "Aerolane",
-    "Aerolane - Plan A"
-  ],
-  "sponsor": "Spacestation / Belltower Fund Group, Ltd.",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": 10.0
+ "slug": "aerolane",
+ "name": "Aerolane",
+ "aliases": [
+  "Aerolane",
+  "Aerolane",
+  "Aerolane - Plan A"
+ ],
+ "sponsor": "Spacestation Investments (SPVC 05) · Edge Logistics, Inc. d/b/a Aerolane",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Deeptech aerospace / air cargo",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 8,
+  "sponsorMoic": 8.0,
+  "sponsorMoicNote": "Base case is 8-12x MOIC at 50-70% IRR, from the deal memo’s sensitivity analysis on a $100M post-money entry. The file carries 8.0x — the LOW end — because the model puts this figure in the winner branch. NOTE THE BASIS: this is entry-to-exit on the company, BEFORE the SPV’s 8% upfront fee and 20% carry, so what reaches the holder is meaningfully less. The file previously carried 10.0x, which was the midpoint of a range nobody had recorded. Worth knowing where that range comes from: the 8-12x is from the WRITTEN memo. The pitch and underwrite calls produced no formal MOIC model at all — they framed outcomes as a $3-5B IPO valuation at roughly $300M revenue and 30% EBITDA margins, and discussed 20-50x secondary returns as possible rather than forecast.",
+  "holdNote": "7-10 years for a full exit; 3-5 years for a strategic acquisition or a partial secondary. Management projects an IPO in 2032-2033. Modelled at 8. Previously 10.",
+  "instrument": "SAFE (C-Series) with MFN, $100M post-money cap, 10% discount",
+  "instrumentNote": "SAFE into the C-Series. Post-money cap $100,000,000 with a 10% discount and MFN, converting at the LOWER of the cap or the next round’s valuation, triggered by a financing above $25M. The round is a $20M SAFE described on the call as fully subscribed by internal investors with Spacestation the sole external participant, due to close 3 April 2026. ~$25M raised previously across a seed round and earlier SAFE notes. Primary issuance into Edge Logistics, Inc. (d/b/a Aerolane), a Delaware C-Corp.",
+  "minimum": 10000,
+  "minimumNote": "$10,000, set deliberately high enough to avoid hitting the 250-investor SPV cap before the allocation cap.",
+  "spvFees": "8% upfront management fee covering 10 years, plus 20% carry",
+  "spvFeeNote": "Held through SPVC 05, a Series of Spacestation Investments LP, administered by Belltower Fund Group. The 8% is charged UP FRONT and covers the full ten years — not 8% a year — so it is roughly 0.8%/yr equivalent, but it all comes out at the start. Carry is 20% on exit."
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "Aerolane converts existing FAA-certified aircraft into unpowered cargo gliders towed behind a \"tractor\" aircraft — a sky train. Both aircraft are manned and both take off and land in tow. The trailing aircraft rides in the tractor’s wake, so the pair carries roughly double the cargo for marginal incremental fuel, cutting cost per mile 30-70%. The commercial point is that it modifies aircraft that already exist under a Supplemental Type Certificate (months, and about $41M of total funding) rather than certifying a new airframe under a Type Certificate (4-6 years and $1-2B, which is what the eVTOL companies are attempting).",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Spacestation deal memo (Executive Summary, Product & Technology, Revenue Model, Financials, Valuation & Exit Outlook, Expert Calls, Key Risks); Aerolane sales-pitch notes and Q&A meeting notes, 17-18 March 2026; SPVC 05 PPM, Limited Partnership Agreement and Subscription Agreement (signed 23 March 2026). Granola transcripts of the Aerolane sales pitch (17 Mar 2026) and the underwrite Q&A session (18 Mar 2026).",
+ "liquidityNote": "One company, so it exits on one date. A partial secondary is possible in 3-5 years — Spacestation has done one for another portfolio company — but that is optional, not a scheduled sell-down, so nothing is staged.",
+ "scenarioLadder": {
+  "source": "Spacestation deal memo, Section 6 (Valuation & Exit Outlook)",
+  "basis": "Entry-to-exit on the company at the $100M post-money cap, BEFORE SPV fees and carry.",
+  "base": {
+   "moic": "8-12x",
+   "irr": "50-70%",
+   "note": "The memo’s stated base case, modelling only the near-term regional turboprop opportunity."
   },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+  "scenarios": [
+   {
+    "label": "10-15x ($1-1.5B exit)",
+    "what": "C-1 delivers on the Ameriflight contract; the G-1 glider programme slips or stalls and jet-class ambitions push out. A strategic buys the STC portfolio and the Ameriflight relationship — an acqui-hire of the regulatory moat, not the platform."
+   },
+   {
+    "label": "50-100x ($5-10B exit)",
+    "what": "C-1 and G-1 both deliver, adoption spreads past Ameriflight, revenue reaches $500M-$1B by the early 2030s and it IPOs or is bought by a major logistics player. Does not require the G-2."
+   },
+   {
+    "label": "500x+ ($50B+ exit)",
+    "what": "The full platform: G-2 type certification, a major Part 121 carrier in service, and the modal shift from ground freight proving out. Requires everything to go right."
+   }
+  ]
+ },
+ "keyFacts": [
+  "$300M firm purchase order from Ameriflight — a purchase order, not an LOI — for nearly 50 G-1 units and 10 C-1 units. Ameriflight is the largest Part 135 cargo airline in the U.S.",
+  "13 patents covering the tow system: multipoint weak-link rope, harness and attachment, adjustable-length tow mechanism, formation flight assistance.",
+  "Four years of flight testing under an FAA experimental certificate since mid-2022, deliberately at Fort Worth Alliance, some of the busiest commercial airspace in the country — producing the largest proprietary dataset on towed-flight and wake dynamics in existence.",
+  "First STC (Saab 340) was in final stages at the time of the memo, with commercial deliveries and first revenue targeted Q4 2026.",
+  "Team: CEO Todd Graetz founded the UAS programme at BNSF; Chairman Gur Kimchi founded Amazon Prime Air; Katie Thomson, former FAA Deputy Administrator, personally wrote the certification plan; Frank Paskiewicz, former Deputy Head of FAA Airworthiness, runs certification.",
+  "Cap table: KAS Ventures (Anchorage Capital family office, where Aerolane is a top-three position), New Vista Capital (founded by former Boeing CEO Dennis Muilenburg), Shasta Ventures, Ascend, Bitexco/BIG Capital, Tru Arrow.",
+  "Near-term North American TAM $40B across 7,500 compatible aircraft; long-term $200B across 36,000+."
+ ],
+ "keyRisks": [
+  "FAA certification timing. Every dollar of revenue depends on it. A 6-12 month delay pushes first deliveries out of Q4 2026, extends the burn and raises the ~$41M funding need.",
+  "Pre-revenue at the time of the round, with the production ramp still ahead. Hardware deeptech has a long history of underestimating prototype-to-volume.",
+  "Pilot and crew acceptance is the structural headwind the memo names itself: formation flight is unfamiliar in commercial cargo and needs training, union negotiation and new procedures.",
+  "A bare SAFE. The 10% discount and MFN help, but there is no preference.",
+  "SPV fees of 8% upfront plus 20% carry come off whatever the company does.",
+  "An incident anywhere in towed or formation flight — even unrelated to Aerolane — could trigger FAA review or new rulemaking.",
+  "Phase 2 carries the regulatory weight and most of the order value. Phase 1 is the cheap, well-precedented part; the big numbers are not.",
+  "The calls produced no formal downside/base/bull MOIC table. The 8-12x is a memo figure, not something the underwriting session independently derived."
+ ],
+ "ameriflightOrder": {
+  "headline": "$300M firm purchase order (not an LOI) from Ameriflight, the largest Part 135 cargo airline in the U.S.",
+  "composition_discrepancy": "The two sources do not agree on what the $300M is made of. The written memo says nearly 50 G-1 units and 10 C-1 units. The 17-18 March sessions say 10 conversion aircraft at ~$1M each plus FIRST RIGHTS to 24 G-1 clean-sheet aircraft at ~$5M each. Recorded rather than reconciled — it matters, because first rights are not the same as an order.",
+  "nearTerm": "$5-10M over the first 12 months from tow kits.",
+  "balance": "Depends on Phase 2 deliveries across 7-10 years; the customer may substitute additional conversions for clean-sheet aircraft."
+ },
+ "phases": {
+  "phase1": "Conversions of existing certified aircraft, operating under existing formation-flight and banner-towing rules rather than new rulemaking. This is the near-term revenue.",
+  "phase2": "Clean-sheet, eventually unmanned cargo gliders. Materially more complex approvals and the main timeline risk. Most of the Ameriflight value sits here."
+ }
 }

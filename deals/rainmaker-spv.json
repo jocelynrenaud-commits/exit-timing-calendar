@@ -82,7 +82,7 @@
   "balance": "Post-close cash $80M+, burn $2-3M/month, roughly 30 months of runway."
  },
  "provisional": true,
- "provisionalNote": "The scenario grid and scores are the GC underwriter’s analysis, not the company’s projection — Rainmaker itself publishes no target multiple. Instrument mechanics were still open at the time: cap-only or cap plus discount, pre- or post-money SAFE, MFN scope, and what a holder receives on an acquisition before conversion. An executed SAFE beats everything here.",
+ "provisionalNote": "To be precise about what is and is not settled, because most of this card is solid. CONFIRMED by two independent sources (the GC underwrite scorecard and the June 2026 underwriting call): the $450M post-money cap, the ~28% premium to the $350M Series B, the $10,000 minimum, the SPV’s 8-10% front-loaded fees, no QSBS, and the scenario grid. NOT CONFIRMED, because no executed SAFE or side letter has been read: whether the cap is cap-only or cap plus discount, whether the SAFE is pre- or post-money, the scope of any MFN, and what a holder receives if the company is acquired before conversion. Those are side-letter mechanics, not economics — they change how many shares the money converts into, not whether the thesis holds. One more thing worth keeping in view: the scenario grid is the GC UNDERWRITER’S analysis, not the company’s own projection. Rainmaker publishes no target multiple at all. Send the executed SAFE and this flag comes off.",
  "underwrite": {
   "source": "GC underwrite scorecard by Braiden Shaw",
   "score": "90 / 100",
