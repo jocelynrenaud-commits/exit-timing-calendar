@@ -49,16 +49,11 @@
  },
  {
   "name": "Next Life Sciences - Plan A",
-  "assetClass": "VC",
   "commitment": 25000,
   "funded": 25000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "hold": 10,
-  "coupon": "",
-  "moic": 4.0,
-  "conviction": "Medium",
-  "deals": 1
+  "conviction": "Medium"
  },
  {
   "name": "Aerolane",

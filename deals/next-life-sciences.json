@@ -1,25 +1,218 @@
 {
-  "slug": "next-life-sciences",
-  "name": "Next Life Sciences",
-  "aliases": [
-    "Next Life Sciences",
-    "Next Life Sciences",
-    "Next Life Sciences - Plan A"
-  ],
-  "sponsor": "Spacestation 87 / Spacestation Investments 1, LLC",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 10,
-    "sponsorMoic": 4.0
+ "slug": "next-life-sciences",
+ "name": "Next Life Sciences - Plan A",
+ "aliases": [
+  "NEXT Life Sciences",
+  "NLS",
+  "Next Life Sciences",
+  "Next Life Sciences - Plan A",
+  "Plan A"
+ ],
+ "sponsor": "Spacestation Investments (SPV) · NEXT Life Sciences",
+ "assetClass": "VC",
+ "vehicle": "SPV",
+ "subStrategy": "Medical device / reproductive health",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 8,
+  "sponsorMoic": 14.2,
+  "sponsorMoicNote": "Base case 14.2x GROSS on Series-7 dollars — the underwriting grid’s own designated base: exit 2033 at a 14x EV/EBITDA multiple, on the renegotiated $165M post-money cap. Gross on Series-7 dollars means before SPV economics. The file previously carried 4.0x, which was not from any document. READ THE TIMING SENSITIVITY BELOW BEFORE TRUSTING THIS NUMBER: the same base case at 2031 returns 1.0x, not 14.2x. The exit year moves this more than anything else does.",
+  "holdNote": "The grid’s base case exits in 2033, which is 8 years from the 2025 first raise. The pitch framed a $10B portfolio outcome within five years with the broader pipeline build-out at 7-10 years. Previously 10 years, from nothing.",
+  "instrument": "Series 7 SAFE, $165M post-money cap, 20% discount",
+  "instrumentNote": "Originally offered as a $150M PRE-money cap and renegotiated to a **$165M POST-money** cap, which is the more investor-friendly structure: post-money fixes your ownership regardless of how much further SAFE capital comes in, where pre-money leaves it uncomputable until the priced round. 20% discount. Accredited only. The grid assumes a $50M Series A at $200M pre-money and 30% cumulative dilution from that round to exit.",
+  "minimum": 5000,
+  "minimumNote": "$5,000. The vehicle is a parallel structure — 250 accredited investors plus a QP vehicle, roughly 300-350 spots in total.",
+  "sideLetter": "Pro-rata, information rights, major-investor status and a board-observer seat were being negotiated at the time of the sessions. Not confirmed as executed.",
+  "priorBacking": "Spacestation had already put in $4.72M across 2024 and 2025 before this round."
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "NEXT Life Sciences is developing Plan A, a non-hormonal, reversible male contraceptive intended to last up to ten years, held through a Spacestation SPV on a Series 7 SAFE. Over 100,000 men were reported on the interest list ahead of commercialisation. Projected gross margin is steady at 95%, with EBITDA moving from negative in early commercialisation to $2.5M in 2030 and $312.6M by 2033.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "Spacestation underwriting memo for Plan A (Returns Sensitivity, Valuation Comparables and Exit Pathway sections); GC deal snapshot; Spacestation 87 SPV Subscription Agreement and Series Operating Agreement (25 Sep 2025, first raise) and the second-raise fund documents; Granola transcripts of the June town hall, the 4 Aug 2026 pitch and the 6 Aug 2026 live underwriting.",
+ "renegotiatedTerms": {
+  "note": "What the move from a $150M pre-money cap to a $165M post-money cap was worth.",
+  "rows": [
+   {
+    "term": "Ownership per $1M at conversion",
+    "before": "0.380%",
+    "after": "0.485%"
+   },
+   {
+    "term": "Effective entry, post-conversion",
+    "before": "$263M",
+    "after": "$206M"
+   },
+   {
+    "term": "Net ownership per $1M at exit",
+    "before": "0.266%",
+    "after": "0.339%"
+   },
+   {
+    "term": "Base case, 2033 at 14x EBITDA",
+    "before": "11.2x",
+    "after": "14.2x"
+   }
+  ]
+ },
+ "returnsSensitivity": {
+  "basis": "Gross MOIC on Series-7 dollars at the $165M post-money cap. Assumes a $50M Series A at $200M pre-money and 30% cumulative dilution from that round to exit. Before SPV economics.",
+  "source": "Spacestation underwriting memo, Returns Sensitivity table",
+  "note": "THE EXIT YEAR DOMINATES. At 14x EBITDA the base case is 1.0x in 2031, 14.2x in 2033 and 22.7x in 2035. Two years of slippage is the difference between getting your money back and fourteen times it. Every 2031 BEAR outcome is n/m — not meaningful, i.e. a loss.",
+  "grid": {
+   "6x": {
+    "2031": [
+     "n/m",
+     "0.4x",
+     "6.4x"
+    ],
+    "2033": [
+     "0.2x",
+     "6.1x",
+     "12.2x"
+    ],
+    "2035": [
+     "0.8x",
+     "9.7x",
+     "19.5x"
+    ]
+   },
+   "10x": {
+    "2031": [
+     "n/m",
+     "0.7x",
+     "10.6x"
+    ],
+    "2033": [
+     "0.3x",
+     "10.2x",
+     "20.3x"
+    ],
+    "2035": [
+     "1.3x",
+     "16.2x",
+     "32.4x"
+    ]
+   },
+   "14x": {
+    "2031": [
+     "n/m",
+     "1.0x",
+     "14.8x"
+    ],
+    "2033": [
+     "0.4x",
+     "14.2x",
+     "28.5x"
+    ],
+    "2035": [
+     "1.8x",
+     "22.7x",
+     "45.4x"
+    ]
+   },
+   "18x": {
+    "2031": [
+     "n/m",
+     "1.3x",
+     "19.1x"
+    ],
+    "2033": [
+     "0.5x",
+     "18.3x",
+     "36.6x"
+    ],
+    "2035": [
+     "2.3x",
+     "29.2x",
+     "58.4x"
+    ]
+   },
+   "22x": {
+    "2031": [
+     "n/m",
+     "1.6x",
+     "23.3x"
+    ],
+    "2033": [
+     "0.6x",
+     "22.4x",
+     "44.7x"
+    ],
+    "2035": [
+     "2.8x",
+     "35.7x",
+     "71.4x"
+    ]
+   }
   },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+  "gridLegend": "EV/EBITDA multiple -> exit year -> [bear, base, bull]"
+ },
+ "valuationComps": {
+  "basis": "EV/EBITDA, not revenue multiples. Range 6.2x to 39x.",
+  "comps": [
+   {
+    "name": "Sun Pharmaceutical / Organon",
+    "x": "6.2x",
+    "what": "2026 transaction, $11.75B EV on $1.9B FY2025 adjusted EBITDA. A mature women’s health franchise in decline — the category floor."
+   },
+   {
+    "name": "Viatris",
+    "x": "7.0x",
+    "what": "Trading NTM. Established brands and biosimilars, the closest listed peer to Organon."
+   },
+   {
+    "name": "Medtronic",
+    "x": "12.2x",
+    "what": "Large-cap medical device benchmark, July 2026."
+   },
+   {
+    "name": "Cooper Companies",
+    "x": "17.5x",
+    "what": "Owns Paragard and CooperSurgical. The closest listed proxy for a device-led reproductive health franchise."
+   },
+   {
+    "name": "Hims & Hers",
+    "x": "~22x",
+    "what": "On 2026 guided adjusted EBITDA of $275-350M. Direct-to-consumer sexual health at scale."
+   },
+   {
+    "name": "Bayer / Conceptus (Essure)",
+    "x": "39x",
+    "what": "2013 transaction, $1.1B on $28.2M of 2012 adjusted EBITDA. A growth premium on a 20% margin business — the upper bound."
+   }
+  ]
+ },
+ "exitPathways": {
+  "note": "The conventional answer is a strategic acquisition — Bayer bought Conceptus for $1.1B, Cooper bought Paragard for $1.1B, and the executives who sold to them run this company. The complication is that the natural acquirers are the companies whose contraceptive franchises Plan A would cannibalise.",
+  "paths": [
+   {
+    "path": "Acquisition by a non-conflicted buyer",
+    "what": "Device companies or men’s health platforms with distribution and no franchise to protect. Most likely to pay a high price on a reasonable timeline, but a shorter list."
+   },
+   {
+    "path": "Commercialise independently, then IPO",
+    "what": "Needs substantially more capital and therefore more dilution, but produces the largest outcome if it works."
+   },
+   {
+    "path": "Acquisition by a conflicted incumbent",
+    "what": "Carries a high price per dollar of revenue but is the one the founder is most likely to resist. NLS is a PBC with a stated obligation to benefit reproductive health, and a direct competitor would plausibly shelve the device."
+   }
+  ],
+  "earlyLiquidity": "Subsidiary sales were floated as a possible earlier source: NLS-811 and NLS-156 were described as having acquisition interest at $800M-$1.5B pre-market, with an STI-test subsidiary as another potential carve-out. Would reduce dilution."
+ },
+ "clinicalStatus": "Regulated as a MEDICAL DEVICE, with an FDA-aligned feasibility -> pivotal -> submission pathway. The approval endpoint is azoospermia at 6 and 12 months rather than pre-approval pregnancy trials, which the pitch said the FDA had accepted. First-in-human work reported successful with no side effects; an occlusion feasibility trial was underway in April 2026; human REVERSALS were completed in July 2026 with sperm testing over the following three months. Targeting a 2027 pivotal trial, FDA submission in early 2028 and launch around early 2028.",
+ "liquidityNote": "One company, one exit. A subsidiary carve-out could pay earlier, but that is optional rather than a scheduled sell-down.",
+ "keyRisks": [
+  "Reversal efficacy and FDA approval — named in the sessions as the largest outstanding risk. The reversal-data readout was expected to matter to the priced round.",
+  "Endpoint risk: the pathway depends on the FDA continuing to accept azoospermia rather than requiring pregnancy trials.",
+  "EXIT TIMING dominates the return. At 14x EBITDA the base case is 1.0x in 2031 against 14.2x in 2033. Every 2031 bear outcome in the grid is not meaningful — a loss.",
+  "The natural acquirers are conflicted: Plan A cannibalises the IUD, implant, injectable and oral lines that fund them. One option for such a buyer is to acquire it and shelve it.",
+  "No Plan A-specific CPT code and no launch insurance coverage yet, with payer discussions underway. Mass-market scaling is seen as dependent on insurance over time.",
+  "Manufacturing scale-up, product liability and international regulatory timing.",
+  "Competition from Contraline. Patent overlap was addressed in the Q&A as non-blocking on the grounds that the described scopes differ."
+ ],
+ "discrepancy": "THE PITCH AND THE UNDERWRITING GRID DO NOT AGREE. The sales pitch cited 20x downside and 50x target for this round; the written sensitivity grid puts the base case at 14.2x and only reaches 20x+ in bull cases or late exits. The grid is the more conservative and the more traceable of the two, and it is what this file uses."
 }
