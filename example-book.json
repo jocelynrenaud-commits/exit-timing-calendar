@@ -65,16 +65,11 @@
  },
  {
   "name": "Turbo Insurance",
-  "assetClass": "VC",
   "commitment": 20000,
   "funded": 20000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "hold": 5,
-  "coupon": "",
-  "moic": 5.0,
-  "conviction": "High",
-  "deals": 1
+  "conviction": "High"
  },
  {
   "name": "Rainmaker SPV",

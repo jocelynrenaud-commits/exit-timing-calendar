@@ -1,25 +1,50 @@
 {
-  "slug": "turbo-insurance",
-  "name": "Turbo Insurance",
-  "aliases": [
-    "Turbo Insurance",
-    "Turbo Insurance",
-    "Turbo Insurance - Plan A"
-  ],
-  "sponsor": "Amplifi Turbo LLC",
-  "assetClass": "VC",
-  "vehicle": "SPV",
-  "subStrategy": "Single-company venture",
-  "terms": {
-    "couponPct": null,
-    "holdYears": 5,
-    "sponsorMoic": 5.0
-  },
-  "liquidity": null,
-  "dealsInFund": 1,
-  "singleCompany": true,
-  "structure": "A single venture company held through an SPV. It can go to zero, and if it is bought the whole thing is bought at once, so it exits on one date.",
-  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
-  "asOf": "2026-09-24",
-  "source": "Sponsor PPM / summary of terms, as read by the holder. Not verified by GC."
+ "slug": "turbo-insurance",
+ "name": "Turbo Insurance",
+ "aliases": [
+  "Turbo",
+  "Turbo Insurance",
+  "Turbo Insurance - Plan A",
+  "Turbo Insurance Group"
+ ],
+ "sponsor": "Amplifi / GC SPV · Turbo Insurance Group",
+ "assetClass": "Private Equity",
+ "vehicle": "SPV",
+ "subStrategy": "Insurtech / embedded insurance brokerage",
+ "terms": {
+  "couponPct": null,
+  "holdYears": 4,
+  "sponsorMoic": 1.9,
+  "sponsorMoicNote": "DERIVED FROM THE SPONSOR’S OWN EXIT AIM, which is stated as an EBITDA multiple rather than a MOIC: reach $5-7M of EBITDA by 2028/29 and exit at roughly 15-18x. Against the $40M pre-money entry that is an exit enterprise value of $75M-$126M, or about 1.9x-3.2x gross before dilution. The file carries 1.9x, the low end, because the tool puts this figure in the winner branch. It previously carried 5.0x, which came from no document and sat above even the top of the derived range. Context for the multiple: insurance books trade frequently and typically at 10-18x EBITDA, so the exit path is unusually standardised for a private deal.",
+  "holdNote": "Stated exit aim is 3-5 years, targeting $5-7M EBITDA by 2028/29. Modelled at 4. Previously 5.",
+  "instrument": "Equity via SPV, $40M pre-money",
+  "instrumentNote": "$40M pre-money, raising $1.5M from this group alongside a $1.5M debt bridge. Standard tag and drag rights. Open to accredited investors and up to 35 non-accredited. The May valuation was $42M and the founder invested near $37M — so this entry sits between the two.",
+  "minimum": 20000,
+  "qsbs": true,
+  "qsbsNote": "Turbo converted from an LLC to a C-corp specifically so investors could qualify for QSBS — up to a $10M capital-gains exclusion, subject to a five-year hold. THAT BENEFIT IS WORTH NOTHING ON THIS POSITION, because it is held in the SDIRA (Equity Trust). QSBS is an exclusion from capital-gains tax and an IRA pays no capital-gains tax, so there is nothing to exclude. It is a genuine feature of the deal that this holder gets none of. Anyone funding a QSBS-eligible deal should check the account first: the benefit only pays in a taxable account. Confirmed with the operator 25 Sep 2026.",
+  "raisedToDate": "~$10-11M, with the founder the largest shareholder."
+ },
+ "liquidity": null,
+ "dealsInFund": 1,
+ "singleCompany": true,
+ "structure": "Turbo embeds home and auto insurance into real-estate and mortgage transactions, integrating by API with mortgage originators so a borrower is quoted at the point of the loan rather than shopping separately. Launched January 2022, licensed in all 50 states with 83 carriers on panel. The operating model is three tiers: AI and automation first, offshore teams for semi-manual work, in-house staff for high-value touches — with agentic AI qualifying prospects and warm-transferring hot leads, real-time call coaching, and an internal knowledge bot. The point of all of it is premium per producer, which has gone from $25k to roughly $70k and is targeted past $100k. It has since added commercial lines, which few brokerages of this size run alongside personal.",
+ "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+ "asOf": "2026-09-25",
+ "source": "GC deal snapshot; Turbo Insurance sales-pitch and underwrite Q&A notes (with timestamps); Turbo investor deck; Amplifi Turbo investment documents and the executed subscription packet. Granola holds no pitch or underwrite session for this deal — only a reference to the LLC-to-C-corp conversion for QSBS.",
+ "tractionAtRaise": {
+  "revenue": "100% year-on-year growth, pacing toward $5M ARR.",
+  "premium": "Monthly written premium $300k in January of the prior year, $1.55M in the most recent month, pacing $2.1M, targeting up to $3M a month by year end.",
+  "retention": "89-92% once a policy reaches twelve months. Auto-requotes if a renewal rises more than 15% — \"loyal to the consumer, not the carrier\".",
+  "cac": "About 40% of business carries $0 CAC; the rest averages a 30% revenue share to the partner, blending to roughly 15% of revenue.",
+  "distribution": "Six of the top ten brokers, two of the top five mortgage lenders, two of the top five private real-estate firms. Largest mortgage partner UWM; NerdWallet added for commercial.",
+  "burn": "About $200k a month, funded growth. Breakeven projected for May-June of the following year."
+ },
+ "keyRisks": [
+  "ACTIVE LITIGATION. An ongoing suit with a founder’s former employer, with summary judgment filed and heavy discovery. The company forecasts a further $300-500k of legal cost if it reaches trial. Disclosed openly at the pitch, which is to their credit, but it is a live cost and a distraction.",
+  "Concentration in mortgage. The model is embedded in loan origination and servicing, so volume tracks mortgage activity. Projections deliberately assume NO rate cuts; a fall toward 5% was described as 50-75% more lead flow, which is upside rather than base.",
+  "Partner concentration, with UWM the largest mortgage relationship.",
+  "Execution on the AI stack is integration work rather than proprietary models — Turbo’s own framing. The edge is workflow, which is more copyable than a model.",
+  "Still burning ~$200k a month and dependent on reaching breakeven roughly a year out."
+ ],
+ "modelFit": "A NOTE ON HOW THIS TOOL PRICES IT, because the fit is imperfect. Turbo is growth equity: a revenue-generating brokerage with $5M of ARR, 89-92% retention and a book that trades on a standardised 10-18x EBITDA multiple. The tool prices a single private deal on a venture power law that puts roughly 30% of outcomes at zero, which suits a pre-revenue SPV and overstates the downside badly here. The honest reading is that Turbo’s distribution is much tighter than the model draws — less chance of a total loss, and less chance of a 10x. There is no growth-equity branch table in the engine yet."
 }
