@@ -138,6 +138,47 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.22 &nbsp;&middot;&nbsp; 27 Sep 2026</span>
+      <h4>It knows what you call your deals now</h4>
+      <p>Nobody writes the legal name of a fund in their own spreadsheet. <b>Eephus I, Plan A,
+        Asilia GC, SSF, Philo, Telly, Turbo, Bluebird, Rainmaker</b> and a few dozen other
+        spellings now resolve to the right deal, so the terms fill in without you having to
+        match someone else’s wording.</p>
+      <p><b>What has NOT changed is the refusal to guess.</b> &ldquo;Eephus&rdquo; on its own
+        is genuinely ambiguous between Fund I and Fund II, and &ldquo;Asilia&rdquo; between
+        three different vehicles. Those still resolve to nothing, and a test asserts they
+        always will, because attaching one deal’s terms to another deal’s money is
+        far worse than filling in nothing. A stray alias was also removed while doing this:
+        the Asilia Debt Fund had been given &ldquo;Asilia GC Fund (first offering)&rdquo; as an
+        alternative name, which is not what it was called and would have made
+        &ldquo;Asilia GC&rdquo; ambiguous.</p>
+      <p><b>And when a position cannot be placed, the page now says so.</b> It used to go
+        quiet: the row still ran on whatever you typed, which is the right behaviour, but
+        nothing on screen told you its terms had come from nowhere. Two different messages,
+        because they have different fixes. If the name could mean more than one deal you are
+        told which ones, so writing the fuller name is a one-word repair. If it is simply not
+        in the shared files you are told once, along with the note that this is normal
+        &mdash; most books hold things this tool has never been shown.</p>
+    </div>
+
+    <div class="rel">
+      <span class="tag">v1.21 &nbsp;&middot;&nbsp; 27 Sep 2026</span>
+      <h4>Pressing the demo button stopped telling you your tracker was out of date</h4>
+      <p><b>Run the example book and the page would report it as an older tracker.</b> It was
+        wrong every time, and about the file this page itself ships.</p>
+      <p>The cause was mundane. The age check reads which columns a sheet has, and the demo
+        button does not parse a sheet, so there were no columns to read and the check saw
+        nothing. It now reads the same signal from the data it was handed. <b>The check itself
+        is unchanged for real uploads</b> &mdash; a tracker that genuinely predates the optional
+        columns is still told so, and a test asserts that, because silencing the warning would
+        have been a worse bug than the one being fixed.</p>
+      <p>The example book is also regenerated from the shipped tracker and now carries every
+        column that tracker has, including the ones left blank. A column that exists and is
+        empty is not the same as a column that is missing, and treating them alike is what let
+        the file claim to be older than the sheet it comes from.</p>
+    </div>
+
+    <div class="rel">
       <span class="tag">v1.20 &nbsp;&middot;&nbsp; 27 Sep 2026</span>
       <h4>The break-even year is on the cone now</h4>
       <p><b>A member reported the break-even note missing from her chart. It was not missing</b>

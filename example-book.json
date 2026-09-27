@@ -5,7 +5,12 @@
   "funded": 50000,
   "uncalled": 0,
   "yearFunded": 2025,
+  "markedUpMoic": "",
   "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
   "thesis": "Income floor. Quarterly cash I can plan a year around, with an equity kicker on the sale."
  },
  {
@@ -14,7 +19,13 @@
   "funded": 50000,
   "uncalled": 0,
   "yearFunded": 2026,
-  "conviction": "Medium"
+  "markedUpMoic": "",
+  "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "BlueBird Capital (Tranche 1)",
@@ -22,7 +33,13 @@
   "funded": 50000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "conviction": "Medium"
+  "markedUpMoic": "",
+  "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "BlueBird Capital (Tranche 2)",
@@ -30,7 +47,13 @@
   "funded": 50000,
   "uncalled": 0,
   "yearFunded": 2026,
-  "conviction": "Medium"
+  "markedUpMoic": "",
+  "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "Asilia GC Fund",
@@ -38,7 +61,12 @@
   "funded": 19000,
   "uncalled": 81000,
   "yearFunded": 2026,
+  "markedUpMoic": "",
   "conviction": "High",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
   "thesis": "Highest coupon in the book and a credit-tilted base case. Sized for the income, not the kicker."
  },
  {
@@ -47,7 +75,12 @@
   "funded": 75000,
   "uncalled": 175000,
   "yearFunded": 2025,
+  "markedUpMoic": "",
   "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
   "thesis": "The only thing I own that can return many times what I put in. Sized so it can go badly."
  },
  {
@@ -56,7 +89,13 @@
   "funded": 25000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "conviction": "Medium"
+  "markedUpMoic": "",
+  "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "Aerolane",
@@ -64,7 +103,13 @@
   "funded": 25000,
   "uncalled": 0,
   "yearFunded": 2026,
-  "conviction": "Medium"
+  "markedUpMoic": "",
+  "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "Turbo Insurance",
@@ -72,7 +117,13 @@
   "funded": 20000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "conviction": "High"
+  "markedUpMoic": "",
+  "conviction": "High",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "Rainmaker SPV",
@@ -80,7 +131,13 @@
   "funded": 20000,
   "uncalled": 0,
   "yearFunded": 2026,
-  "conviction": "Low"
+  "markedUpMoic": "",
+  "conviction": "Low",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "AERTHLINGS",
@@ -88,7 +145,13 @@
   "funded": 10000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "conviction": "Low"
+  "markedUpMoic": "",
+  "conviction": "Low",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "Rorra",
@@ -96,7 +159,13 @@
   "funded": 10000,
   "uncalled": 0,
   "yearFunded": 2026,
-  "conviction": "Medium"
+  "markedUpMoic": "",
+  "conviction": "Medium",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  },
  {
   "name": "Telly TV",
@@ -104,6 +173,12 @@
   "funded": 5000,
   "uncalled": 0,
   "yearFunded": 2025,
-  "conviction": "Low"
+  "markedUpMoic": "",
+  "conviction": "Low",
+  "deals": "",
+  "vehicle": "",
+  "liqFrom": "",
+  "liqTo": "",
+  "thesis": ""
  }
 ]

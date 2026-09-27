@@ -1,14 +1,15 @@
 {
  "about": "Index of shareable deal files. The app matches a row in your tracker to one of these by name or alias and fills in the terms, so you only have to type your own numbers. A deal that is not listed still works; you just supply its terms yourself.",
- "asOf": "2026-09-26",
+ "asOf": "2026-09-27",
  "deals": [
   {
    "slug": "aerolane",
    "name": "Aerolane",
    "aliases": [
     "Aerolane",
-    "Aerolane",
-    "Aerolane - Plan A"
+    "Edge Logistics",
+    "Edge Logistics, Inc.",
+    "Edge Logistics, Inc. d/b/a Aerolane"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -19,8 +20,10 @@
    "name": "AERTHLINGS",
    "aliases": [
     "AERTHLINGS",
-    "AERTHLINGS",
-    "AERTHLINGS - Plan A"
+    "ÆRTHLINGS",
+    "Earthlings",
+    "Modern Games",
+    "Modern Games (AERTHLINGS)"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -32,7 +35,8 @@
    "aliases": [
     "Amplifi Companies",
     "Amplifi",
-    "Amplifi Co"
+    "Amplifi Co",
+    "Amplifi Companies Inc"
    ],
    "assetClass": "VC",
    "vehicle": "SAFE",
@@ -42,14 +46,16 @@
    "slug": "asilia-credit-fund-evergreen",
    "name": "Asilia Credit Fund Evergreen (Fund II)",
    "aliases": [
-    "ACEF",
-    "ACF2",
-    "ACFE",
+    "Asilia Credit Fund Evergreen (Fund II)",
+    "Asilia Credit Fund Evergreen",
     "Asilia Credit Evergreen",
     "Asilia Credit Evergreen Fund",
-    "Asilia Credit Fund Evergreen",
+    "Asilia Evergreen",
     "Asilia Credit Fund II",
-    "Asilia Credit Investments Fund II"
+    "Asilia Credit Investments Fund II",
+    "ACFE",
+    "ACEF",
+    "ACF2"
    ],
    "assetClass": "Private Credit",
    "vehicle": "Fund",
@@ -59,11 +65,12 @@
    "slug": "asilia-debt-fund",
    "name": "Asilia Debt Fund (2025)",
    "aliases": [
+    "Asilia Debt Fund (2025)",
     "Asilia Debt Fund",
     "Asilia Debt Fund 2025",
+    "Asilia Debt",
     "Asilia Credit Fund I",
-    "ACF1",
-    "Asilia GC Fund (first offering)"
+    "ACF1"
    ],
    "sponsor": "Asilia Credit Investments",
    "assetClass": "Private Credit"
@@ -75,7 +82,9 @@
     "Asilia GC Fund",
     "Asilia GC Fund, LP",
     "Asilia GC Fund QP, LP",
+    "Asilia GC",
     "Asilia Growth Circle Fund",
+    "Asilia Growth Circle",
     "AGCF"
    ],
    "assetClass": "Private Credit",
@@ -87,9 +96,13 @@
    "name": "BlueBird Capital",
    "aliases": [
     "BlueBird Capital",
+    "BlueBird Capital Group",
+    "BlueBird Capital Group, LP",
+    "BlueBird",
     "BlueBird Capital (Tranche 1)",
     "BlueBird Capital (Tranche 2)",
-    "Bluebird"
+    "BlueBird Tranche 1",
+    "BlueBird Tranche 2"
    ],
    "assetClass": "Private Equity",
    "vehicle": "SPV",
@@ -100,8 +113,13 @@
    "name": "Eephus Growth Fund I",
    "aliases": [
     "Eephus Growth Fund I",
+    "Eephus Growth Fund 1",
+    "Eephus Fund I",
+    "Eephus Fund 1",
+    "Eephus Growth I",
     "Eephus I",
-    "Eephus Fund I"
+    "Eephus 1",
+    "Eephus Growth Fund, LLC I"
    ],
    "assetClass": "Real Estate",
    "vehicle": "Fund",
@@ -112,8 +130,13 @@
    "name": "Eephus Growth Fund II",
    "aliases": [
     "Eephus Growth Fund II",
+    "Eephus Growth Fund 2",
+    "Eephus Fund II",
+    "Eephus Fund 2",
+    "Eephus Growth II",
     "Eephus II",
-    "Eephus Fund II"
+    "Eephus 2",
+    "Eephus Growth Fund, LLC II"
    ],
    "assetClass": "Real Estate",
    "vehicle": "Fund",
@@ -125,7 +148,8 @@
    "aliases": [
     "Freaks of Nature",
     "FoN",
-    "Freaks of Nature Skincare"
+    "Freaks of Nature Skincare",
+    "Freaks of Nature Sunscreen"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -145,11 +169,16 @@
   },
   {
    "slug": "next-life-sciences",
-   "name": "Next Life Sciences",
+   "name": "Next Life Sciences - Plan A",
    "aliases": [
+    "Next Life Sciences - Plan A",
     "Next Life Sciences",
-    "Next Life Sciences",
-    "Next Life Sciences - Plan A"
+    "Next Life Science",
+    "Next Life Sciences Plan A",
+    "Next Life",
+    "NextLife",
+    "Plan A",
+    "NLS"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -189,7 +218,8 @@
    "aliases": [
     "Rainmaker SPV",
     "Rainmaker",
-    "Rainmaker SPV - Plan A"
+    "Rainmaker Technology",
+    "Rainmaker Technology Corporation"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -200,8 +230,8 @@
    "name": "Rorra",
    "aliases": [
     "Rorra",
-    "Rorra",
-    "Rorra - Plan A"
+    "Rorra Inc",
+    "Rorra Water"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -212,9 +242,13 @@
    "name": "SpaceStation Fund",
    "aliases": [
     "SpaceStation Fund",
-    "SPVC Ventures Fund I",
+    "Space Station Fund",
     "SpaceStation",
-    "SPVC"
+    "Space Station",
+    "SPVC Ventures Fund I",
+    "SPVC Ventures Fund 1",
+    "SPVC",
+    "SSF"
    ],
    "assetClass": "VC",
    "vehicle": "Fund",
@@ -225,7 +259,6 @@
    "name": "STIX",
    "aliases": [
     "STIX",
-    "Stix",
     "STIX Golf"
    ],
    "assetClass": "VC",
@@ -237,8 +270,9 @@
    "name": "Telly TV",
    "aliases": [
     "Telly TV",
-    "Telly TV",
-    "Telly TV - Plan A"
+    "Telly",
+    "Telly, Inc.",
+    "Telly Inc"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",
@@ -249,8 +283,8 @@
    "name": "Turbo Insurance",
    "aliases": [
     "Turbo Insurance",
-    "Turbo Insurance",
-    "Turbo Insurance - Plan A"
+    "Turbo",
+    "Turbo Insurance Group"
    ],
    "assetClass": "VC",
    "vehicle": "SPV",

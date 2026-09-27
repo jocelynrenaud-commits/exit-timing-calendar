@@ -45,9 +45,24 @@
   async function enrich(rows) {
     const idx = await loadDealIndex();
     const cache = {};
+    UNMATCHED = [];
     for (const r of rows) {
       const hit = Engine.matchDeal(r.name, idx);
-      if (!hit) continue;
+      if (!hit) {
+        /* WHY it failed decides what to tell the holder. A name that matches several deals
+           is a different problem from one the tool has never heard of, and only the first
+           has a one-word fix. Recompute the candidates here rather than changing matchDeal,
+           which is deliberately strict and shared with APEX. */
+        const nm = String(r.name || '').trim().toLowerCase();
+        const near = (idx && idx.deals ? idx.deals : []).filter((d) =>
+          (d.aliases || [d.name]).some((a) => {
+            const al = String(a).trim().toLowerCase();
+            return al && nm && al.length >= 6 && nm.length >= 6
+              && (nm.startsWith(al) || al.startsWith(nm));
+          }));
+        if (nm) UNMATCHED.push({ name: String(r.name).trim(), near: near.map((d) => d.name) });
+        continue;
+      }
       if (!cache[hit.slug]) {
         try { cache[hit.slug] = await fetch('deals/' + hit.slug + '.json').then((x) => x.json()); }
         catch (e) { cache[hit.slug] = null; }
@@ -177,6 +192,38 @@
     });
     (skipped || []).forEach((n) => problems.push(n + ': looks like a deal but has no commitment, so it was left out'));
     return problems;
+  }
+
+  /* A position the tool could not put a name to. Not an error -- the numbers still run on
+     whatever the holder typed -- but the card will be thinner than the others and nothing
+     else on screen says why. */
+  function matchNote() {
+    if (!UNMATCHED.length) return '';
+    const amb = UNMATCHED.filter((u) => u.near.length > 1);
+    const unk = UNMATCHED.filter((u) => u.near.length <= 1);
+    let h = '<div class="err" style="background:#F0F5FB;border-color:#C9D8E8;color:#2B4058">';
+
+    if (amb.length) {
+      h += '<b>' + (amb.length === 1 ? 'One position could' : amb.length + ' positions could')
+        + ' mean more than one deal, so the tool has not guessed.</b> Write the fuller name '
+        + 'and the terms will fill in:<br>'
+        + amb.map((u) => '&bull; <b>' + esc(u.name) + '</b> could be '
+            + u.near.map((x) => esc(x)).join(' or ')).join('<br>');
+      if (unk.length) h += '<br><br>';
+    }
+    if (unk.length) {
+      h += '<b>' + (unk.length === 1 ? 'One position is' : unk.length + ' positions are')
+        + ' not in the shared deal files</b>, so '
+        + (unk.length === 1 ? 'it is running' : 'they are running')
+        + ' on what you typed and nothing else. That is fine, and it is normal \u2014 most '
+        + 'books hold things this tool has never been shown. It only matters if you expected '
+        + 'the terms to fill in themselves, in which case check the spelling against the '
+        + 'deal list:<br>'
+        + unk.map((u) => '&bull; ' + esc(u.name)
+            + (u.near.length === 1 ? ' <span class="muted">(close to ' + esc(u.near[0])
+              + ' \u2014 is that the same deal?)</span>' : '')).join('<br>');
+    }
+    return h + '</div>';
   }
 
   function ageNote(map) {
@@ -1294,8 +1341,20 @@
 
   /* ── intake ──────────────────────────────────────────────────────────────── */
   let LASTMAP = null;      // the header map from the sheet just read, for the age note
+  let UNMATCHED = [];      // rows that matched no shared deal file, and why
 
   async function load(rows, skipped) {
+    /* THE DEMO PATH HAS NO SHEET, so nothing sets LASTMAP and the age note used to fire on
+       every run of the example book -- telling a reader their tracker was out of date when
+       what they had pressed was the button on this page. A header row and a set of keys
+       carry the same signal (which columns exist), so derive one from the other when no
+       sheet was parsed. A real upload goes through rowsFromSheet, which sets LASTMAP
+       properly, so this only ever covers the demo. */
+    if (!LASTMAP) {
+      const keys = {};
+      for (const r of rows || []) for (const k of Object.keys(r)) keys[k] = 0;
+      LASTMAP = keys;
+    }
     // fill blanks from the shared deal files BEFORE validating, so a term that GC already
     // knows does not get reported as something the holder failed to supply
     await enrich(rows);
@@ -1307,7 +1366,7 @@
       return;
     }
     const age = ageNote(LASTMAP);
-    $('#intakeErr').innerHTML = age + (problems.length
+    $('#intakeErr').innerHTML = age + matchNote() + (problems.length
       ? '<div class="err"><b>Loaded ' + BOOK.length + ' positions, with ' + problems.length
         + ' thing' + (problems.length > 1 ? 's' : '') + ' worth fixing.</b> Nothing was guessed at; these rows '
         + 'are running on whatever was there.<br>' + problems.slice(0, 8).map(esc).join('<br>') + '</div>'

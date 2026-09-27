@@ -52,6 +52,9 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.22 deal names are recognised the way people write them, and a position the tool
+             cannot place now says so instead of going quiet
+       v1.21 the example book no longer reports itself as an older tracker
        v1.20 the break-even year is marked on the cone itself, not only stated below it
        v1.19 the hold is shown beside every return figure. A size-against-speed scatter
              was tried in v1.18 and withdrawn the same day as too confusing to read
@@ -62,7 +65,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.20',
+  version: 'v1.22',
   released: '25 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
