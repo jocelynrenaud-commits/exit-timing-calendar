@@ -169,13 +169,15 @@
   },
   {
    "slug": "philo-hospitality-fund-i",
-   "name": "Philo Hospitality Fund I",
+   "name": "Philo Hospitality Fund",
    "aliases": [
+    "Philo Hospitality Fund",
     "Philo Hospitality Fund I",
     "Philo Hospitality Fund 1",
     "Philo Hospitality",
     "Philo Ventures",
-    "Philo Fund I"
+    "Philo Fund I",
+    "Philo"
    ],
    "assetClass": "Real Estate",
    "vehicle": "Fund",
