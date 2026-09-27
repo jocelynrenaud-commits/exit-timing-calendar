@@ -1062,6 +1062,37 @@
       + '<text x="' + (L + 6) + '" y="' + (cy - 6) + '" font-size="11" font-weight="700" '
       + 'fill="#141A22">money back &middot; ' + shortMoney(committed) + '</text>';
 
+    /* WHERE THE TYPICAL FUTURE GETS ITS MONEY BACK, marked on the chart rather than only
+       stated in the sentence below it. A member read the chart, found no year, and reported
+       the note missing; it was not missing, but looking for it on the chart is exactly what
+       a reader does. Same rule as the caption -- the first year the median reaches the line
+       -- so the two can never disagree. The dot is INTERPOLATED to the true crossing so it
+       sits on the line rather than at the nearest year tick, while the label states the
+       caption's year. */
+    const beIdx = rows.findIndex((r) => r.p50 >= committed);
+    if (beIdx >= 0) {
+      const b = rows[beIdx];
+      let bx = X(b.year);
+      if (beIdx > 0) {
+        const a = rows[beIdx - 1];
+        const gap = (b.p50 - a.p50) || 1;
+        const frac = Math.min(1, Math.max(0, (committed - a.p50) / gap));
+        bx = X(a.year + frac * (b.year - a.year));
+      }
+      /* Keep the label inside the plot. Near either edge it anchors rather than centres,
+         so a 2026 or a 2042 crossing does not hang off the chart. */
+      const nearL = bx < L + 46, nearR = bx > L + iw - 46;
+      const anchor = nearL ? 'start' : nearR ? 'end' : 'middle';
+      const tx = nearL ? L + 2 : nearR ? L + iw - 2 : bx;
+      s += '<line x1="' + bx.toFixed(1) + '" y1="' + cy + '" x2="' + bx.toFixed(1) + '" y2="'
+        + (T + ih) + '" stroke="#141A22" stroke-width="1" stroke-dasharray="2,3" opacity="0.4"/>'
+        + '<circle cx="' + bx.toFixed(1) + '" cy="' + cy + '" r="4.5" fill="#141A22"/>'
+        + '<text x="' + tx.toFixed(1) + '" y="' + (cy + 19) + '" text-anchor="' + anchor
+        + '" font-size="12" font-weight="700" fill="#141A22">' + b.year + '</text>'
+        + '<text x="' + tx.toFixed(1) + '" y="' + (cy + 32) + '" text-anchor="' + anchor
+        + '" font-size="10" fill="#6B7A8C">typical breaks even</text>';
+    }
+
     /* direct labels at the open end, so the three edges are never colour-alone */
     const last = rows[rows.length - 1];
     const lab = [['Good run', last.p90], ['Typical', last.p50], ['Bad run', last.p10]];
