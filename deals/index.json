@@ -43,6 +43,27 @@
       "sponsor": "Amplifi Companies (Reg CF SAFE)"
     },
     {
+      "slug": "ancient-crunch",
+      "name": "Ancient Crunch",
+      "aliases": [
+        "Ancient Crunch",
+        "AncientCrunch",
+        "Ancient Crunch (MASA)",
+        "MASA",
+        "MASA Chips",
+        "Masa Chips",
+        "Vandy",
+        "Vandy Crisps",
+        "Vandy Crunch",
+        "Perla",
+        "Perla Popcorn",
+        "Golden Age Popcorn"
+      ],
+      "assetClass": "VC",
+      "vehicle": "SPV",
+      "sponsor": "Spacestation Investments (SPV) — Ancient Crunch, Inc."
+    },
+    {
       "slug": "asilia-credit-fund-evergreen",
       "name": "Asilia Credit Fund Evergreen (Fund II)",
       "aliases": [

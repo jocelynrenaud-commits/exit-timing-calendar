@@ -52,6 +52,8 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.26 Ancient Crunch documented; a venture deal can no longer carry a preferred
+             return, which is how note interest would have been mispriced
        v1.25 deal data is tagged with the app version, so a release can no longer serve
              yesterday's deal list out of a browser cache
        v1.24 the preferred return accrues on capital actually CALLED, not on the whole
@@ -71,7 +73,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.25',
+  version: 'v1.26',
   released: '28 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
