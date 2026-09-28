@@ -52,6 +52,8 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.27 a yield on uncalled capital can now EXPIRE, because Asilia's comes from a
+             subscription line that matures; Ancient Crunch's priced round recorded
        v1.26 Ancient Crunch documented; a venture deal can no longer carry a preferred
              return, which is how note interest would have been mispriced
        v1.25 deal data is tagged with the app version, so a release can no longer serve
@@ -73,7 +75,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.26',
+  version: 'v1.27',
   released: '28 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -257,6 +259,7 @@ function buildBook(rows) {
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
       uncalledYieldPct: num(r.uncalledYieldPct) || 0,
+      uncalledYieldUntil: num(r.uncalledYieldUntil) || 0,
       exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed,
       markedUpMoic,                   // paper only; never reaches the simulation
       paperNav: markedUpMoic ? funded * markedUpMoic : funded,
@@ -372,12 +375,32 @@ function uncalledYield(b) {
   return isFinite(y) && y > 0 ? y : 0;
 }
 
+/* HOW MUCH OF YEAR y THE UNCALLED YIELD IS STILL BEING PAID FOR.
+   A yield on uncalled money is usually not a property of the investment at all -- it is a
+   property of the fund's SUBSCRIPTION LINE, which is borrowing, and borrowing matures.
+   Asilia's line matures at the end of June 2027, so ACFE pays ~6-7% on uncalled capital
+   until then and nothing after.
+
+   Without this the rate applied for the whole hold, which would have run a temporary
+   financing arrangement out to 2034 and invented seven years of income. Expressed as a
+   decimal year, so mid-2027 is 2027.5 and the last year is counted as the half of it that
+   was actually earned. No date means no expiry, which is the right default for a genuine
+   term rather than a facility. */
+function uncalledYieldShare(b, y) {
+  const until = Number(b.uncalledYieldUntil);
+  if (!isFinite(until) || until <= 0) return 1;
+  return Math.max(0, Math.min(1, until - y));
+}
+
 /* What a position pays in preferred return in year fy+k: the headline rate on the capital
    actually called, plus whatever the uncalled balance earns. */
 function prefInYear(b, k) {
   if (!(b.coupon > 0)) return 0;
   const inSoFar = calledBy(b, k);
-  return inSoFar * b.coupon + Math.max(0, b.commitment - inSoFar) * uncalledYield(b);
+  const outstanding = Math.max(0, b.commitment - inSoFar);
+  /* The yield on what is still uncalled can expire before the hold does. */
+  const share = uncalledYieldShare(b, b.fy + k);
+  return inSoFar * b.coupon + outstanding * uncalledYield(b) * share;
 }
 
 function couponSchedule(book, years) {
@@ -889,6 +912,9 @@ function applyDealFile(row, f) {
   if (blank(out.uncalledYieldPct) && t.uncalledYieldPct != null) {
     out.uncalledYieldPct = t.uncalledYieldPct;
   }
+  if (blank(out.uncalledYieldUntil) && t.uncalledYieldUntil != null) {
+    out.uncalledYieldUntil = t.uncalledYieldUntil;
+  }
   if (blank(out.hold) && t.holdYears) out.hold = t.holdYears;
   if (blank(out.moic) && t.sponsorMoic) out.moic = t.sponsorMoic;
   if (blank(out.deals) && f.dealsInFund != null) out.deals = f.dealsInFund;
@@ -909,5 +935,6 @@ const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFil
    ramp in the UI is exactly how the cash table and the ladder end up disagreeing. */
 Engine.prefInYear = prefInYear;
 Engine.calledBy = calledBy;
+Engine.uncalledYieldShare = uncalledYieldShare;
 
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
