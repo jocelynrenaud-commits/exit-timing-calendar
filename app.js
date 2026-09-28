@@ -42,6 +42,26 @@
     } catch (e) { DEALIDX = { deals: [] }; }
     return DEALIDX;
   }
+  /* Every deal file, fetched once. The index alone carries names and aliases; the terms
+     and the risks live in the files, and the universe tab wants both. */
+  let DEALALL = null;
+  async function loadAllDeals() {
+    if (DEALALL) return DEALALL;
+    const idx = await loadDealIndex();
+    /* TOGETHER, not one after another. Twenty files fetched in sequence left the tab blank
+       for several seconds on a local server, which is the best case; a member on a phone
+       would have concluded the tab was broken. */
+    const out = (await Promise.all((idx.deals || []).map((e) =>
+      fetch('deals/' + e.slug + '.json')
+        .then((r) => r.json())
+        .then((d) => Object.assign({ slug: e.slug }, d))
+        .catch(() => null)          // a file that will not load is simply not listed
+    ))).filter(Boolean);
+    DEALALL = out.sort((a, b) => String(a.name).localeCompare(String(b.name), 'en',
+      { sensitivity: 'base' }));
+    return DEALALL;
+  }
+
   async function enrich(rows) {
     const idx = await loadDealIndex();
     const cache = {};
@@ -249,7 +269,7 @@
      Dashboard is what you hold now. Liquidity Outlook is when it comes back and how
      much. Background is the assumptions, so the other two can be argued with. */
   const TABS = [['dash', 'Private Deal Dashboard'], ['outlook', 'Liquidity Outlook'],
-                ['about', 'Background']];
+                ['about', 'Background'], ['universe', 'Loaded GC Deals']];
 
   function render() {
     if (!BOOK || !BOOK.length) return;
@@ -263,6 +283,7 @@
     });
     if (TAB === 'dash') renderDashboard();
     else if (TAB === 'about') renderBackground();
+    else if (TAB === 'universe') renderUniverse();
     else renderOutlook();
   }
 
@@ -272,7 +293,11 @@
     let acc = 0, e = 0;
     for (const [p, v] of x.branches) { acc += p; e += p * (x.scales ? v * x.exitMult : v); }
     e += (1 - acc) * x.exitMult;
-    return { mult: e, exit: x.commitment * e, pref: x.commitment * x.coupon * x.hold };
+    /* Summed year by year rather than rate x hold x commitment: the base ramps while
+       capital is still being called, so the shortcut overstates a part-funded position. */
+    let pref = 0;
+    for (let k = 1; k <= x.hold; k++) pref += Engine.prefInYear(x, k);
+    return { mult: e, exit: x.commitment * e, pref };
   }
 
   function clsColour(c) {
@@ -311,7 +336,7 @@
       + 'The modelled one is what they are <b>expected</b> to return once every outcome is '
       + 'weighted by how likely it is, including the ones that go nowhere. It is always the '
       + 'lower number and it is the one to plan against. Of the modelled total, '
-      + money(expPref) + ' is contractual preferred return and ' + money(expExit) + ' depends '
+      + money(expPref) + ' is preferred return and ' + money(expExit) + ' depends '
       + 'on a sale.</p></div>';
 
     const byCls = {};
@@ -349,7 +374,7 @@
       if (x.coupon > 0) {
         for (let i = 1; i <= x.hold; i++) {
           const y = x.fy + i;
-          if (prefs[y] != null) prefs[y] += x.commitment * x.coupon;
+          if (prefs[y] != null) prefs[y] += Engine.prefInYear(x, i);
         }
       }
     });
@@ -723,6 +748,13 @@
     /* distribution */
     if (series.length > 1) {
       const active = series.find((s) => s.key === DIST);
+      h += '<div class="card"><h2>Outcome range by book</h2>'
+        + '<p class="note">The same three books, side by side. Each bar runs from a bad run '
+        + '(the 10th percentile of futures) to a good one (the 90th), with the typical run '
+        + 'marked. Measured as a multiple on the capital committed, so books of different '
+        + 'sizes can be read against each other.</p>'
+        + rangeChart(series) + rangeRead(series) + '</div>';
+
       h += '<div class="card"><h2>Outcome distribution</h2>'
         + '<p class="note">Where 3,000 simulated futures landed, measured as a multiple on the capital '
         + 'committed. The three percentile figures above are three points on this curve; this is the '
@@ -815,6 +847,18 @@
       const edges = beGood
         ? ', a good run in ' + beGood + (beBad ? ' and a bad one in ' + beBad : ' and a bad run not at all')
         : '';
+    h += '<div class="card"><h2>Maturity and liquidity ladder</h2>'
+      + '<p class="note">What matures when. Each row is a position and each block is a year '
+      + 'it pays, shaded darker where a bigger share of that position lands. A deal bought '
+      + 'once is a single block; <b>a fund that sells down over several years appears in each '
+      + 'of them</b>, which is the thing the tables above cannot show you. The thin gold line '
+      + 'under a row is its preferred return, which arrives on a schedule rather than on an '
+      + 'exit. Hover any block for the share and the rough amount.</p>'
+      + '<p class="note">This one is <b>not</b> a range. Everything else on this tab ranks '
+      + 'thousands of futures; this is the schedule the deals\u2019 own terms imply, so it '
+      + 'answers when a position is due rather than how likely it is to pay.</p>'
+      + ladderChart(book) + '</div>';
+
       h += '<div class="card"><h2>The cone of outcomes</h2>'
         + '<p class="note">The table above, drawn. The shaded band runs from a bad future to a good '
         + 'one, with the typical future as the line through it. The band widens over time because '
@@ -834,8 +878,6 @@
         + '<td class="' + (profit < 0 ? 'neg' : (bold ? 'b' : '')) + '">' + money(profit) + '</td>'
         + '<td class="' + (bold ? 'b' : '') + '">' + mult(v / T.committed) + '</td></tr>';
     };
-    h += irrCard(st, book);
-
     h += '<div class="card"><h2>Lifetime returns</h2>'
       + '<p class="note">Profit is measured against the <b>full ' + money(T.committed) + ' committed</b>, not '
       + 'against the uncalled balance. Netting only what is left to fund ignores the ' + money(T.funded)
@@ -857,6 +899,10 @@
       + line('Average (mean)', T.mean, false)
       + line('Good run (90th percentile)', T.p90, false)
       + '</table></div>';
+
+    /* The rate panel sits AFTER the lifetime table now. A reader wants the dollars first
+       and the rate as the follow-up question, not the other way round. */
+    h += irrCard(st, book);
 
     h += glossary(T);
     $('#tabbody').innerHTML = h;
@@ -1045,6 +1091,299 @@
 
     h += '</div>';
     return h;
+  }
+
+  /* THE THREE BOOKS SIDE BY SIDE. One bar each, running from a bad run to a good one,
+     with the typical marked. The distribution chart answers "what shape is this book";
+     this answers "which book would I rather own", which is the question people actually
+     arrive with. Multiples rather than dollars, so three books of different sizes are
+     directly comparable. */
+  function rangeChart(series) {
+    if (!series || series.length < 2) return '';
+    const rows = series.map((s) => {
+      const t = s.st.totals, c = t.committed || 1;
+      return { label: s.label, raw: s.raw, committed: c,
+               lo: t.p10 / c, mid: t.p50 / c, hi: t.p90 / c };
+    });
+    const W = 880, L = 176, R = 30, T = 44, GAP = 92, B = 40;
+    const H = T + rows.length * GAP + B;
+    const iw = W - L - R;
+    const maxX = Math.max(1.15, Math.max.apply(null, rows.map((r) => r.hi)) * 1.06);
+    const X = (m) => L + iw * (m / maxX);
+
+    let g = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" '
+      + 'role="img" aria-label="Bad run to good run, for each book, as a multiple on capital committed">';
+
+    /* gridlines every half multiple */
+    for (let m = 0.5; m <= maxX; m += 0.5) {
+      const gx = X(m);
+      g += '<line x1="' + gx.toFixed(1) + '" y1="' + (T - 14) + '" x2="' + gx.toFixed(1)
+        + '" y2="' + (T + rows.length * GAP - 34) + '" stroke="#EDF1F6"/>'
+        + '<text x="' + gx.toFixed(1) + '" y="' + (H - 16) + '" text-anchor="middle" '
+        + 'font-size="10" fill="#6B7A8C">' + m.toFixed(1) + 'x</text>';
+    }
+
+    /* break-even, drawn over the gridlines so it reads as the reference it is */
+    const bx = X(1);
+    g += '<line x1="' + bx.toFixed(1) + '" y1="' + (T - 26) + '" x2="' + bx.toFixed(1)
+      + '" y2="' + (T + rows.length * GAP - 30) + '" stroke="#141A22" stroke-width="1.5"/>'
+      + '<text x="' + bx.toFixed(1) + '" y="' + (T - 32) + '" text-anchor="middle" '
+      + 'font-size="11" font-weight="700" fill="#141A22">break even</text>';
+
+    rows.forEach((r, i) => {
+      const y = T + i * GAP;
+      const x0 = X(r.lo), x1 = X(r.hi), xm = X(r.mid);
+      g += '<text x="0" y="' + (y + 4) + '" font-size="13" font-weight="700" fill="' + r.raw
+        + '">' + esc(r.label) + '</text>'
+        + '<text x="0" y="' + (y + 21) + '" font-size="11" fill="#6B7A8C">'
+        + money(r.committed) + ' committed</text>'
+        + '<rect x="' + x0.toFixed(1) + '" y="' + (y - 15) + '" width="' + Math.max(4, x1 - x0).toFixed(1)
+        + '" height="30" rx="15" fill="' + r.raw + '" opacity="0.85"/>'
+        + '<circle cx="' + xm.toFixed(1) + '" cy="' + y + '" r="7" fill="#fff"/>'
+        /* ends above, median below, so three numbers never sit on top of each other */
+        + '<text x="' + x0.toFixed(1) + '" y="' + (y - 23) + '" text-anchor="middle" font-size="11" '
+        + 'font-weight="700" fill="' + r.raw + '">' + r.lo.toFixed(2) + 'x</text>'
+        + '<text x="' + x1.toFixed(1) + '" y="' + (y - 23) + '" text-anchor="middle" font-size="11" '
+        + 'font-weight="700" fill="' + r.raw + '">' + r.hi.toFixed(2) + 'x</text>'
+        + '<text x="' + xm.toFixed(1) + '" y="' + (y + 33) + '" text-anchor="middle" font-size="12" '
+        + 'font-weight="700" fill="' + r.raw + '">' + r.mid.toFixed(2) + 'x</text>';
+    });
+    return g + '</svg>';
+  }
+
+  /* The reading underneath, computed rather than written, so it cannot contradict the bars
+     above it when the book changes. */
+  function rangeRead(series) {
+    const by = {};
+    series.forEach((s) => {
+      const t = s.st.totals, c = t.committed || 1;
+      by[s.key] = { lo: t.p10 / c, mid: t.p50 / c, hi: t.p90 / c, label: s.label };
+    });
+    const v = by.venture, inc = by.income;
+    if (!v || !inc) return '';
+    const lines = [];
+    if (inc.lo >= 1 && v.lo < 1) {
+      lines.push('<b>The income sleeves never lose money and venture does.</b> Their worst run '
+        + 'still returns ' + inc.lo.toFixed(2) + 'x. Venture\u2019s worst loses money at '
+        + v.lo.toFixed(2) + 'x.');
+    }
+    if (Math.abs(v.mid - inc.mid) < 0.25) {
+      lines.push('On the typical run the two are almost level, ' + v.mid.toFixed(2) + 'x against '
+        + inc.mid.toFixed(2) + 'x, <b>so what separates them is the floor rather than the '
+        + 'middle</b>.');
+    }
+    if (v.hi > inc.hi) {
+      lines.push('Venture wins in one place, the top tenth, at ' + v.hi.toFixed(2) + 'x against '
+        + inc.hi.toFixed(2) + 'x.');
+    }
+    return lines.length ? '<p class="note" style="margin-top:12px">' + lines.join('<br>') + '</p>' : '';
+  }
+
+  /* WHAT MATURES WHEN. One row per position, one column per year, each block shaded by
+     the share of that position's proceeds landing in that year. A single-date deal is one
+     solid block; a fund that sells down is a run of lighter ones. The preferred return is
+     drawn separately, because it arrives on a schedule rather than on an exit and mixing
+     the two would be the same double-count the exit maths already avoids. */
+  function ladderRows(book) {
+    const out = [];
+    for (const b of book) {
+      const e = expectedOf(b);
+      const pays = {};
+      if (b.spread && b.spread.length) {
+        let sw = 0;
+        for (const sp of b.spread) sw += sp[1];
+        for (const sp of b.spread) {
+          const y = b.likely + sp[0];
+          pays[y] = (pays[y] || 0) + sp[1] / (sw || 1);
+        }
+      } else {
+        pays[b.likely] = 1;
+      }
+      const prefYears = {};
+      if (b.coupon > 0) {
+        for (let k = 1; k <= b.hold; k++) prefYears[b.fy + k] = Engine.prefInYear(b, k);
+      }
+      const yrs = Object.keys(pays).map(Number).sort((x, y) => x - y);
+      out.push({ name: b.name, cls: b.cls, kind: b.kind, exit: e.exit, pays,
+                 prefYears, first: yrs[0], last: yrs[yrs.length - 1],
+                 window: yrs.length > 1 ? yrs[0] + '\u2013' + yrs[yrs.length - 1] : String(yrs[0]) });
+    }
+    return out.sort((a, b) => a.first - b.first || a.last - b.last
+      || a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+  }
+
+  function ladderChart(book) {
+    const rows = ladderRows(book);
+    if (!rows.length) return '';
+    let y0 = Infinity, y1 = -Infinity;
+    for (const r of rows) {
+      for (const k of Object.keys(r.pays)) { y0 = Math.min(y0, +k); y1 = Math.max(y1, +k); }
+      for (const k of Object.keys(r.prefYears)) { y0 = Math.min(y0, +k); y1 = Math.max(y1, +k); }
+    }
+    if (!isFinite(y0)) return '';
+    const years = [];
+    for (let y = y0; y <= y1; y++) years.push(y);
+
+    const L = 208, R = 92, T = 34, RH = 26, B = 52;
+    const cw = Math.max(26, Math.min(48, 660 / years.length));
+    const W = L + years.length * cw + R;
+    const H = T + rows.length * RH + B;
+    const X = (y) => L + (y - y0) * cw;
+
+    let g = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" '
+      + 'role="img" aria-label="Which positions pay out in which years">';
+
+    years.forEach((y, i) => {
+      if (years.length > 12 && i % 2) return;
+      g += '<text x="' + (X(y) + cw / 2).toFixed(1) + '" y="' + (T - 12) + '" text-anchor="middle" '
+        + 'font-size="10" fill="#6B7A8C">' + y + '</text>';
+    });
+
+    rows.forEach((r, i) => {
+      const yy = T + i * RH;
+      const col = clsColour(r.cls);
+      g += '<text x="0" y="' + (yy + 16) + '" font-size="11.5" fill="#141A22">'
+        + esc(r.name.length > 28 ? r.name.slice(0, 26) + '\u2026' : r.name) + '</text>';
+      if (i % 2 === 0) {
+        g += '<rect x="' + L + '" y="' + (yy + 2) + '" width="' + (years.length * cw)
+          + '" height="' + (RH - 4) + '" fill="#F7F9FC"/>';
+      }
+      for (const k of Object.keys(r.prefYears)) {
+        g += '<rect x="' + (X(+k) + 2).toFixed(1) + '" y="' + (yy + 16) + '" width="'
+          + (cw - 4).toFixed(1) + '" height="4" rx="2" fill="#B17930" opacity="0.55"/>';
+      }
+      for (const k of Object.keys(r.pays)) {
+        const share = r.pays[k];
+        g += '<rect x="' + (X(+k) + 2).toFixed(1) + '" y="' + (yy + 3) + '" width="'
+          + (cw - 4).toFixed(1) + '" height="12" rx="3" fill="' + col + '" opacity="'
+          + (0.25 + 0.7 * share).toFixed(2) + '"><title>' + esc(r.name + '\n' + k + ': '
+          + Math.round(share * 100) + '% of its exit, about ' + money(r.exit * share)) + '</title></rect>';
+      }
+      g += '<text x="' + (W - R + 8) + '" y="' + (yy + 16) + '" font-size="10.5" fill="#6B7A8C">'
+        + esc(r.window) + '</text>';
+    });
+
+    /* Expected dollars landing each year, across the whole book, under the grid. */
+    const byYear = {};
+    for (const r of rows) {
+      for (const k of Object.keys(r.pays)) byYear[k] = (byYear[k] || 0) + r.exit * r.pays[k];
+      for (const k of Object.keys(r.prefYears)) byYear[k] = (byYear[k] || 0) + r.prefYears[k];
+    }
+    const peak = Math.max.apply(null, years.map((y) => byYear[y] || 0)) || 1;
+    const base = T + rows.length * RH + 26;
+    g += '<text x="0" y="' + (base - 8) + '" font-size="11" font-weight="700" fill="#141A22">'
+      + 'Expected in the year</text>';
+    years.forEach((y) => {
+      const v = byYear[y] || 0;
+      const hgt = Math.max(1, 16 * (v / peak));
+      g += '<rect x="' + (X(y) + 2).toFixed(1) + '" y="' + (base - hgt).toFixed(1) + '" width="'
+        + (cw - 4).toFixed(1) + '" height="' + hgt.toFixed(1) + '" fill="#2E6B52" opacity="0.55">'
+        + '<title>' + esc(y + ': about ' + money(v)) + '</title></rect>';
+    });
+    return g + '</svg>';
+  }
+
+  /* One entry in the deal list. Deliberately NOT the dashboard card: there is no holder
+     here, so no commitment, no funded amount and no override comparison. What is left is
+     the shared part, which is the part that is the same for everyone who bought it. */
+  function universeCard(d, held) {
+    const t = d.terms || {};
+    const open = !!OPEN['u:' + d.slug];
+    const bit = (l, v) => v == null || v === '' ? ''
+      : '<div style="display:flex;justify-content:space-between;gap:16px;padding:4px 0;'
+        + 'font-size:13px"><span style="color:var(--muted)">' + l + '</span>'
+        + '<span style="font-family:var(--mono);text-align:right">' + v + '</span></div>';
+
+    let h = '<div style="border:1px solid var(--rule);border-radius:9px;margin-bottom:9px;'
+      + 'overflow:hidden">'
+      + '<div data-udeal="' + esc(d.slug) + '" style="display:flex;align-items:center;gap:12px;'
+      + 'padding:12px 14px;cursor:pointer;background:' + (open ? '#F4F7FB' : '#fff') + '">'
+      + '<span style="width:9px;height:9px;border-radius:50%;background:'
+      + clsColour(d.assetClass) + ';flex:none"></span>'
+      + '<b style="flex:1">' + esc(d.name) + '</b>'
+      + (held ? '<span style="font-size:11px;color:#2E6B52;font-weight:700">in your book</span>' : '')
+      + '<span style="font-size:11px;color:var(--muted)">' + esc(d.assetClass || '')
+      + (d.vehicle ? ' \u00b7 ' + esc(d.vehicle) : '') + '</span>'
+      + '<span style="color:var(--muted)">' + (open ? '\u2212' : '+') + '</span></div>';
+
+    if (open) {
+      h += '<div style="padding:4px 14px 14px">'
+        + (d.subStrategy ? '<p class="note" style="margin-top:0">' + esc(d.subStrategy) + '</p>' : '')
+        + bit('Sponsor', d.sponsor ? esc(d.sponsor) : null)
+        + bit('Sponsor MOIC', t.sponsorMoic != null ? mult(t.sponsorMoic) : null)
+        + bit('Hold', t.holdYears ? t.holdYears + ' yrs' : null)
+        + bit('Preferred return', t.couponPct ? (t.couponPct * 100).toFixed(1) + '%' : null)
+        + bit('Minimum', t.minimum ? money(t.minimum) : null)
+        + bit('Underlying deals', d.dealsInFund != null ? d.dealsInFund : null)
+        + bit('Underwriting score', d.uwScore != null ? d.uwScore + ' / 100' : null)
+        /* The reason most people will open this tab. */
+        + '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--rule)">'
+        + '<div style="font-size:11px;color:var(--muted);margin-bottom:4px">'
+        + 'Call it any of these in your tracker</div>'
+        + '<div style="font-size:12px;font-family:var(--mono);color:#141A22">'
+        + (d.aliases || [d.name]).map((a) => esc(a)).join('  \u00b7  ') + '</div></div>'
+        + (d.provisional ? '<p class="note" style="margin-top:10px"><b>Provisional.</b> '
+            + esc(d.provisional) + '</p>' : '')
+        + (d.structure ? '<p class="note" style="margin-top:10px">' + esc(d.structure) + '</p>' : '')
+        + (d.keyRisks && d.keyRisks.length
+            ? '<div style="margin-top:8px"><div style="font-size:11px;color:var(--muted);'
+              + 'margin-bottom:4px">What to watch</div>'
+              + '<ul style="margin:0 0 0 16px;padding:0;font-size:12.5px;color:#41506180;'
+              + 'color:var(--muted);line-height:1.6">'
+              + d.keyRisks.slice(0, 4).map((r) => '<li>' + esc(r) + '</li>').join('')
+              + '</ul></div>' : '')
+        + (d.source ? '<p class="note" style="margin-top:10px;font-size:11px"><b>Source.</b> '
+            + esc(d.source) + '</p>' : '')
+        + '</div>';
+    }
+    return h + '</div>';
+  }
+
+  async function renderUniverse() {
+    /* Put the heading up BEFORE the fetch. The list takes a moment to arrive and an empty
+       panel reads as a broken tab rather than a loading one. */
+    if (!DEALALL) {
+      $('#tabbody').innerHTML = '<div class="card"><h2>Loaded GC deals</h2>'
+        + '<p class="note">Reading the deal files\u2026</p></div>';
+    }
+    const all = await loadAllDeals();
+    const mine = {};
+    for (const b of (BOOK || [])) if (b.deal) mine[b.deal.slug || b.deal.name] = true;
+
+    let h = '<div class="card"><h2>Loaded GC deals</h2>'
+      + '<p class="note">Every deal this tool already knows, in alphabetical order. The terms '
+      + 'are identical for everyone who bought the deal, so they live in one shared file per '
+      + 'deal rather than being retyped by every holder. <b>' + all.length + ' deals are '
+      + 'loaded</b> and most books hold only a handful of them.</p>'
+      + '<p class="note"><b>If a position of yours is not filling in its terms, this is where '
+      + 'to check the spelling.</b> Open any deal and it lists every name it answers to. Write '
+      + 'one of those in your tracker and the terms fill in by themselves. Anything not on this '
+      + 'list still works, it just runs on what you type.</p>';
+
+    if (!all.length) {
+      return void ($('#tabbody').innerHTML = h + '<p class="note">No deal files could be '
+        + 'loaded.</p></div>');
+    }
+
+    const by = {};
+    for (const d of all) (by[d.assetClass || 'Other'] = by[d.assetClass || 'Other'] || []).push(d);
+    h += '<div class="row" style="margin-top:6px">'
+      + Object.keys(by).sort().map((k) => '<span style="display:flex;align-items:center;gap:6px;'
+        + 'font-size:12px;color:var(--muted)"><span style="width:9px;height:9px;border-radius:50%;'
+        + 'background:' + clsColour(k) + '"></span>' + esc(k) + ' (' + by[k].length + ')</span>')
+        .join('') + '</div></div>';
+
+    h += '<div class="card">'
+      + all.map((d) => universeCard(d, !!mine[d.slug])).join('') + '</div>';
+
+    $('#tabbody').innerHTML = h;
+    document.querySelectorAll('[data-udeal]').forEach((el) => {
+      el.onclick = () => {
+        const k = 'u:' + el.getAttribute('data-udeal');
+        OPEN[k] = !OPEN[k];
+        renderUniverse();
+      };
+    });
   }
 
   function coneChart(rows, committed, raw) {

@@ -52,6 +52,10 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.24 the preferred return accrues on capital actually CALLED, not on the whole
+             commitment; Playhouse MD documented
+       v1.23 a maturity and liquidity ladder, the three books side by side, and a tab
+             listing every deal the tool knows with the names each one answers to
        v1.22 deal names are recognised the way people write them, and a position the tool
              cannot place now says so instead of going quiet
        v1.21 the example book no longer reports itself as an older tracker
@@ -65,8 +69,8 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.22',
-  released: '25 Sep 2026',
+  version: 'v1.24',
+  released: '28 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
      It was being conflated with the app's: v1.7 changed no columns, so the app's
@@ -248,6 +252,7 @@ function buildBook(rows) {
       kind,
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
+      uncalledYieldPct: num(r.uncalledYieldPct) || 0,
       exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed,
       markedUpMoic,                   // paper only; never reaches the simulation
       paperNav: markedUpMoic ? funded * markedUpMoic : funded,
@@ -338,6 +343,39 @@ function prefFactor(b, m) {
   return P.onPlan;
 }
 
+/* HOW MUCH CAPITAL IS ACTUALLY IN, at the end of year fy+k.
+   Raised by Kristin Westergard, 27 Sep 2026: the tool was paying the headline rate on the
+   WHOLE commitment from year one, while most of it was still uncalled. On a fully funded
+   position that is right and changes nothing. On Asilia GC Fund -- $100,000 committed
+   against $19,000 funded -- it was the most generous of every possible reading, and worth
+   $9,720 of preferred return that had not been earned yet.
+
+   A commitment is drawn over CFG.callYears, so the base the preferred return is paid on
+   ramps with it. What the UNCALLED balance earns in the meantime is a separate, much lower
+   rate: see uncalledYield. */
+function calledBy(b, k) {
+  if (k <= 0) return b.funded;
+  if (!(b.uncalled > 0)) return b.commitment;
+  return b.funded + b.uncalled * Math.min(k, CFG.callYears) / CFG.callYears;
+}
+
+/* Some funds pay a small yield on money you have committed but they have not called, so it
+   is not sitting idle. Asilia's sessions describe this for ACFE. It is NOT the headline
+   rate and must never be confused with it, so it is a separate term with its own default
+   of zero: a fund that has not told us it does this is assumed not to. */
+function uncalledYield(b) {
+  const y = Number(b.uncalledYieldPct);
+  return isFinite(y) && y > 0 ? y : 0;
+}
+
+/* What a position pays in preferred return in year fy+k: the headline rate on the capital
+   actually called, plus whatever the uncalled balance earns. */
+function prefInYear(b, k) {
+  if (!(b.coupon > 0)) return 0;
+  const inSoFar = calledBy(b, k);
+  return inSoFar * b.coupon + Math.max(0, b.commitment - inSoFar) * uncalledYield(b);
+}
+
 function couponSchedule(book, years) {
   const out = {};
   for (const y of years) out[y] = 0;
@@ -345,7 +383,7 @@ function couponSchedule(book, years) {
     if (!(b.coupon > 0)) continue;
     for (let k = 1; k <= b.hold; k++) {
       const y = b.fy + k;
-      if (out[y] != null) out[y] += b.commitment * b.coupon;
+      if (out[y] != null) out[y] += prefInYear(b, k);
     }
   }
   return out;
@@ -414,7 +452,7 @@ function dealStream(b, off, m) {
        never fails would disagree with the cash tables beside it. */
     const pf = prefFactor(b, m);
     if (pf > 0) {
-      for (let k = 1; k <= b.hold; k++) f.push([b.fy + k, b.commitment * b.coupon * pf]);
+      for (let k = 1; k <= b.hold; k++) f.push([b.fy + k, prefInYear(b, k) * pf]);
     }
   }
   const cash = b.commitment * m;
@@ -531,7 +569,7 @@ function simulate(book, opts) {
           for (let k = 1; k <= b.hold; k++) {
             const y = b.fy + k;
             if (yr[y] != null) {
-              const amt = b.commitment * b.coupon * pf;
+              const amt = prefInYear(b, k) * pf;
               yr[y] += amt;
               cp[y] += amt;
             }
@@ -811,6 +849,8 @@ function applyDealFile(row, f) {
 
   mark('assetClass', 'Asset class', 'text', out.assetClass, f.assetClass);
   mark('coupon', 'Preferred rate', 'pct', out.coupon, t.couponPct);
+  mark('uncalledYieldPct', 'Yield on uncalled', 'pct', out.uncalledYieldPct,
+       t.uncalledYieldPct);
   mark('hold', 'Hold', 'years', out.hold, t.holdYears);
   mark('moic', 'Sponsor MOIC', 'mult', out.moic, t.sponsorMoic);
   mark('deals', 'Deals in fund', 'num', out.deals, f.dealsInFund);
@@ -842,6 +882,9 @@ function applyDealFile(row, f) {
   if (blank(out.assetClass) && f.assetClass) out.assetClass = f.assetClass;
   if (blank(out.vehicle) && f.vehicle) out.vehicle = f.singleCompany ? 'Single deal' : f.vehicle;
   if (blank(out.coupon) && t.couponPct != null) out.coupon = t.couponPct;
+  if (blank(out.uncalledYieldPct) && t.uncalledYieldPct != null) {
+    out.uncalledYieldPct = t.uncalledYieldPct;
+  }
   if (blank(out.hold) && t.holdYears) out.hold = t.holdYears;
   if (blank(out.moic) && t.sponsorMoic) out.moic = t.sponsorMoic;
   if (blank(out.deals) && f.dealsInFund != null) out.deals = f.dealsInFund;
@@ -858,4 +901,9 @@ function applyDealFile(row, f) {
 
 const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier,
                  irrOf, dealStream, sponsorCaseIrr, paperTrack, prefFactor };
+/* Exported because app.js draws three panels off the same figure. A second copy of the
+   ramp in the UI is exactly how the cash table and the ladder end up disagreeing. */
+Engine.prefInYear = prefInYear;
+Engine.calledBy = calledBy;
+
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;

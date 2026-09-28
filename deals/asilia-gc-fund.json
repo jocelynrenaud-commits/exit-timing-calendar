@@ -60,7 +60,9 @@
     "blendedRoe": 0.2308
    },
    "note": "All figures net of fees. The fund-level 12.08% annual distribution is what the tool models as the coupon; the 11.0% equity yield is the kicker realised at harvest."
-  }
+  },
+  "uncalledYieldPct": null,
+  "uncalledYieldNote": "OPEN QUESTION, raised by Kristin Westergard 27 Sep 2026 and not yet answered. The sessions confirm that capital you have COMMITTED but the fund has not CALLED still earns something in the meantime rather than sitting idle. Two things are unsettled. (1) THE RATE. The pitch and Q&A notes say 'a mid-to-high single-digit return'; Kristin reports 4%, which is below that. (2) THE INTERACTION, which matters more: once calls begin, is the headline rate paid on the CALLED portion with the lower rate on the rest, or is it paid on the whole commitment? Nothing in the documents addresses it. Until Austin Read confirms, this is modelled at ZERO — the headline rate accrues only on capital actually called, and the uncalled balance earns nothing. That UNDERSTATES the position on purpose. Set uncalledYieldPct once the rate is confirmed."
  },
  "liquidity": {
   "fromYear": 6,

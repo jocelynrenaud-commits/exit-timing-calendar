@@ -1,0 +1,57 @@
+{
+  "slug": "playhouse-md",
+  "name": "Playhouse MD",
+  "aliases": [
+    "Playhouse MD",
+    "PlayhouseMD",
+    "Playhouse M.D.",
+    "Playhouse",
+    "Playhouse Medical"
+  ],
+  "sponsor": "Spacestation Investments (SPV and fund) — Playhouse MD",
+  "assetClass": "VC",
+  "vehicle": "SPV",
+  "subStrategy": "Pediatric health and wellness consumer products",
+  "terms": {
+    "couponPct": null,
+    "holdYears": 6,
+    "holdNote": "Spacestation calls it a 5-to-7 year hold and the memo's return tool runs exit columns for 2030, 2031 and 2032. Modelled at 6, which lands on 2032 — the column Spacestation actually walked through case by case on the underwrite call. Management say they would be opportunistic about an earlier offer but believe there is substantial value still to build, so the early years of that range are possible rather than planned.",
+    "sponsorMoic": 5.0,
+    "sponsorMoicNote": "The memo's BASE case: roughly a 3x revenue multiple on a 2032 exit, which the tool turns into about 5x on the investment. That base case is already discounted about 50% from management's own forecast. The BEAR case is roughly money back plus a little — $39M of revenue at the low end of the comparable multiples, which is close to what management expect to do in 2027 alone. The BULL case runs to management's $236M of 2032 revenue at a higher multiple. 5.0x is the base, not the hoped-for number.",
+    "minimum": null,
+    "minimumNote": "Not stated in the snapshot. Spacestation SPV minimums have run $10,000 on comparable deals; confirm before relying on it.",
+    "mgmtFee": null,
+    "feeNote": "Roughly 8% taken OUT of the committed amount at the front, plus a small AngelList administration fee — a $10,000 commitment puts about $9,200 to work. Fund investors pay their own tier's arrangement instead. The full schedule is in Spacestation's FAQ.",
+    "instrument": "Series A bridge SAFE, $35M post-money cap",
+    "instrumentNote": "A bridge, not the Series A. Spacestation talked the company OUT of raising a $10M Series A at a $45-55M valuation and into a $5M bridge at $35M post, on the argument that a Walmart launch and a full year of Target data would let them raise the real round from strength. That is good for the founders' dilution; for a SAFE holder it means the conversion price is capped at $35M and realisation still depends on that priced round actually happening. Valuation was negotiated down from an opening $45M post. Pro-rata rights, information rights and major-investor status were being negotiated and were NOT signed at the time of the call.",
+    "raiseAmount": 5000000,
+    "priorCapital": 10100000,
+    "spacestationCheck": 2500000,
+    "entryMultipleNote": "About 4.8x revenue on the 2026 forecast, or about 2.3x the projected Q4 exit run rate of roughly $15M."
+  },
+  "liquidity": null,
+  "dealsInFund": 1,
+  "singleCompany": true,
+  "uwScore": null,
+  "provisional": "Processed from the pitch session, the underwrite Q&A and the deal snapshot (27 Sep 2026). The deal is CLOSED. No PPM, subscription agreement or SAFE document has been read, so every term here is as presented on the calls rather than as written in the paper. The sponsor MOIC is Spacestation's base case, not a company projection — management publish a revenue plan and no target multiple.",
+  "structure": "A child-first pediatric health and wellness brand: thermometers, nasal aspirators, medicine dispensers, nail clippers and otoscope covers redesigned as animals so children cooperate with them. Founded by Sydney Wiseman, the toy inventor behind Fingerlings (roughly 40 million units sold), and her sister Caitlin, a family doctor. Michael Kamins, employee number 13 at TikTok and its head of music partnerships through the ByteDance acquisition, runs operations as co-founder and CFO. Launched direct-to-consumer in June 2025; now in roughly 1,500 Target stores with five items, with Walmart committed to 400 stores in February 2027 and a larger reset expected that July. Revenue ran about $850,000 in the second half of 2025, about $1.5M in the first half of 2026, against a roughly $7M full-year 2026 forecast, $26M for 2027 and $150M inside five years. Gross margins run 45-52%. The thesis turns on moving from durable goods, which a household buys once, into replenishables — soap, bath products and an oral-care system with replaceable heads — which is where the repeat purchases and the lifetime value are.",
+  "keyRisks": [
+    "THE BUSINESS SELLS DURABLE GOODS AND THE THESIS NEEDS REPLENISHABLES. A family buys one thermometer and one nail clipper and then stops. The soap, bath and oral-care lines are what turn that into a recurring relationship, and the published roadmap puts them at 2028-2030. Spacestation and other investors pushed for those to come forward and management agreed, but no firm date has replaced the old one, and the memo still carries the slow timeline.",
+    "THE NATIONWIDE WALMART ROLLOUT IS NOT SIGNED. The 400-store February launch is committed and is a genuinely good signal, because an off-cycle reset means the buyer is spending internal credibility. The July nationwide reset, which is the number the growth case runs on, has been described verbally and not inked.",
+    "KEY-PERSON RISK ON SYDNEY WISEMAN, and Spacestation agree it is real. She is the CEO, the product mind, the brand voice and the source of roughly 50 million organic TikTok views. Their answer is that a founder without key-person risk is usually not a founder worth backing, which is a fair argument and not a mitigation.",
+    "THE MOAT IS THINNER THAN THE STORY. Design patents stop a copy of the giraffe, not a competitor's own animal. The stronger claims — sound in a nail clipper, a light in a nasal aspirator — are UTILITY patents that are FILED AND PENDING, not issued. Frida, now owned by SC Johnson, could put a face on its products tomorrow.",
+    "THE EXIT MULTIPLE RANGE IS UNUSUALLY WIDE, and this is the number that decides the outcome. Consumer health trades roughly 1x to 4x revenue, not the 20x a defence or software deal might see. Owlet sits near 1.5x, Frida near 4x. The bear case is a wide, ordinary outcome rather than a remote one.",
+    "THE FRIDA COMPARABLE IS UNVERIFIED. The $1B+ sale price is the Playhouse team's own anecdotal figure and Spacestation deliberately kept it OUT of the memo as a diligence input. It is the anchor for the bull case and it is hearsay.",
+    "MANUFACTURING IS CONCENTRATED IN CHINA and carries tariff exposure. The counter is real — deep factory relationships from the Fingerlings days, a Hong Kong entity, quarterly founder visits, and a demonstrated ability to scale from 1M units a year to 4M in a quarter — but it is a single-country dependency on a policy variable.",
+    "IT IS A SAFE. Realisation needs a future priced round, an acquisition or an IPO. Series A dilution is expected and Spacestation was still negotiating the pro-rata right that would let holders defend against it."
+  ],
+  "greenFlags": [
+    "Operationally institutional for the stage: US, Canadian and Hong Kong entities, six products in twelve months with no schedule slip, no recalls and no defects, and ratings around 4.7 stars across the line.",
+    "A strategic cap table rather than friends and family: the Hassenfeld family (founders of Hasbro), Marcy Venture Partners, Greycroft, plus Meghan Trainor and John Legend. The Hassenfelds led the pre-seed and are investing AGAIN in this round, which is the strongest single signal in the deal — they have inside visibility and are doubling down.",
+    "The Sesame Street deal is unusually good: roughly 6% against a typical 18% for a mega brand, with only a $30,000 guarantee, and structured as a Playhouse x Sesame COLLABORATION rather than a license, so the Playhouse name stays on the shelf.",
+    "Equity capital is not funding working capital. A Rosenthal facility with a $2M borrowing base covers 80% of receivables and 50% of inventory, so the raise goes to marketing and hiring.",
+    "The IP firm took equity and invested cash. It is the same firm that cleared the Fingerlings counterfeits on contingency, recovering roughly $8M, and it has Beijing operations.",
+    "McKesson distribution into independent pharmacies is NOT in the projections, and neither is the healthcare-practitioner side. Both are real upside outside the model."
+  ],
+  "source": "Playhouse MD pitch session and the Spacestation underwrite Q&A, both 27 Sep 2026, plus the GC deal snapshot. Figures are as presented on those calls. Deal documents have not been read."
+}
