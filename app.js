@@ -29,6 +29,14 @@
   let MODE = 'all';         // which book the panels describe
   let DIST = 'all';         // which curve is in front on the chart
   let TAB = 'dash';         // 'dash' | 'outlook' | 'about'
+  /* DEAL DATA IS TAGGED WITH THE APP VERSION. GitHub Pages serves everything with
+     max-age=600, so without this a reader gets the previous deal list against a new build
+     for at least ten minutes after a release -- which is how a deal can ship and still be
+     invisible, and how "not written yet" and "your browser is stale" become the same
+     symptom. A version bump busts it once; inside a version the cache still works. */
+  const dealUrl = (slug) => 'deals/' + slug + '.json?v='
+    + encodeURIComponent((Engine.CFG && Engine.CFG.version) || 'dev');
+
   let DEALIDX = null;       // the shared deal index, loaded once
   let OPEN = {};            // which deal cards are expanded
 
@@ -38,7 +46,7 @@
   async function loadDealIndex() {
     if (DEALIDX !== null) return DEALIDX;
     try {
-      DEALIDX = await fetch('deals/index.json').then((r) => r.json());
+      DEALIDX = await fetch(dealUrl('index')).then((r) => r.json());
     } catch (e) { DEALIDX = { deals: [] }; }
     return DEALIDX;
   }
@@ -52,7 +60,7 @@
        for several seconds on a local server, which is the best case; a member on a phone
        would have concluded the tab was broken. */
     const out = (await Promise.all((idx.deals || []).map((e) =>
-      fetch('deals/' + e.slug + '.json')
+      fetch(dealUrl(e.slug))
         .then((r) => r.json())
         .then((d) => Object.assign({ slug: e.slug }, d))
         .catch(() => null)          // a file that will not load is simply not listed
@@ -84,7 +92,7 @@
         continue;
       }
       if (!cache[hit.slug]) {
-        try { cache[hit.slug] = await fetch('deals/' + hit.slug + '.json').then((x) => x.json()); }
+        try { cache[hit.slug] = await fetch(dealUrl(hit.slug)).then((x) => x.json()); }
         catch (e) { cache[hit.slug] = null; }
       }
       if (cache[hit.slug]) Object.assign(r, Engine.applyDealFile(r, cache[hit.slug]));
