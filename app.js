@@ -8,6 +8,16 @@
 
   const $ = (s) => document.querySelector(s);
   const money = (v) => (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
+  /* Money that has to fit in a chart column 26 to 48 pixels wide. money() writes
+     "$248,000", which does not. */
+  const moneyTight = (v) => {
+    const a = Math.abs(v);
+    if (a < 1000) return '$' + Math.round(a);
+    /* Test the ROUNDED thousands, not the raw value: 999,500 is under a million and still
+       rounds to 1000k, which is not a number anybody writes. */
+    if (Math.round(a / 1000) < 1000) return '$' + Math.round(a / 1000) + 'k';
+    return '$' + (a / 1000000).toFixed(a < 10000000 ? 1 : 0) + 'M';
+  };
   const mult = (v) => v.toFixed(2) + 'x';
   /* A whole percent where the number is whole, one decimal where it is not. It printed
      Asilia's 1.3% management fee as "1%" on the same card that spelled out "1.2% and 20%"
@@ -1232,7 +1242,7 @@
     const years = [];
     for (let y = y0; y <= y1; y++) years.push(y);
 
-    const L = 208, R = 92, T = 34, RH = 26, B = 52;
+    const L = 208, R = 92, T = 34, RH = 26, B = 64;
     const cw = Math.max(26, Math.min(48, 660 / years.length));
     const W = L + years.length * cw + R;
     const H = T + rows.length * RH + B;
@@ -1278,7 +1288,7 @@
       for (const k of Object.keys(r.prefYears)) byYear[k] = (byYear[k] || 0) + r.prefYears[k];
     }
     const peak = Math.max.apply(null, years.map((y) => byYear[y] || 0)) || 1;
-    const base = T + rows.length * RH + 26;
+    const base = T + rows.length * RH + 38;
     g += '<text x="0" y="' + (base - 8) + '" font-size="11" font-weight="700" fill="#141A22">'
       + 'Expected in the year</text>';
     years.forEach((y) => {
@@ -1287,6 +1297,14 @@
       g += '<rect x="' + (X(y) + 2).toFixed(1) + '" y="' + (base - hgt).toFixed(1) + '" width="'
         + (cw - 4).toFixed(1) + '" height="' + hgt.toFixed(1) + '" fill="#2E6B52" opacity="0.55">'
         + '<title>' + esc(y + ': about ' + money(v)) + '</title></rect>';
+      /* The amount ABOVE the block. A 16px bar with no axis can only say "bigger than that
+         one"; the number is the thing worth reading. A year with nothing due gets no label
+         rather than a row of $0. */
+      if (v > 0) {
+        g += '<text x="' + (X(y) + cw / 2).toFixed(1) + '" y="' + (base - hgt - 5).toFixed(1)
+          + '" text-anchor="middle" font-size="9" font-weight="600" fill="#41506B">'
+          + moneyTight(v) + '</text>';
+      }
     });
     return g + '</svg>';
   }
