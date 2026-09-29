@@ -87,5 +87,27 @@
     "ebitda2027Stated": 20000000,
     "ebitdaNote": "Profitability was reached during 2026. EBITDA for 2026 is put at $5-6M, with most of the year unprofitable, which puts the $245M pre-money at roughly 30x current-year EBITDA — a revenue multiple is still the fairer lens this year. FOR 2027 THE SESSION GIVES TWO DIFFERENT NUMBERS IN THE SAME CALL: Jackson says $20M of EBITDA, and Sam says $44M a few minutes later. They are not reconciled and nobody on the call noticed. $20M is carried here because it is the lower, it is what the host stated directly in answer to the question, and it is the figure the valuation discussion was then built on. Treat $44M as unverified.",
     "capacityRoadmap": "The $10M priced round funds capex to roughly $250M of revenue capacity. Another $10-15M after that would support around $750M, and Spacestation expect it to be self-funded from EBITDA rather than raised."
-  }
+  },
+  "sections": [
+    {
+      "title": "Which round you hold — read this first",
+      "body": "There are TWO rounds in this record and they are not the same investment. The terms on this card are the MAY 2026 CONVERTIBLE NOTE's: a $100M pre-money cap, a 20% discount, 8% accruing interest and 2x your money ahead of everyone else if the company sells while the note is still debt. A PRICED ROUND followed about two months later at a $245M pre-money valuation led by Bochy Ventures, a 2.2x markup on paper, with roughly 10% dilution and pro rata offered on a handshake rather than a contract. If your position came from the priced round, none of the cap, the discount, the interest or the 2x protection applies to it and the entry multiple is different. Check which one you hold before relying on any figure here."
+    },
+    {
+      "title": "What it is",
+      "body": "A house of brands making seed-oil-free salty snacks, fried in 100% grass-fed beef tallow with organic heritage grains. MASA is the tortilla chip and the flagship, Vandy the potato chip, and the popcorn brand launching in 2026 — called PERLA in the deal snapshot and on the pitch call, and GOLDEN AGE POPCORN in the investor deck's own TAM table. The sources disagree; both names are carried so either resolves."
+    },
+    {
+      "title": "Who runs it",
+      "body": "Steven Rofrano (CEO, ex-Meta engineer, Yale) fried the first batch in a turkey fryer in his parents' back garden. Seth Goldstein is co-founder and President/CFO: Wharton, BCG, Bain Capital, Vector Capital, Summa Equity."
+    },
+    {
+      "title": "The numbers",
+      "body": "Revenue ran $175K in 2022, $3M in 2023, $9M in 2024 and $33M in 2025, against an $80M-$100M target for 2026. The 2025 mix was roughly $23.2M DTC, $6.0M wholesale and $3.6M Amazon, so it is still a direct-to-consumer business that is only now becoming a retail one. DTC economics: $97 average order, 43% contribution margin, $115 blended CAC, and lifetime value of $265 at one year rising to $528 at three."
+    },
+    {
+      "title": "What the thesis rests on: manufacturing",
+      "body": "No contract manufacturer would fry in tallow — almost every chip line in the United States is kosher or vegan, and tallow is an animal fat that is solid at room temperature — so the company built its own, roughly $10M of capital for a line taking capacity from about 450,000 bags a month to around 3,000,000. COGS is expected to fall from about $3.50 a bag to under $1.00, with product margin approaching 90%. Management say the price could come down to roughly $4 on shelf and still leave a healthy business, while the product currently sells at $13 and leads its category, which is the clearest statement of brand power in the file."
+    }
+  ]
 }

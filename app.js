@@ -341,7 +341,7 @@
     const expTotal = expExit + expPref;
     const sponsorWt = committed > 0 ? sum((x) => x.moic * x.commitment) / committed : 0;
 
-    let h = '<div class="card"><h2>Where you stand</h2>'
+    let h = '<div class="card"><h2>Your book</h2>'
       + '<div class="kpi">'
       + kpi('Positions', b.length) + kpi('Committed', money(committed))
       + kpi('Funded', money(funded))
@@ -349,11 +349,14 @@
       + kpi('Sponsor MOIC', mult(sponsorWt))
       + kpi('Modelled', mult(committed > 0 ? expTotal / committed : 0), 'b')
       + '</div>'
+      /* This figure is NOT sampled. expectedOf walks each deal's four outcome branches and
+         weights them exactly, so there is no path count to quote here -- the simulated
+         figures live on Liquidity Outlook. Saying "the average of N futures" would have been
+         a plain untruth about how this number is made. */
       + '<p class="note" style="margin-top:12px"><b>Two multiples, on purpose.</b> The sponsor '
-      + 'figure is what these deals return <b>if they work</b>, weighted by what you committed. '
-      + 'The modelled one is what they are <b>expected</b> to return once every outcome is '
-      + 'weighted by how likely it is, including the ones that go nowhere. It is always the '
-      + 'lower number and it is the one to plan against. Of the modelled total, '
+      + 'figure is what these deals return <b>if they work</b>. The modelled one weighs all '
+      + 'four outcomes for each deal, from a total loss up to the sponsor case, by how '
+      + 'likely each one is. Plan against the modelled number. Of that total, '
       + money(expPref) + ' is preferred return and ' + money(expExit) + ' depends '
       + 'on a sale.</p></div>';
 
@@ -365,7 +368,7 @@
     const entries = Object.entries(byCls).sort((p, q) => q[1] - p[1]);
     h += '<div class="card"><h2>Allocation</h2>'
       + '<p class="note">On capital <b>committed</b>, not on current value. A private mark is '
-      + 'whatever the last sponsor statement said, and stale marks make a flattering pie.</p>'
+      + 'only ever as fresh as the last sponsor statement.</p>'
       + '<div style="display:flex;height:30px;border-radius:6px;overflow:hidden;margin:14px 0 10px">'
       + entries.map(([c, v]) => '<div style="width:' + (v / committed * 100) + '%;background:'
           + clsColour(c) + ';display:flex;align-items:center;justify-content:center;color:#fff;'
@@ -397,11 +400,10 @@
       }
     });
     const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
-    h += '<div class="card"><h2>Capital calls against preferred income</h2>'
+    h += '<div class="card"><h2>Capital calls vs. preferred income</h2>'
       + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
       + 'money the documents promise you. Exits are not here on purpose: an exit is a hope and a '
-      + 'preferred return is a promise, and adding them together is how these tools mislead. Exits live on '
-      + 'the Liquidity Outlook tab.</p>'
+      + 'preferred return is a promise. Exits live on the Liquidity Outlook tab.</p>'
       + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
       + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
       + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
@@ -420,9 +422,6 @@
       + '</table></div>';
 
     h += '<div class="card"><h2>Your deals</h2>'
-      + '<p class="note">Tap a deal for its terms. Anything marked <b>shared</b> comes from a '
-      + 'deal file everyone can use, so nobody retypes the same preferred rate thirteen times. '
-      + 'Your own numbers always win over it.</p>'
       /* Alphabetical. The book arrives in spreadsheet-row order, which is whatever order the
          holder happened to type things in and is no help at all when you are looking for one
          deal in thirteen. localeCompare so accented and punctuated names sort sensibly. */
@@ -562,7 +561,7 @@
             + '</div>';
         }
 
-        h += '<p class="note">' + esc(d.structure || '') + '</p>';
+        h += dealProse(d);
 
         /* WHAT THE FUND ACTUALLY HOLDS.
            A fund card that lists only terms tells you the shape of the wrapper and nothing
@@ -1309,6 +1308,29 @@
     return g + '</svg>';
   }
 
+  /* THE WRITTEN PART OF A DEAL, in headed sections.
+     `sections` is an ordered [{title, body}] and the titles live in the data rather than
+     here, because the right headings differ by deal: a fund has a sponsor where a company has
+     founders, and the final section is deliberately whatever that deal turns on. A file that
+     has not been sectioned yet still renders its old `structure` block, so nothing goes blank
+     mid-migration.
+
+     NOTE WHAT IS NOT HERE: `provisional` and `source`. Those record how well sourced a card
+     is, which is a note to ourselves. A reader does not need to know which transcript a figure
+     came from, and telling them invites them to weigh the citation instead of the deal. The
+     tracking lives in drafts/PRODUCT_BACKLOG.md instead. */
+  function dealProse(d) {
+    if (d.sections && d.sections.length) {
+      return d.sections.filter((x) => x && x.body).map((x) =>
+        (x.title
+          ? '<div style="font-size:11px;color:var(--muted);margin:12px 0 3px;'
+            + 'letter-spacing:.04em;text-transform:uppercase">' + esc(x.title) + '</div>'
+          : '')
+        + '<p class="note" style="margin:0">' + esc(x.body) + '</p>').join('');
+    }
+    return d.structure ? '<p class="note" style="margin-top:10px">' + esc(d.structure) + '</p>' : '';
+  }
+
   /* One entry in the deal list. Deliberately NOT the dashboard card: there is no holder
      here, so no commitment, no funded amount and no override comparison. What is left is
      the shared part, which is the part that is the same for everyone who bought it. */
@@ -1348,9 +1370,7 @@
         + 'Call it any of these in your tracker</div>'
         + '<div style="font-size:12px;font-family:var(--mono);color:#141A22">'
         + (d.aliases || [d.name]).map((a) => esc(a)).join('  \u00b7  ') + '</div></div>'
-        + (d.provisional ? '<p class="note" style="margin-top:10px"><b>Provisional.</b> '
-            + esc(d.provisional) + '</p>' : '')
-        + (d.structure ? '<p class="note" style="margin-top:10px">' + esc(d.structure) + '</p>' : '')
+        + dealProse(d)
         + (d.keyRisks && d.keyRisks.length
             ? '<div style="margin-top:8px"><div style="font-size:11px;color:var(--muted);'
               + 'margin-bottom:4px">What to watch</div>'
@@ -1358,8 +1378,6 @@
               + 'color:var(--muted);line-height:1.6">'
               + d.keyRisks.slice(0, 4).map((r) => '<li>' + esc(r) + '</li>').join('')
               + '</ul></div>' : '')
-        + (d.source ? '<p class="note" style="margin-top:10px;font-size:11px"><b>Source.</b> '
-            + esc(d.source) + '</p>' : '')
         + '</div>';
     }
     return h + '</div>';

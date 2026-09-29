@@ -1,114 +1,120 @@
 {
- "slug": "asilia-gc-fund",
- "name": "Asilia GC Fund",
- "aliases": [
-  "Asilia GC Fund",
-  "Asilia GC Fund, LP",
-  "Asilia GC Fund QP, LP",
-  "Asilia GC",
-  "Asilia Growth Circle Fund",
-  "Asilia Growth Circle",
-  "AGCF"
- ],
- "sponsor": "Asilia Credit Investments",
- "assetClass": "Private Credit",
- "vehicle": "Fund",
- "subStrategy": "Fund of funds, three sleeves",
- "terms": {
-  "couponPct": 0.12,
-  "couponNote": "Quarterly cash distributions, beginning immediately. 12% annual cash plus roughly 11% from equity kickers is the 23.08% blended base-case IRR.",
-  "holdYears": 8,
-  "holdNote": "8 years total and NO extension: 5 years of deployment and growth, then a 3-year harvest and wind-down. Hard stop with full liquidation required.",
-  "sponsorMoic": 5.27,
-  "sponsorMoicNote": "5.27x is DERIVED, and the derivation checks: the blended ROE of 23.08% net of fees, compounded over the 8-year term, gives 5.2662x. That is the Q&A chart’s own arithmetic, not a separate projection. This is the LATER offering. An earlier Asilia GC Fund was raised on different terms; see asilia-gc-fund-first.json, though note the 3.27x on that file may instead be the ACFE SLEEVE compounded over the same 8 years (16% -> 3.27x), which is an open question flagged in the task list.",
-  "mgmtFee": 0.013,
-  "carry": "30% (Class B). Class A at $400k+ drops the fund-of-funds overlay: 1.2% and 20%.",
-  "minimum": 100000,
-  "minimumNote": "$100k for Growth Circle members, negotiated down from a $1M industry standard. Class B under $400k, Class A at $400k and above.",
-  "capitalCalls": "10-15% at first close, then 5-10% quarterly over a 2-3 year deployment. Five business days notice. Up to 100% is callable.",
-  "returnMix": {
-   "source": "Asilia GC Fund investor Q&A, fee-stack and return-mix chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
-   "sleeves": [
-    {
-     "sleeve": "ACFE",
-     "allocation": 0.35,
-     "expectedDistribution": 0.15,
-     "equityYield": 0.0125,
-     "blendedRoe": 0.1625,
-     "allInFee": "1.0 / 30"
+  "slug": "asilia-gc-fund",
+  "name": "Asilia GC Fund",
+  "aliases": [
+    "Asilia GC Fund",
+    "Asilia GC Fund, LP",
+    "Asilia GC Fund QP, LP",
+    "Asilia GC",
+    "Asilia Growth Circle Fund",
+    "Asilia Growth Circle",
+    "AGCF"
+  ],
+  "sponsor": "Asilia Credit Investments",
+  "assetClass": "Private Credit",
+  "vehicle": "Fund",
+  "subStrategy": "Fund of funds, three sleeves",
+  "terms": {
+    "couponPct": 0.12,
+    "couponNote": "Quarterly cash distributions, beginning immediately. 12% annual cash plus roughly 11% from equity kickers is the 23.08% blended base-case IRR.",
+    "holdYears": 8,
+    "holdNote": "8 years total and NO extension: 5 years of deployment and growth, then a 3-year harvest and wind-down. Hard stop with full liquidation required.",
+    "sponsorMoic": 5.27,
+    "sponsorMoicNote": "5.27x is DERIVED, and the derivation checks: the blended ROE of 23.08% net of fees, compounded over the 8-year term, gives 5.2662x. That is the Q&A chart’s own arithmetic, not a separate projection. This is the LATER offering. An earlier Asilia GC Fund was raised on different terms; see asilia-gc-fund-first.json, though note the 3.27x on that file may instead be the ACFE SLEEVE compounded over the same 8 years (16% -> 3.27x), which is an open question flagged in the task list.",
+    "mgmtFee": 0.013,
+    "carry": "30% (Class B). Class A at $400k+ drops the fund-of-funds overlay: 1.2% and 20%.",
+    "minimum": 100000,
+    "minimumNote": "$100k for Growth Circle members, negotiated down from a $1M industry standard. Class B under $400k, Class A at $400k and above.",
+    "capitalCalls": "10-15% at first close, then 5-10% quarterly over a 2-3 year deployment. Five business days notice. Up to 100% is callable.",
+    "returnMix": {
+      "source": "Asilia GC Fund investor Q&A, fee-stack and return-mix chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
+      "sleeves": [
+        {
+          "sleeve": "ACFE",
+          "allocation": 0.35,
+          "expectedDistribution": 0.15,
+          "equityYield": 0.0125,
+          "blendedRoe": 0.1625,
+          "allInFee": "1.0 / 30"
+        },
+        {
+          "sleeve": "Walnut",
+          "allocation": 0.35,
+          "expectedDistribution": 0.105,
+          "equityYield": 0.139,
+          "blendedRoe": 0.244,
+          "allInFee": "2.0 / 30"
+        },
+        {
+          "sleeve": "Opportunistic",
+          "allocation": 0.3,
+          "expectedDistribution": 0.105,
+          "equityYield": 0.19,
+          "blendedRoe": 0.295,
+          "allInFee": "1.0 / 30"
+        }
+      ],
+      "total": {
+        "expectedDistribution": 0.1208,
+        "equityYield": 0.11,
+        "blendedRoe": 0.2308
+      },
+      "note": "All figures net of fees. The fund-level 12.08% annual distribution is what the tool models as the coupon; the 11.0% equity yield is the kicker realised at harvest."
     },
-    {
-     "sleeve": "Walnut",
-     "allocation": 0.35,
-     "expectedDistribution": 0.105,
-     "equityYield": 0.139,
-     "blendedRoe": 0.244,
-     "allInFee": "2.0 / 30"
-    },
-    {
-     "sleeve": "Opportunistic",
-     "allocation": 0.3,
-     "expectedDistribution": 0.105,
-     "equityYield": 0.19,
-     "blendedRoe": 0.295,
-     "allInFee": "1.0 / 30"
-    }
-   ],
-   "total": {
-    "expectedDistribution": 0.1208,
-    "equityYield": 0.11,
-    "blendedRoe": 0.2308
-   },
-   "note": "All figures net of fees. The fund-level 12.08% annual distribution is what the tool models as the coupon; the 11.0% equity yield is the kicker realised at harvest."
+    "uncalledYieldPct": null,
+    "uncalledYieldNote": "PARTIALLY ANSWERED, and the remaining gap is deliberate. Austin Read answered this on 2026-09-28 explicitly FOR ACFE: uncalled commitments earn ~6-7% annualised off the fund's subscription line, ending when that line matures at the end of June 2027. THIS FILE IS NOT ACFE. The Asilia GC Fund is the fund-of-funds that holds ACFE as one of three sleeves, with a 0.5/10 overlay on top. Whether a subscription-line benefit at the underlying fund reaches a feeder's investors, and at what rate after the overlay and the other two sleeves, was not asked and is not stated anywhere. So this stays at zero, which understates the position on purpose. The question for Asilia is narrow now: does the AGCF investor see any of ACFE's uncalled-capital earnings, and if so at what rate and until when? See asilia-credit-fund-evergreen.json for the answered version."
   },
-  "uncalledYieldPct": null,
-  "uncalledYieldNote": "PARTIALLY ANSWERED, and the remaining gap is deliberate. Austin Read answered this on 2026-09-28 explicitly FOR ACFE: uncalled commitments earn ~6-7% annualised off the fund's subscription line, ending when that line matures at the end of June 2027. THIS FILE IS NOT ACFE. The Asilia GC Fund is the fund-of-funds that holds ACFE as one of three sleeves, with a 0.5/10 overlay on top. Whether a subscription-line benefit at the underlying fund reaches a feeder's investors, and at what rate after the overlay and the other two sleeves, was not asked and is not stated anywhere. So this stays at zero, which understates the position on purpose. The question for Asilia is narrow now: does the AGCF investor see any of ACFE's uncalled-capital earnings, and if so at what rate and until when? See asilia-credit-fund-evergreen.json for the answered version."
- },
- "liquidity": {
-  "fromYear": 6,
-  "toYear": 8,
-  "source": "Equity kickers are realised in the 3-year harvest that follows the 5-year deployment. The quarterly cash distribution runs from year one and is counted separately"
- },
- "dealsInFund": null,
- "singleCompany": false,
- "structure": "A fund of funds across three sleeves: ACFE senior secured credit at 35%, Walnut mid-cap debt with equity participation at 35%, and Opportunistic equity-heavy deals at 30%. There is no trade sale at the end. The return is quarterly cash while you wait, then equity kickers realised as the portfolio winds down.",
- "notes": [
-  "ACFE is a SEPARATE vehicle as well as a sleeve inside this one. If you hold the standalone Asilia Credit Fund Evergreen, use that file instead: one conservative sleeve, evergreen, no fixed end date.",
-  "Administrator UMB Fund Administration, auditor Eide Bailly. Delaware LP with parallel accredited 3(c)(1) and qualified-purchaser 3(c)(7) vehicles.",
-  "The fund can generate UBTI, which matters in a self-directed IRA. Run the after-tax number.",
-  "No single investment above 40% without LPAC or majority approval."
- ],
- "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
- "asOf": "2026-09-25",
- "source": "April 2026 GC presentation, the GC refreshed analysis, Braiden's underwrite, and the 23 April 2026 Q&A notes. Read by a holder, not verified by GC. Asilia GC Fund investor Q&A, fee-stack and return-mix chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
- "variesByHolder": [
-  "mgmtFee",
-  "carry"
- ],
- "variesNote": "Your class is set by your commitment, and the tool now picks it for you: Class B under $400k at 1.3% and 30% carry, Class A at $400k and above at 1.2% and 20%. Note that fees are DISPLAYED but not modelled — the sponsor's multiple is already net — so a cheaper class means you keep more than the projection shows.",
- "tiers": {
-  "basis": "commitment",
-  "source": "Class B under $400k, Class A at $400k and above. Class A drops the fund-of-funds overlay.",
-  "bands": [
-   {
-    "min": 0,
-    "max": 400000,
-    "label": "Class B (under $400k)",
-    "terms": {
-     "mgmtFee": 0.013,
-     "carry": "30%"
+  "liquidity": {
+    "fromYear": 6,
+    "toYear": 8,
+    "source": "Equity kickers are realised in the 3-year harvest that follows the 5-year deployment. The quarterly cash distribution runs from year one and is counted separately"
+  },
+  "dealsInFund": null,
+  "singleCompany": false,
+  "structure": "A fund of funds across three sleeves: ACFE senior secured credit at 35%, Walnut mid-cap debt with equity participation at 35%, and Opportunistic equity-heavy deals at 30%. There is no trade sale at the end. The return is quarterly cash while you wait, then equity kickers realised as the portfolio winds down.",
+  "notes": [
+    "ACFE is a SEPARATE vehicle as well as a sleeve inside this one. If you hold the standalone Asilia Credit Fund Evergreen, use that file instead: one conservative sleeve, evergreen, no fixed end date.",
+    "Administrator UMB Fund Administration, auditor Eide Bailly. Delaware LP with parallel accredited 3(c)(1) and qualified-purchaser 3(c)(7) vehicles.",
+    "The fund can generate UBTI, which matters in a self-directed IRA. Run the after-tax number.",
+    "No single investment above 40% without LPAC or majority approval."
+  ],
+  "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
+  "asOf": "2026-09-25",
+  "source": "April 2026 GC presentation, the GC refreshed analysis, Braiden's underwrite, and the 23 April 2026 Q&A notes. Read by a holder, not verified by GC. Asilia GC Fund investor Q&A, fee-stack and return-mix chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
+  "variesByHolder": [
+    "mgmtFee",
+    "carry"
+  ],
+  "variesNote": "Your class is set by your commitment, and the tool now picks it for you: Class B under $400k at 1.3% and 30% carry, Class A at $400k and above at 1.2% and 20%. Note that fees are DISPLAYED but not modelled — the sponsor's multiple is already net — so a cheaper class means you keep more than the projection shows.",
+  "tiers": {
+    "basis": "commitment",
+    "source": "Class B under $400k, Class A at $400k and above. Class A drops the fund-of-funds overlay.",
+    "bands": [
+      {
+        "min": 0,
+        "max": 400000,
+        "label": "Class B (under $400k)",
+        "terms": {
+          "mgmtFee": 0.013,
+          "carry": "30%"
+        }
+      },
+      {
+        "min": 400000,
+        "label": "Class A ($400k and above)",
+        "terms": {
+          "mgmtFee": 0.012,
+          "carry": "20%"
+        }
+      }
+    ]
+  },
+  "uwScore": 89,
+  "scorecardDiscrepancy": "THE AMPLIFI SCORECARD AND THIS CARD DISAGREE, AND THE SCORECARD DOES NOT AGREE WITH ITSELF. It quotes \"~3.27x implied MOIC (net ROE/IRR 23.08%)\" against an 8-year base hold. Those three figures cannot all be true: 23.08% compounded for 8 years is 5.27x, and 3.27x over 8 years is a 15.96% return. 23.08% only reaches 3.27x in 5.7 years. This card carries 5.27x because that is the figure which reconciles with the stated rate and the stated hold, and because it was derived independently from the blended ROE chart in the 2026 offering. Worth raising with the sponsor: if 3.27x is right then the rate or the hold is wrong, and this is already the one position in the book resting on inference rather than offering papers.",
+  "sections": [
+    {
+      "title": "What it is",
+      "body": "A fund of funds across three sleeves: ACFE senior secured credit at 35%, Walnut mid-cap debt with equity participation at 35%, and Opportunistic equity-heavy deals at 30%. There is no trade sale at the end. The return is quarterly cash while you wait, then equity kickers realised as the portfolio winds down."
     }
-   },
-   {
-    "min": 400000,
-    "label": "Class A ($400k and above)",
-    "terms": {
-     "mgmtFee": 0.012,
-     "carry": "20%"
-    }
-   }
   ]
- },
- "uwScore": 89,
- "scorecardDiscrepancy": "THE AMPLIFI SCORECARD AND THIS CARD DISAGREE, AND THE SCORECARD DOES NOT AGREE WITH ITSELF. It quotes \"~3.27x implied MOIC (net ROE/IRR 23.08%)\" against an 8-year base hold. Those three figures cannot all be true: 23.08% compounded for 8 years is 5.27x, and 3.27x over 8 years is a 15.96% return. 23.08% only reaches 3.27x in 5.7 years. This card carries 5.27x because that is the figure which reconciles with the stated rate and the stated hold, and because it was derived independently from the blended ROE chart in the 2026 offering. Worth raising with the sponsor: if 3.27x is right then the rate or the hold is wrong, and this is already the one position in the book resting on inference rather than offering papers."
 }

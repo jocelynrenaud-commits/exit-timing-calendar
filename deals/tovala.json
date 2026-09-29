@@ -62,5 +62,23 @@
     "HOW LONG HAS IT ACTUALLY BEEN PROFITABLE? Three different answers in the same materials. David Rabie says profitable for the last two and a half years; Braiden says it crossed profitability about eighteen months ago; the memo shows adjusted EBITDA turning positive in FY24 and net income turning positive in FY25. They are probably all true of different lines, but nobody reconciled them on the call.",
     "WHICH REVENUE FIGURE IS THE RIGHT ONE? David says over $200M of ARR, the deal snapshot says $216M, and the memo says $181.8M actual for FY25 against a $216.2M FY26 budget. The memo's split is the one carried here; the $200M+ is a run-rate claim rather than a reported year."
   ],
-  "source": "Tovala pitch session and Spacestation underwrite Q&A (both viewed 2026-09-28), the GC deal snapshot, and the deal memo and final VC scorecard excerpts. Figures are as presented in those materials. No subscription agreement, tender document or audited financial has been read."
+  "source": "Tovala pitch session and Spacestation underwrite Q&A (both viewed 2026-09-28), the GC deal snapshot, and the deal memo and final VC scorecard excerpts. Figures are as presented in those materials. No subscription agreement, tender document or audited financial has been read.",
+  "sections": [
+    {
+      "title": "What it is",
+      "body": "A connected countertop oven paired with a weekly chef-prepared meal subscription. Meals arrive fresh and largely uncooked; the customer does light prep, scans a QR code, and the oven runs a cook cycle written for that specific meal — steam, bake, steam, bake, broil — then sends a push notification about 15-20 minutes later. It also cooks the customer's own food and more than 1,000 scannable grocery products, and gets used about 27 times a month, which is why it stays on the counter even when someone pauses their meals."
+    },
+    {
+      "title": "Who runs it",
+      "body": "Founded roughly ten years ago by David Rabie, with CFO Taryn and co-founder Peter both a decade in. Scott Braun joined as CMO about two months ago from SimpliSafe and Drizly, both exits, and is one of the few marketers with razor-and-blade experience."
+    },
+    {
+      "title": "The numbers",
+      "body": "FY25 revenue $181.8M against a budgeted $216.2M for FY26, up 18.9%. Adjusted EBITDA ran -$9.7M in FY23, +$5.9M in FY24 and +$7.3M in FY25, budgeted around $9.8M for FY26; net income turned positive at about $1.7M in FY25 after a $14M loss in FY23. Contribution profit is about $6.88 a meal at a 41.7% margin, LTV:CAC roughly 5.7x with payback inside four to six months, and a customer spends about $2,500 over 24 months against roughly $940 for the next-best subscription category. Just over $100M of equity has been raised in total and none since 2022."
+    },
+    {
+      "title": "What the thesis rests on: retention",
+      "body": "About 28% at one year, against roughly 10% for meal kits and 11% for Factor when HelloFresh bought it. That is closer to pet food than to meal subscription. It is structural rather than marketing — the oven creates friction that filters out tyre-kickers, and then sits on the counter as a permanent reminder, so a customer who churns off the meals keeps the appliance and comes back at the next life event."
+    }
+  ]
 }
