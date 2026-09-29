@@ -307,6 +307,22 @@
 
   /* Expected proceeds for one position, on the model's own outcome table. Kept here so
      the dashboard and the cards cannot compute it two different ways. */
+  /* The branch odds, in words, read from the engine so the prose cannot drift away from
+     the model it describes. */
+  function branchOdds(kind, terse) {
+    /* The tables hang straight off CFG as CFG.venture / CFG.income, not under a
+       `branches` key. Reading the wrong path returned [] and shipped a sentence with a
+       hole in it: "a single venture deal is ." */
+    const t = (Engine.CFG || {})[kind] || [];
+    if (!t.length) return '';
+    const acc = t.reduce((a, b) => a + b[0], 0);
+    const p = (v) => Math.round(v * 100) + '%';
+    if (terse) return t.map((b) => Math.round(b[0] * 100)).join('/') + '/' + Math.round((1 - acc) * 100);
+    const words = ['written off', 'back at cost', 'at ' + t[2][1].toFixed(2) + 'x'];
+    return t.map((b, i) => p(b[0]) + ' ' + (words[i] || ''))
+      .join(', ') + ' and ' + p(1 - acc) + ' at the sponsor case';
+  }
+
   function expectedOf(x) {
     let acc = 0, e = 0;
     for (const [p, v] of x.branches) { acc += p; e += p * (x.scales ? v * x.exitMult : v); }
@@ -341,24 +357,30 @@
     const expTotal = expExit + expPref;
     const sponsorWt = committed > 0 ? sum((x) => x.moic * x.commitment) / committed : 0;
 
-    let h = '<div class="card"><h2>Your book</h2>'
+    let h = '<div class="card"><h2>Your portfolio</h2>'
       + '<div class="kpi">'
       + kpi('Positions', b.length) + kpi('Committed', money(committed))
       + kpi('Funded', money(funded))
       + kpi('Still callable', money(uncalled), uncalled > 0 ? 'neg' : '')
       + kpi('Sponsor MOIC', mult(sponsorWt))
-      + kpi('Modelled', mult(committed > 0 ? expTotal / committed : 0), 'b')
+      + kpi('Modelled MOIC', mult(committed > 0 ? expTotal / committed : 0), 'b')
       + '</div>'
       /* This figure is NOT sampled. expectedOf walks each deal's four outcome branches and
          weights them exactly, so there is no path count to quote here -- the simulated
          figures live on Liquidity Outlook. Saying "the average of N futures" would have been
          a plain untruth about how this number is made. */
-      + '<p class="note" style="margin-top:12px"><b>Two multiples, on purpose.</b> The sponsor '
-      + 'figure is what these deals return <b>if they work</b>. The modelled one weighs all '
-      + 'four outcomes for each deal, from a total loss up to the sponsor case, by how '
-      + 'likely each one is. Plan against the modelled number. Of that total, '
-      + money(expPref) + ' is preferred return and ' + money(expExit) + ' depends '
-      + 'on a sale.</p></div>';
+      /* The odds below are read from CFG.branches rather than typed, because a number in
+         prose that quietly stops matching the model is worse than no number. NOTE it is not
+         "four outcomes for every deal": a fund holding 20+ deals gets a wider ladder, and
+         SpaceStation is the largest position in this book. */
+      + '<p class="note" style="margin-top:12px"><b>Two multiples, on purpose.</b> The '
+      + '<b>Sponsor MOIC</b> is what these deals return <b>if they work</b>. The '
+      + '<b>Modelled MOIC</b> weighs every outcome by how likely it is: a single venture deal '
+      + 'is ' + branchOdds('venture') + '. The income sleeves are far tighter at '
+      + branchOdds('income', true) + ', and a fund holding twenty or more deals gets its own '
+      + 'wider ladder. Plan against the modelled number. Of that total, '
+      + money(expPref) + ' comes from preferred return and ' + money(expExit)
+      + ' comes from exits.</p></div>';
 
     const byCls = {};
     b.forEach((x) => {
@@ -366,9 +388,9 @@
       byCls[c] = (byCls[c] || 0) + x.commitment;
     });
     const entries = Object.entries(byCls).sort((p, q) => q[1] - p[1]);
-    h += '<div class="card"><h2>Allocation</h2>'
-      + '<p class="note">On capital <b>committed</b>, not on current value. A private mark is '
-      + 'only ever as fresh as the last sponsor statement.</p>'
+    h += '<div class="card"><h2>Your allocation</h2>'
+      + '<p class="note">On capital <b>committed</b>, not on current value. A private deal is '
+      + 'only revalued when the sponsor sends a new statement.</p>'
       + '<div style="display:flex;height:30px;border-radius:6px;overflow:hidden;margin:14px 0 10px">'
       + entries.map(([c, v]) => '<div style="width:' + (v / committed * 100) + '%;background:'
           + clsColour(c) + ';display:flex;align-items:center;justify-content:center;color:#fff;'
@@ -747,15 +769,15 @@
     const series = [];
     if (vSt) series.push({ key: 'venture', label: 'Venture only', col: 'var(--vc)', raw: '#7B5EA7', st: vSt });
     if (iSt) series.push({ key: 'income', label: 'Income sleeves only', col: 'var(--inc)', raw: '#B17930', st: iSt });
-    if (aSt && series.length > 1) series.push({ key: 'all', label: 'Blended book', col: 'var(--all)', raw: '#2E6B52', st: aSt });
+    if (aSt && series.length > 1) series.push({ key: 'all', label: 'Blended portfolio', col: 'var(--all)', raw: '#2E6B52', st: aSt });
     if (!series.some((s) => s.key === DIST)) DIST = series[series.length - 1].key;
 
     let h = '';
 
     /* which book */
-    h += '<div class="card"><h2>Which book</h2>'
+    h += '<div class="card"><h2>Which sleeve</h2>'
       + '<div class="row">'
-      + btn('mode', 'all', 'Blended book') + btn('mode', 'venture', 'Venture only')
+      + btn('mode', 'all', 'Blended portfolio') + btn('mode', 'venture', 'Venture only')
       + btn('mode', 'income', 'Income sleeves only') + '</div>'
       + '<div class="kpi">'
       + kpi('Positions', book.length) + kpi('Committed', money(T.committed))
@@ -765,11 +787,11 @@
     /* distribution */
     if (series.length > 1) {
       const active = series.find((s) => s.key === DIST);
-      h += '<div class="card"><h2>Outcome range by book</h2>'
-        + '<p class="note">The same three books, side by side. Each bar runs from a bad run '
+      h += '<div class="card"><h2>Outcome range by sleeve</h2>'
+        + '<p class="note">The same three sleeves, side by side. Each bar runs from a bad run '
         + '(the 10th percentile of futures) to a good one (the 90th), with the typical run '
-        + 'marked. Measured as a multiple on the capital committed, so books of different '
-        + 'sizes can be read against each other.</p>'
+        + '(the median, or 50th percentile) marked. Measured as a multiple on the capital '
+        + 'committed, so sleeves of different sizes can be read against each other.</p>'
         + rangeChart(series) + rangeRead(series) + '</div>';
 
       h += '<div class="card"><h2>Outcome distribution</h2>'
@@ -781,7 +803,7 @@
         + series.map((s) => btn('dist', s.key, s.label)).join('') + '</div>'
         + distChart(series, DIST)
         + '<p class="note" style="margin-top:10px"><b>' + esc(active.label) + '</b> is in front, the others '
-        + 'stay as outlines so the comparison never leaves the screen. Median '
+        + 'stay as outlines to keep the comparison. Median '
         + mult(active.st.totals.p50 / active.st.totals.committed) + ' on '
         + money(active.st.totals.committed) + ' committed.</p></div>';
     }
@@ -986,7 +1008,7 @@
       const c = rows.reduce((a, b) => a + b.commitment, 0);
       return c > 0 ? rows.reduce((a, b) => a + b.hold * b.commitment, 0) / c : 0;
     };
-    h += '<table><thead><tr><th class="l">Book</th><th>Typical hold</th><th>Bad run</th>'
+    h += '<table><thead><tr><th class="l">Sleeve</th><th>Typical hold</th><th>Bad run</th>'
       + '<th>Typical</th><th>Good run</th></tr></thead><tbody>';
     const CLS = [['income', 'Income sleeves'], ['venture', 'Venture']];
     for (const [k, lbl] of CLS) {
@@ -1113,7 +1135,7 @@
   /* THE THREE BOOKS SIDE BY SIDE. One bar each, running from a bad run to a good one,
      with the typical marked. The distribution chart answers "what shape is this book";
      this answers "which book would I rather own", which is the question people actually
-     arrive with. Multiples rather than dollars, so three books of different sizes are
+     arrive with. Multiples rather than dollars, so three sleeves of different sizes are
      directly comparable. */
   function rangeChart(series) {
     if (!series || series.length < 2) return '';
@@ -1129,7 +1151,7 @@
     const X = (m) => L + iw * (m / maxX);
 
     let g = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" '
-      + 'role="img" aria-label="Bad run to good run, for each book, as a multiple on capital committed">';
+      + 'role="img" aria-label="Bad run to good run, for each sleeve, as a multiple on capital committed">';
 
     /* gridlines every half multiple */
     for (let m = 0.5; m <= maxX; m += 0.5) {
@@ -1176,7 +1198,7 @@
       const t = s.st.totals, c = t.committed || 1;
       by[s.key] = { lo: t.p10 / c, mid: t.p50 / c, hi: t.p90 / c, label: s.label };
     });
-    const v = by.venture, inc = by.income;
+    const v = by.venture, inc = by.income, all = by.all;
     if (!v || !inc) return '';
     const lines = [];
     if (inc.lo >= 1 && v.lo < 1) {
@@ -1193,6 +1215,24 @@
       lines.push('Venture wins in one place, the top tenth, at ' + v.hi.toFixed(2) + 'x against '
         + inc.hi.toFixed(2) + 'x.');
     }
+    /* The spread is the thing the three bars are really showing, and it is easy to look at
+       them and not register how differently wide they are. */
+    const vw = v.hi - v.lo, iw = inc.hi - inc.lo;
+    if (vw > iw * 1.3) {
+      lines.push('<b>Look at the widths.</b> Venture spans ' + vw.toFixed(2)
+        + 'x from its bad run to its good one; the income sleeves span ' + iw.toFixed(2)
+        + 'x. That gap IS the risk, and it is the thing you are paid for taking.');
+    }
+    /* What blending actually bought, stated in the two numbers that moved. */
+    if (all) {
+      lines.push('<b>Holding both is not the average of the two.</b> The blend gives up '
+        + (v.hi - all.hi).toFixed(2) + 'x at the top against venture alone, and buys '
+        + (all.lo - v.lo).toFixed(2) + 'x at the bottom. <b>The floor moves far more than '
+        + 'the ceiling does</b>, which is the whole case for owning both.');
+    }
+    lines.push('<span style="color:var(--muted)">One number is missing on purpose: <b>when</b>. '
+      + 'Two sleeves returning the same multiple are not the same investment if one pays in '
+      + 'five years and the other in ten. The ladder below shows that.</span>');
     return lines.length ? '<p class="note" style="margin-top:12px">' + lines.join('<br>') + '</p>' : '';
   }
 
@@ -1349,7 +1389,7 @@
       + '<span style="width:9px;height:9px;border-radius:50%;background:'
       + clsColour(d.assetClass) + ';flex:none"></span>'
       + '<b style="flex:1">' + esc(d.name) + '</b>'
-      + (held ? '<span style="font-size:11px;color:#2E6B52;font-weight:700">in your book</span>' : '')
+      + (held ? '<span style="font-size:11px;color:#2E6B52;font-weight:700">in your portfolio</span>' : '')
       + '<span style="font-size:11px;color:var(--muted)">' + esc(d.assetClass || '')
       + (d.vehicle ? ' \u00b7 ' + esc(d.vehicle) : '') + '</span>'
       + '<span style="color:var(--muted)">' + (open ? '\u2212' : '+') + '</span></div>';
@@ -1607,7 +1647,7 @@
     });
     const kx = L + 12, ky = T + 14;
     s += '<text x="' + kx + '" y="' + ky + '" font-size="9" font-weight="700" fill="#6B7A8C" '
-      + 'letter-spacing="0.5">TYPICAL RUN</text>';
+      + 'letter-spacing="0.5">TYPICAL RUN (MEDIAN)</text>';
     series.forEach((sr, k) => {
       const on = sr.key === active, t = sr.st.totals, yy = ky + 15 + k * 15;
       s += '<rect x="' + kx + '" y="' + (yy - 4) + '" width="10" height="3" rx="1.5" fill="'
@@ -1634,7 +1674,7 @@
 
   function glossary(T) {
     const G = [
-      ['Typical', 'The tool plays your book out 6,000 times. Line those futures up from worst to best '
+      ['Typical', 'The tool plays your portfolio out 6,000 times. Line those futures up from worst to best '
         + 'and this is the one in the middle. If a year shows $0, it means more than half the time nothing '
         + 'arrives that year at all. Use this rather than the average: one big winner pulls an average up '
         + 'above what most futures actually pay you, and you only get one future.'],

@@ -50,6 +50,10 @@
     {
       "title": "What it is",
       "body": "Turbo embeds home and auto insurance into real-estate and mortgage transactions, integrating by API with mortgage originators so a borrower is quoted at the point of the loan rather than shopping separately. Launched January 2022, licensed in all 50 states with 83 carriers on panel. The operating model is three tiers: AI and automation first, offshore teams for semi-manual work, in-house staff for high-value touches — with agentic AI qualifying prospects and warm-transferring hot leads, real-time call coaching, and an internal knowledge bot. The point of all of it is premium per producer, which has gone from $25k to roughly $70k and is targeted past $100k. It has since added commercial lines, which few brokerages of this size run alongside personal."
+    },
+    {
+      "title": "How this tool prices it",
+      "body": "A NOTE ON HOW THIS TOOL PRICES IT, because the fit is imperfect. Turbo is growth equity: a revenue-generating brokerage with $5M of ARR, 89-92% retention and a book that trades on a standardised 10-18x EBITDA multiple. The tool prices a single private deal on a venture power law that puts roughly 30% of outcomes at zero, which suits a pre-revenue SPV and overstates the downside badly here. The honest reading is that Turbo’s distribution is much tighter than the model draws — less chance of a total loss, and less chance of a 10x. There is no growth-equity branch table in the engine yet."
     }
   ]
 }
