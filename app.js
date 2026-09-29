@@ -809,7 +809,7 @@
     }
 
     /* the positions */
-    h += '<div class="card"><h2>The book, ' + book.length + ' positions</h2>'
+    h += '<div class="card"><h2>Your positions, ' + book.length + ' of them</h2>'
       + '<p class="note">Exit proceeds run off the <b>commitment</b>, not off what is funded so far, because '
       + 'the whole commitment is called long before any exit lands. Anything paying a preferred return exits on the '
       + '<b>residual</b> multiple: a sponsor MOIC already contains the preferred return, so exiting at the full multiple '
