@@ -314,6 +314,19 @@
       "sponsor": "Spacestation 88 / Spacestation Investments 1, LLC"
     },
     {
+      "slug": "tovala",
+      "name": "Tovala",
+      "aliases": [
+        "Tovala",
+        "Tovala Inc",
+        "Tovala Secondary",
+        "Tovala SPV"
+      ],
+      "assetClass": "VC",
+      "vehicle": "SPV",
+      "sponsor": "Spacestation Investments (SPV, lead) — Tovala"
+    },
+    {
       "slug": "turbo-insurance",
       "name": "Turbo Insurance",
       "aliases": [

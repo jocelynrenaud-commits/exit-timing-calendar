@@ -1,0 +1,66 @@
+{
+  "slug": "tovala",
+  "name": "Tovala",
+  "aliases": [
+    "Tovala",
+    "Tovala Inc",
+    "Tovala Secondary",
+    "Tovala SPV"
+  ],
+  "sponsor": "Spacestation Investments (SPV, lead) — Tovala",
+  "assetClass": "VC",
+  "vehicle": "SPV",
+  "subStrategy": "Connected hardware plus meal subscription",
+  "terms": {
+    "couponPct": null,
+    "holdYears": 4,
+    "holdNote": "Modelled at 4, which lands on 2030 — the LATE end of the memo's 2029-30 base window. Spacestation are explicit that this is not a ten-year venture hold: the company is profitable, past $200M of revenue, and its early funds are approaching the end of their ten-year cycles and need liquidity. David Rabie says an exit in the next few years and spends 10-20% of his time with bankers and strategics. There is no signed process and no date, so the hold is management intent plus category precedent, not a term sheet.",
+    "sponsorMoic": 2.9,
+    "sponsorMoicNote": "The LOW end of the memo's base case, paired with the LATE end of its exit window: base runs 2.9-3.7x gross on a 2029-30 exit at $339-397M of revenue and a 2.3-2.5x EV/revenue multiple. Both conservative corners are used because this figure feeds the model's WINNER branch, where a midpoint would flatter the whole book. For context, the memo's headline is ~2.9x MOIC at a 35% IRR; its deliberately bearish downside still returns capital at ~1.46-1.61x gross by 2029; the upside runs 4.4-8.3x. Net-of-fee ranges are lower: roughly 1.2-1.4x, 2.4-3.1x and 3.6-6.8x after SPV admin and carry.",
+    "minimum": 5000,
+    "minimumNote": "$5,000 minimum. Accredited investors only. Spacestation also sort investors into the qualified-purchaser bucket where they can, because the vehicle caps at 249 accredited against 2,000 qualified, which lets more members in rather than fewer.",
+    "mgmtFee": null,
+    "feeNote": "Standard Spacestation SPV terms; the memo's net MOIC ranges are already struck after SPV admin and carry. Confirm the exact schedule before doing any after-tax arithmetic, and note this deal carries no QSBS shelter to offset it.",
+    "instrument": "Secondary purchase of common stock",
+    "instrumentNote": "NOT A PRIMARY RAISE. Nothing goes onto Tovala's balance sheet — the company has not taken outside capital since 2022 and says it does not need any. This is a tender offer buying shares from employees, every one of whom holds equity, capped at 10% of each person's vested stock across roughly 400 people. David Rabie is selling a few points himself and only after his team. The tender must stay open 20 business days. Spacestation is the LEAD, so it holds first right of refusal and sets the terms everyone else follows.",
+    "valuation": 270000000,
+    "valuationNote": "About $270M on the common. The last priced round was Series C-1 at $1.217 a share, roughly $271M post, so this enters in line with a round struck in 2022 — when revenue was roughly a quarter of today's and the company was not profitable. Spacestation nearly invested at that price in 2022 and passed; they are buying the same number four years later against a materially stronger business.",
+    "entryMultipleNote": "About 1.5x FY25 revenue, or ~1.3x the FY26 budget. The comparable set's median is ~2.7x. Re-rating to that median on FY26 revenue alone would be roughly $580M, more than 2x the entry, before any credit for growth.",
+    "raiseAmount": 10000000,
+    "qsbsEligible": false,
+    "qsbsNote": "NOT QSBS-ELIGIBLE, confirmed directly in the Q&A. It is a secondary purchase of existing common stock and the company is past the asset test. Model the after-tax return without the shelter that several other GC deals carry."
+  },
+  "liquidity": null,
+  "dealsInFund": 1,
+  "singleCompany": true,
+  "uwScore": 88,
+  "uwScoreNote": "88 / 100. Component scores stated on the underwrite call: financial diligence 8.5, market and competition 8, product and technology 9, founders and team 9.5, with operations described as nearly 9.5. The remaining components were not read out individually, so the 88 is recorded as given rather than reconstructed. Braiden calls it one of the cleanest risk-adjusted returns he has seen in the category, and is explicit that it is the opposite of the Aerolane / Plan A / Rainmaker moonshots he usually gets excited about.",
+  "provisional": "Processed 2026-09-28 from the pitch session, the underwrite Q&A, the deal snapshot and the deal memo excerpts. No subscription agreement, tender document or audited financial has been read. NOTE ON THE TRANSCRIPTS: the speech-to-text renders “Tovala” as “Granola”, “Tabala” and “Tevala” throughout, and “Garden Cup” as “Guardian Cup”. Those are transcription errors, not names, and are deliberately NOT recorded as aliases.",
+  "structure": "A connected countertop oven paired with a weekly chef-prepared meal subscription. Meals arrive fresh and largely uncooked; the customer does light prep, scans a QR code, and the oven runs a cook cycle written for that specific meal — steam, bake, steam, bake, broil — then sends a push notification about 15-20 minutes later. It also cooks the customer's own food and more than 1,000 scannable grocery products, and gets used about 27 times a month, which is why it stays on the counter even when someone pauses their meals.\n\nFounded roughly ten years ago by David Rabie, with CFO Taryn and co-founder Peter both a decade in. Scott Braun joined as CMO about two months ago from SimpliSafe and Drizly, both exits, and is one of the few marketers with razor-and-blade experience.\n\nTHE NUMBERS. FY25 revenue $181.8M against a budgeted $216.2M for FY26, up 18.9%. Adjusted EBITDA ran -$9.7M in FY23, +$5.9M in FY24 and +$7.3M in FY25, budgeted around $9.8M for FY26; net income turned positive at about $1.7M in FY25 after a $14M loss in FY23. Contribution profit is about $6.88 a meal at a 41.7% margin, LTV:CAC roughly 5.7x with payback inside four to six months, and a customer spends about $2,500 over 24 months against roughly $940 for the next-best subscription category. Just over $100M of equity has been raised in total and none since 2022.\n\nTHE ONE NUMBER THE THESIS RESTS ON IS RETENTION: about 28% at one year, against roughly 10% for meal kits and 11% for Factor when HelloFresh bought it. That is closer to pet food than to meal subscription. It is structural rather than marketing — the oven creates friction that filters out tyre-kickers, and then sits on the counter as a permanent reminder, so a customer who churns off the meals keeps the appliance and comes back at the next life event.",
+  "keyRisks": [
+    "IT IS COMMON STOCK, BEHIND ABOUT $110.5M OF PREFERRED. The stack is standard 1x non-participating with no waterfall games, and the preferred is economically indifferent at roughly a $170M exit, converting to common above that — so every modelled exit clears it. For common to be impaired Tovala would have to sell below about 0.6x revenue, which is a Blue Apron outcome rather than a profitable-business outcome. Clean, but it is still the junior security.",
+    "NOT QSBS-ELIGIBLE, asked and answered directly. A secondary purchase of existing common in a company past the asset test. Several other GC deals carry the shelter and this one does not, which changes the after-tax arithmetic rather than the deal.",
+    "THERE ARE NO PATENTS AND MANAGEMENT SAY SO PLAINLY. The moat is running food manufacturing, connected hardware and software as one system with no friction at the customer endpoint — which nobody else has managed in ten years, and which a copycat would need roughly $100M and a lot of patience to attempt in a category where that capital is now hard to raise. It is an execution-and-time moat, not a legal one.",
+    "THE EXIT IS INTENT, NOT PROCESS. No signed mandate, no LOI, no date. What exists is a founder who spends 10-20% of his time with bankers and strategics, a board and early funds approaching the end of their ten-year cycles, and a stated threshold of $20-25M of EBITDA and within striking distance of 10% margins. Credible and specific; still unsigned.",
+    "THE CATEGORY'S EXIT COMPS ARE GENUINELY UGLY. Blue Apron went public at billions and was taken private at $150M, about 0.3x revenue. HelloFresh is a declining business with a compressing multiple. The bull case needs Tovala to be read as a hardware-and-data platform rather than as meal delivery, and the market has not yet had to make that call.",
+    "AWARENESS IS THE BOTTLENECK, BY MANAGEMENT'S OWN ACCOUNT, and the person hired to fix it started about two months ago. Scott Braun's record elsewhere is strong; his record here does not exist yet. Braiden marks the team down for exactly this and nothing else.",
+    "THE OVEN IS SOLD AT A LOSS — negative $8.2M of oven gross profit in FY25, roughly $145 of subsidy each. That is deliberate and it works because 96% of buyers attach to the subscription at a 44% meal margin. The whole structure depends on that attach rate holding as acquisition scales.",
+    "A TEN-YEAR-OLD COMPANY INSIDE A VENTURE VEHICLE, which is not what the wrapper usually implies. This is a late-stage, de-risked, profitable business bought at a discount, not an early bet — underwrite it as private equity, which is how Braiden describes doing it.",
+    "MANUFACTURING IS OVERSEAS. Dual-sourced across China and Thailand, which was arranged pre-emptively before tariffs landed and left them negotiating from strength rather than weakness. Still a single-region dependency on a policy variable.",
+    "DATA MONETISATION IS NOT IN THE BASE CASE and should not be read into it. The memo is disciplined about this: the deal works on the meal business alone. The data is a free call option, and one investor on the call flagged that this kind of capture might put some consumers off."
+  ],
+  "greenFlags": [
+    "ENTRY AT THE 2022 PRICE. Spacestation nearly invested at roughly this valuation four years ago and passed. Revenue was about a quarter of today's, the company was unprofitable, the team was smaller. Buying the same number against a materially stronger business is the whole shape of the deal.",
+    "PROFITABLE AND SELF-FUNDING. No primary capital since 2022, none needed, and management say they do not foresee needing any. In a category famous for setting cash on fire, this one stopped needing investors.",
+    "RETENTION THAT IS NOT IN THE SAME LEAGUE as the peer set: about 28% at one year against roughly 10% for meal kits, and at four years Tovala still sits where most services are at one.",
+    "THE SECONDARY IS STRUCTURED THE WAY IT SHOULD BE. Employees capped at 10% of vested stock so nobody loses their incentive, equity held by every employee down to the production floor, and the founder selling only after his team. Braiden calls it a case study in doing secondaries properly.",
+    "SPACESTATION IS THE LEAD, so it holds first right of refusal and sets the terms rather than piggybacking on someone else's. Its influencer network is also the strategic reason the price was available — the same trade Comcast made in 2020, equity for remnant TV inventory paid on a per-customer-acquired basis.",
+    "A CLEAN FOOD-SAFETY RECORD OVER TEN YEARS in a category where the largest companies have recalls, plus a capability no other food company has: they can disable a meal's QR code remotely after it ships, forcing an allergen acknowledgement before the oven will run. The FDA reportedly said they had never seen it.",
+    "TARIFF EXPOSURE WAS SOLVED BEFORE IT ARRIVED. Oven sourcing was dual-tracked into Thailand ahead of the tariffs, which left them negotiating between two suppliers instead of absorbing a shock."
+  ],
+  "openQuestions": [
+    "HOW LONG HAS IT ACTUALLY BEEN PROFITABLE? Three different answers in the same materials. David Rabie says profitable for the last two and a half years; Braiden says it crossed profitability about eighteen months ago; the memo shows adjusted EBITDA turning positive in FY24 and net income turning positive in FY25. They are probably all true of different lines, but nobody reconciled them on the call.",
+    "WHICH REVENUE FIGURE IS THE RIGHT ONE? David says over $200M of ARR, the deal snapshot says $216M, and the memo says $181.8M actual for FY25 against a $216.2M FY26 budget. The memo's split is the one carried here; the $200M+ is a run-rate claim rather than a reported year."
+  ],
+  "source": "Tovala pitch session and Spacestation underwrite Q&A (both viewed 2026-09-28), the GC deal snapshot, and the deal memo and final VC scorecard excerpts. Figures are as presented in those materials. No subscription agreement, tender document or audited financial has been read."
+}
