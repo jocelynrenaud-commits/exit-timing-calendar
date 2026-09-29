@@ -53,6 +53,17 @@
   .drop p{margin:0 0 14px;color:var(--muted);font-size:14px}
   .privacy{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:var(--green);
            background:#EDF6F1;border:1px solid #CBE4D7;border-radius:999px;padding:6px 14px;margin-top:14px}
+  /* Folded depth. The long explanations keep every word; they just stop being the first
+     thing you read. A summary is a heading you can act on, so it is styled like one. */
+  details.more{border-top:1px solid var(--rule);margin-top:10px}
+  details.more>summary{cursor:pointer;list-style:none;padding:10px 0;font-size:14px;
+    font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+  details.more>summary::-webkit-details-marker{display:none}
+  details.more>summary::before{content:'+';color:var(--muted);width:11px;text-align:center}
+  details.more[open]>summary::before{content:'\2212'}
+  details.more>summary:hover{color:var(--green)}
+  details.more>.note{margin-top:0}
+  details.more>.note:last-child{margin-bottom:14px}
   .glos{display:flex;gap:18px;margin-bottom:12px;align-items:flex-start}
   .glos .t{flex:0 0 190px;font-weight:700;font-size:14px}
   .glos .d{flex:1;color:var(--muted);font-size:14px;line-height:1.65}
@@ -138,7 +149,7 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
-      <span class="tag">v1.32 &nbsp;&middot;&nbsp; 29 Sep 2026</span>
+      <span class="tag">v1.33 &nbsp;&middot;&nbsp; 29 Sep 2026</span>
       <h4>It speaks in sleeves now</h4>
       <p>The app called your holdings a <i>book</i>, which is trading desk language nobody in
         Growth Circle actually uses. It now says <b>sleeve</b> and <b>portfolio</b> throughout:

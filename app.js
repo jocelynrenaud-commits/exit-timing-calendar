@@ -254,7 +254,7 @@
         + ' not in the shared deal files</b>, so '
         + (unk.length === 1 ? 'it is running' : 'they are running')
         + ' on what you typed and nothing else. That is fine, and it is normal \u2014 most '
-        + 'books hold things this tool has never been shown. It only matters if you expected '
+        + 'portfolios hold things this tool has never been shown. It only matters if you expected '
         + 'the terms to fill in themselves, in which case check the spelling against the '
         + 'deal list:<br>'
         + unk.map((u) => '&bull; ' + esc(u.name)
@@ -287,7 +287,8 @@
      Dashboard is what you hold now. Liquidity Outlook is when it comes back and how
      much. Background is the assumptions, so the other two can be argued with. */
   const TABS = [['dash', 'Private Deal Dashboard'], ['outlook', 'Liquidity Outlook'],
-                ['about', 'Background'], ['universe', 'Loaded GC Deals']];
+                ['perf', 'Performance & Returns'], ['about', 'Glossary & Background'],
+                ['universe', 'Loaded GC Deals']];
 
   function render() {
     if (!BOOK || !BOOK.length) return;
@@ -302,6 +303,7 @@
     if (TAB === 'dash') renderDashboard();
     else if (TAB === 'about') renderBackground();
     else if (TAB === 'universe') renderUniverse();
+    else if (TAB === 'perf') renderPerf();
     else renderOutlook();
   }
 
@@ -346,6 +348,87 @@
   /* ── DASHBOARD ────────────────────────────────────────────────────────────
      Reads the same book off the same engine as the Outlook tab, so the two cannot
      describe a deal differently. */
+  /* WHEN CONTRACTUAL MONEY MOVES. Money you are obliged to send against money the documents
+     promise you. Lives on Liquidity Outlook, because it is a timing question; it used to sit
+     on the dashboard next to the allocation pie, which answers a different one. */
+  /* EVERY POSITION AND WHAT THE MODEL MAKES OF IT. This is reference about what you hold,
+     so it belongs beside the allocation rather than buried among the timing charts. */
+  function panelPositions(book) {
+    let h = '';
+    h += '<div class="card"><h2>Your positions</h2>'
+      + '<p class="note">Every position, and what the model makes of it. Exit proceeds run off the '
+      + '<b>commitment</b>, not off what you have funded, because the whole commitment is called long '
+      + 'before an exit lands. A deal paying a preferred return exits on the <b>residual</b> multiple, '
+      + 'because a sponsor MOIC already contains that income and counting both would count it twice.</p>'
+      + '<p class="note">A <b>fund</b> pays out across its sell-down window rather than on one date. '
+      + 'Anything paying a preferred return is treated as a fund unless you put 1 in the deals column, '
+      + 'and a venture fund holding ' + Engine.CFG.fundMinDeals + '+ deals is priced as a portfolio '
+      + 'rather than as one company.</p>'
+      + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
+      + '<th>Uncalled</th><th>Preferred return</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
+      + book.slice().sort((p, q) => p.name.localeCompare(q.name, 'en', { sensitivity: 'base' }))
+        .map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
+        + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
+        + (b.kind === 'venture' ? 'Venture' : esc(b.cls)) + '</td>'
+        + '<td class="' + (b.isFund ? 'b' : 'z') + '">' + (b.isFund ? (b.deals > 1 ? b.deals : 'fund') : '1') + '</td>'
+        + '<td>' + money(b.commitment) + '</td>'
+        + '<td class="' + (b.uncalled > 0 ? 'neg' : 'z') + '">' + (b.uncalled > 0 ? money(b.uncalled) : DASH) + '</td>'
+        + '<td class="' + (b.coupon ? 'pos' : 'z') + '">' + (b.coupon ? (b.coupon * 100).toFixed(1) + '%' : DASH) + '</td>'
+        + '<td>' + mult(b.moic) + '</td>'
+        + '<td class="b">' + mult(b.exitMult) + '</td>'
+        + '<td>' + (b.spread
+            ? (b.likely + b.spread[0][0]) + '-' + (b.likely + b.spread[b.spread.length - 1][0])
+            : b.likely) + '</td></tr>').join('')
+      + '</table></div>';
+
+    return h;
+  }
+
+  function panelCalls(b) {
+    let h = '';
+    const yrs = [];
+    for (let y = Engine.CFG.yearFrom; y <= Engine.CFG.yearFrom + 9; y++) yrs.push(y);
+    const calls = {}, prefs = {};
+    yrs.forEach((y) => { calls[y] = 0; prefs[y] = 0; });
+    b.forEach((x) => {
+      if (x.uncalled > 0) {
+        for (let i = 0; i < Engine.CFG.callYears; i++) {
+          const y = x.fy + 1 + i;
+          if (calls[y] != null) calls[y] += x.uncalled / Engine.CFG.callYears;
+        }
+      }
+      if (x.coupon > 0) {
+        for (let i = 1; i <= x.hold; i++) {
+          const y = x.fy + i;
+          if (prefs[y] != null) prefs[y] += Engine.prefInYear(x, i);
+        }
+      }
+    });
+    const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
+    h += '<div class="card"><h2>Capital calls vs. preferred income</h2>'
+      + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
+      + 'money the documents promise you. Exits are left out on purpose \u2014 an exit is a hope, '
+      + 'a preferred return is a promise. Exits are on Performance &amp; Returns.</p>'
+      + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
+      + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
+      + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
+          const net = prefs[y] - calls[y];
+          return '<tr><td class="l b">' + y + '</td>'
+            + '<td class="' + (calls[y] ? 'neg' : 'z') + '">' + (calls[y] ? '-' + money(calls[y]) : DASH) + '</td>'
+            + '<td class="' + (prefs[y] ? 'pos' : 'z') + '">' + (prefs[y] ? money(prefs[y]) : DASH) + '</td>'
+            + '<td class="' + (net < 0 ? 'neg' : 'pos') + '">' + money(net) + '</td>'
+            + '<td class="l"><div style="display:flex;align-items:center;gap:3px">'
+            + '<div style="flex:1;display:flex;justify-content:flex-end"><div style="height:11px;width:'
+            + (calls[y] / peak * 100) + '%;background:var(--red);border-radius:2px 0 0 2px"></div></div>'
+            + '<div style="flex:1"><div style="height:11px;width:' + (prefs[y] / peak * 100)
+            + '%;background:var(--green);border-radius:0 2px 2px 0"></div></div>'
+            + '</div></td></tr>';
+        }).join('')
+      + '</table></div>';
+
+    return h;
+  }
+
   function renderDashboard() {
     const b = BOOK;
     const sum = (f) => b.reduce((a, x) => a + f(x), 0);
@@ -403,45 +486,7 @@
           + '</b></span>').join('')
       + '</div></div>';
 
-    const yrs = [];
-    for (let y = Engine.CFG.yearFrom; y <= Engine.CFG.yearFrom + 9; y++) yrs.push(y);
-    const calls = {}, prefs = {};
-    yrs.forEach((y) => { calls[y] = 0; prefs[y] = 0; });
-    b.forEach((x) => {
-      if (x.uncalled > 0) {
-        for (let i = 0; i < Engine.CFG.callYears; i++) {
-          const y = x.fy + 1 + i;
-          if (calls[y] != null) calls[y] += x.uncalled / Engine.CFG.callYears;
-        }
-      }
-      if (x.coupon > 0) {
-        for (let i = 1; i <= x.hold; i++) {
-          const y = x.fy + i;
-          if (prefs[y] != null) prefs[y] += Engine.prefInYear(x, i);
-        }
-      }
-    });
-    const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
-    h += '<div class="card"><h2>Capital calls vs. preferred income</h2>'
-      + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
-      + 'money the documents promise you. Exits are not here on purpose: an exit is a hope and a '
-      + 'preferred return is a promise. Exits live on the Liquidity Outlook tab.</p>'
-      + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
-      + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
-      + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
-          const net = prefs[y] - calls[y];
-          return '<tr><td class="l b">' + y + '</td>'
-            + '<td class="' + (calls[y] ? 'neg' : 'z') + '">' + (calls[y] ? '-' + money(calls[y]) : DASH) + '</td>'
-            + '<td class="' + (prefs[y] ? 'pos' : 'z') + '">' + (prefs[y] ? money(prefs[y]) : DASH) + '</td>'
-            + '<td class="' + (net < 0 ? 'neg' : 'pos') + '">' + money(net) + '</td>'
-            + '<td class="l"><div style="display:flex;align-items:center;gap:3px">'
-            + '<div style="flex:1;display:flex;justify-content:flex-end"><div style="height:11px;width:'
-            + (calls[y] / peak * 100) + '%;background:var(--red);border-radius:2px 0 0 2px"></div></div>'
-            + '<div style="flex:1"><div style="height:11px;width:' + (prefs[y] / peak * 100)
-            + '%;background:var(--green);border-radius:0 2px 2px 0"></div></div>'
-            + '</div></td></tr>';
-        }).join('')
-      + '</table></div>';
+    h += panelPositions(b);
 
     h += '<div class="card"><h2>Your deals</h2>'
       /* Alphabetical. The book arrives in spreadsheet-row order, which is whatever order the
@@ -655,7 +700,7 @@
     const rules = [
       ['Commitment, not funded', 'Exit proceeds run off the full commitment, because the whole '
         + 'commitment is called long before any exit lands. Using funded-to-date understated '
-        + 'one real book by 48%.'],
+        + 'one real portfolio by 48%.'],
       ['A preferred return is already inside the multiple', 'A sponsor MOIC is total distributions over '
         + 'invested capital, so a preferred return paid along the way is part of it. Showing the '
         + 'preferred return separately AND exiting at the full multiple counts that cash twice.'],
@@ -664,19 +709,26 @@
         + 'table and sells down over a window.'],
       ['The year-by-year column does not add up', 'Each year there is ranked on its own, so a '
         + 'good 2030 and a good 2034 come from different futures. Adding them builds a future '
-        + 'nobody had, and on a real book that overstated the total by 69%. The by-the-end-of-year '
+        + 'nobody had, and on a real portfolio that overstated the total by 69%. The by-the-end-of-year '
         + 'table is the one you can read down.'],
       ['Contractual and speculative never sum', 'A preferred return is promised; an exit is hoped for. They '
         + 'appear on different panels and never inside the same total.'],
     ];
     $('#tabbody').innerHTML = '<div class="card"><h2>What this does</h2>'
-      + '<p class="note">Two questions about a private book, answered separately because they are '
-      + 'different questions. <b>What do I hold?</b> is the dashboard, and it is mostly '
-      + 'bookkeeping. <b>When does it come back, and how much?</b> is the outlook, and it is a '
-      + 'projection with real uncertainty in it.</p>'
-      + '<p class="note">Everything runs in your browser. Your tracker is read in the page and '
-      + 'never uploaded. There is no account and no analytics. Once the page has loaded you can '
-      + 'turn off your wifi and it still works.</p></div>'
+      + '<p class="note">You type what you committed to; this works out when the money might '
+      + 'come back, and how much. Three tabs, three questions:</p>'
+      + '<div class="glos"><div class="t">Private Deal Dashboard</div><div class="d">'
+      + '<b>What do I hold?</b> Totals, the mix, every position and a card per deal. Mostly '
+      + 'bookkeeping \u2014 these are facts you typed.</div></div>'
+      + '<div class="glos"><div class="t">Liquidity Outlook</div><div class="d">'
+      + '<b>When does the money move?</b> Calls going out, income coming in, and the year each '
+      + 'position is due. This is a projection, not a schedule.</div></div>'
+      + '<div class="glos"><div class="t">Performance &amp; Returns</div><div class="d">'
+      + '<b>How much comes back?</b> The range of outcomes and what they work out to as a '
+      + 'return. The widest numbers in the app, and the least certain.</div></div>'
+      + '<p class="note" style="margin-top:14px">Everything runs in your browser. Your tracker is '
+      + 'read in the page and never uploaded. No account, no analytics. Once the page has loaded '
+      + 'you can turn off your wifi and it still works.</p></div>'
       + '<div class="card"><h2>The numbers this tool invents, and why</h2>'
       + '<p class="note">Your commitment, your funding date and the sponsor\u2019s terms come '
       + 'from you and from the shared deal files. Everything below is the tool\u2019s own '
@@ -723,8 +775,8 @@
       + 'tool\u2019s convention rather than passed off as anybody\u2019s projection.</div></div>'
 
       + '<div class="glos"><div class="t">What it runs on</div><div class="d">'
-      + '<b>6,000 simulated futures</b>, with a fixed starting seed, so the same book always '
-      + 'produces the same answer. If a number moves, something moved it.</div></div>'
+      + '<b>6,000 simulated futures</b>, from a fixed starting seed, so the same portfolio '
+      + 'always produces the same answer. If a number moves, something moved it.</div></div>'
       + '</div>'
 
       + '<div class="card"><h2>The rules it enforces</h2>'
@@ -754,13 +806,17 @@
       + 'class&rsquo;s base case and type that multiple into your tracker, because what you type '
       + 'wins.</p>'
       + '<p class="note">Not advice. The outcome probabilities are assumptions and are meant to '
-      + 'be argued with.</p></div>';
+      + 'be argued with.</p></div>'
+      /* "Reading these tables" explains the percentile tables on the other two tabs. It used
+         to sit at the foot of a ten-panel scroll, which is the least likely place a confused
+         reader would look. */
+      + glossary(null);
   }
 
-  function renderOutlook() {
+  function outlookPanels() {
     const book = subset(MODE);
     const st = Engine.simulate(book, { paths: 6000, irr: true });
-    if (!st) { $('#out').innerHTML = '<div class="card">No positions in this view.</div>'; return; }
+    if (!st) { $('#tabbody').innerHTML = '<div class="card">No positions in this view.</div>'; return null; }
     const T = st.totals;
 
     const vSt = Engine.simulate(subset('venture'), { paths: 3000 });
@@ -772,10 +828,9 @@
     if (aSt && series.length > 1) series.push({ key: 'all', label: 'Blended portfolio', col: 'var(--all)', raw: '#2E6B52', st: aSt });
     if (!series.some((s) => s.key === DIST)) DIST = series[series.length - 1].key;
 
-    let h = '';
+    const P = {};
 
-    /* which book */
-    h += '<div class="card"><h2>Which sleeve</h2>'
+    P.filter = '<div class="card"><h2>Which sleeve</h2>'
       + '<div class="row">'
       + btn('mode', 'all', 'Blended portfolio') + btn('mode', 'venture', 'Venture only')
       + btn('mode', 'income', 'Income sleeves only') + '</div>'
@@ -787,18 +842,17 @@
     /* distribution */
     if (series.length > 1) {
       const active = series.find((s) => s.key === DIST);
-      h += '<div class="card"><h2>Outcome range by sleeve</h2>'
+      P.range = '<div class="card"><h2>Outcome range by sleeve</h2>'
         + '<p class="note">The same three sleeves, side by side. Each bar runs from a bad run '
-        + '(the 10th percentile of futures) to a good one (the 90th), with the typical run '
-        + '(the median, or 50th percentile) marked. Measured as a multiple on the capital '
-        + 'committed, so sleeves of different sizes can be read against each other.</p>'
+        + '(the 10th percentile) to a good one (the 90th), with the typical run \u2014 the '
+        + 'median \u2014 marked. Measured as a multiple on committed capital, so sleeves of '
+        + 'different sizes compare directly.</p>'
         + rangeChart(series) + rangeRead(series) + '</div>';
 
-      h += '<div class="card"><h2>Outcome distribution</h2>'
-        + '<p class="note">Where 3,000 simulated futures landed, measured as a multiple on the capital '
-        + 'committed. The three percentile figures above are three points on this curve; this is the '
-        + 'full shape. Anything above ' + series[0].st.histMax.toFixed(1) + 'x is gathered into the '
-        + 'last bar.</p>'
+      P.dist = '<div class="card"><h2>Outcome distribution</h2>'
+        + '<p class="note">Where 3,000 simulated futures landed, as a multiple on what you committed. '
+        + 'The percentiles above are three points on this curve; this is the whole shape. Anything '
+        + 'above ' + series[0].st.histMax.toFixed(1) + 'x sits in the last bar.</p>'
         + '<div class="row" style="margin-top:12px">'
         + series.map((s) => btn('dist', s.key, s.label)).join('') + '</div>'
         + distChart(series, DIST)
@@ -809,40 +863,14 @@
     }
 
     /* the positions */
-    h += '<div class="card"><h2>Your positions, ' + book.length + ' of them</h2>'
-      + '<p class="note">Exit proceeds run off the <b>commitment</b>, not off what is funded so far, because '
-      + 'the whole commitment is called long before any exit lands. Anything paying a preferred return exits on the '
-      + '<b>residual</b> multiple: a sponsor MOIC already contains the preferred return, so exiting at the full multiple '
-      + 'while also counting the preferred return would count that cash twice. A <b>fund</b> does not exit on a '
-      + 'single date, so its proceeds are spread over its sell-down window rather than dropped into one '
-      + 'year. Anything paying a preferred return is assumed to be a fund unless you put 1 in the deals column to '
-      + 'say it is a single company. A venture fund holding ' + Engine.CFG.fundMinDeals + '+ deals also '
-      + 'stops being priced like a single company.</p>'
-      + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
-      + '<th>Uncalled</th><th>Preferred return</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
-      + book.slice().sort((p, q) => p.name.localeCompare(q.name, 'en', { sensitivity: 'base' }))
-        .map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
-        + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
-        + (b.kind === 'venture' ? 'Venture' : esc(b.cls)) + '</td>'
-        + '<td class="' + (b.isFund ? 'b' : 'z') + '">' + (b.isFund ? (b.deals > 1 ? b.deals : 'fund') : '1') + '</td>'
-        + '<td>' + money(b.commitment) + '</td>'
-        + '<td class="' + (b.uncalled > 0 ? 'neg' : 'z') + '">' + (b.uncalled > 0 ? money(b.uncalled) : DASH) + '</td>'
-        + '<td class="' + (b.coupon ? 'pos' : 'z') + '">' + (b.coupon ? (b.coupon * 100).toFixed(1) + '%' : DASH) + '</td>'
-        + '<td>' + mult(b.moic) + '</td>'
-        + '<td class="b">' + mult(b.exitMult) + '</td>'
-        + '<td>' + (b.spread
-            ? (b.likely + b.spread[0][0]) + '-' + (b.likely + b.spread[b.spread.length - 1][0])
-            : b.likely) + '</td></tr>').join('')
-      + '</table></div>';
-
     /* year by year */
     const yrRows = st.byYear.filter((r) => r.p90 > 0 || r.calls > 0 || r.coupon > 0);
-    h += '<div class="card"><h2>Cash flow by year</h2>'
-      + '<p class="note">Each year is ranked on its own across the simulated futures, so the future sitting in '
-      + 'the middle in one year is a <b>different</b> future from the middle one in another. '
+    P.cash = '<div class="card"><h2>Cash flow by year</h2>'
+      + '<p class="note">What lands in each year. Each year is ranked on its own, so the middle future '
+      + 'in one year is a <b>different</b> future from the middle in the next. '
       + '<span class="warn">This table cannot be added down.</span> Stacking the good-run column gives '
-      + money(T.stackedP90) + ' against a real lifetime figure of ' + money(T.p90) + '. Use it to find the thin '
-      + 'years, then use the next panel to plan.</p>'
+      + money(T.stackedP90) + ' against a real lifetime figure of ' + money(T.p90) + '. Use it to spot the '
+      + 'thin years; use the next panel to plan.</p>'
       + '<table><tr><th class="l">Year</th><th>Preferred return</th><th>Capital calls</th>'
       + '<th>Typical year (median)</th><th>Odds of any cash</th><th>Good run (90th pct)</th></tr>'
       + yrRows.map((r) => '<tr><td class="l b">' + r.year + '</td>'
@@ -855,11 +883,11 @@
     /* cumulative */
     const cumRows = st.cum.filter((r) => r.p90 > 0);
     const lastY = cumRows.length ? cumRows[cumRows.length - 1].year : null;
-    h += '<div class="card"><h2>Cumulative cash received</h2>'
-      + '<p class="note">Take one simulated future and add up every dollar it produced up to that year. Do that '
-      + 'for all of them, then sort. <b>This is the one to plan against</b>, because every figure is a real total '
-      + 'a real future actually reached, so it is safe to read down. Subtracting one row from another is a rough '
-      + 'guide rather than an exact figure, since a different future can sit in the middle in each year. '
+    P.cum = '<div class="card"><h2>Cumulative cash received</h2>'
+      + '<p class="note">The same money, added up as it arrives. Every figure is a real total that a real '
+      + 'future reached, so <b>this one is safe to read down</b> and is the panel to plan against. '
+      + 'Subtracting one row from another is a rough guide rather than exact, because a different future '
+      + 'can sit in the middle each year. '
       + (st.ties
           ? '<b class="pos">The last row ties exactly to the totals below</b>, which is the check that both '
             + 'panels came from one model.'
@@ -871,6 +899,17 @@
         + '<td>' + money(r.p10) + '</td><td class="b">' + money(r.p50) + '</td>'
         + '<td class="pos">' + money(r.p90) + '</td></tr>').join('')
       + '</table></div>';
+
+    P.ladder = '<div class="card"><h2>Maturity and liquidity ladder</h2>'
+      + '<p class="note">What matures when. One row per position, one block per year it pays, '
+      + 'darker where more of that position lands. A deal bought once is a single block; '
+      + '<b>a fund that sells down appears in every year of its window</b>. The gold line is the '
+      + 'preferred return, which arrives on a schedule rather than on an exit. Hover any block '
+      + 'for the share and the amount.</p>'
+      + '<p class="note"><b>This one is not a range.</b> It is the schedule the deals\u2019 own '
+      + 'terms imply, so it says when a position is due \u2014 not how likely it is to pay.</p>'
+      + ladderChart(book) + '</div>';
+
 
     /* the same rows, as a shape */
     if (cumRows.length > 1) {
@@ -886,27 +925,14 @@
       const edges = beGood
         ? ', a good run in ' + beGood + (beBad ? ' and a bad one in ' + beBad : ' and a bad run not at all')
         : '';
-    h += '<div class="card"><h2>Maturity and liquidity ladder</h2>'
-      + '<p class="note">What matures when. Each row is a position and each block is a year '
-      + 'it pays, shaded darker where a bigger share of that position lands. A deal bought '
-      + 'once is a single block; <b>a fund that sells down over several years appears in each '
-      + 'of them</b>, which is the thing the tables above cannot show you. The thin gold line '
-      + 'under a row is its preferred return, which arrives on a schedule rather than on an '
-      + 'exit. Hover any block for the share and the rough amount.</p>'
-      + '<p class="note">This one is <b>not</b> a range. Everything else on this tab ranks '
-      + 'thousands of futures; this is the schedule the deals\u2019 own terms imply, so it '
-      + 'answers when a position is due rather than how likely it is to pay.</p>'
-      + ladderChart(book) + '</div>';
-
-      h += '<div class="card"><h2>The cone of outcomes</h2>'
-        + '<p class="note">The table above, drawn. The shaded band runs from a bad future to a good '
-        + 'one, with the typical future as the line through it. The band widens over time because '
-        + 'less is settled in the early years. The dashed line marks the return of your capital.</p>'
+      P.cone = '<div class="card"><h2>The cone of outcomes</h2>'
+        + '<p class="note">The cumulative table, drawn. The band runs from a bad future to a good one '
+        + 'with the typical future through it, and widens over time because less is settled early. '
+        + 'The dashed line is your capital back.</p>'
         + coneChart(cumRows, T.committed, raw)
-        + '<p class="note" style="margin-top:10px">' + says + edges + '. Read the band as a range of '
-        + 'whole futures rather than a range for that year on its own: each simulated future was '
-        + 'totalled first and the totals ranked once, so the bottom edge is one coherent bad run '
-        + 'rather than a bad year stitched to a bad year.</p></div>';
+        + '<p class="note" style="margin-top:10px">' + says + edges + '. <b>Each future was totalled '
+        + 'before ranking</b>, so the bottom edge is one coherent bad run rather than a bad year '
+        + 'stitched to a bad year.</p></div>';
     }
 
     /* lifetime */
@@ -917,19 +943,18 @@
         + '<td class="' + (profit < 0 ? 'neg' : (bold ? 'b' : '')) + '">' + money(profit) + '</td>'
         + '<td class="' + (bold ? 'b' : '') + '">' + mult(v / T.committed) + '</td></tr>';
     };
-    h += '<div class="card"><h2>Lifetime returns</h2>'
+    P.life = '<div class="card"><h2>Lifetime returns</h2>'
       + '<p class="note">Profit is measured against the <b>full ' + money(T.committed) + ' committed</b>, not '
       + 'against the uncalled balance. Netting only what is left to fund ignores the ' + money(T.funded)
-      + ' already in, and makes a thin result look healthy. <b>Read the median, not the average.</b> One '
-      + 'outsized winner drags the average above what most futures deliver, so the average describes a book you '
-      + 'do not own. You get one draw.'
+      + ' already in and makes a thin result look healthy. <b>Read the median, not the average.</b> One '
+      + 'outsized winner pulls the average above what most futures deliver, and you only get one draw.'
       + (T.coupon > 0 ? ' <b>' + money(T.coupon) + ' of the Typical row is preferred return</b> '
         + '\u2014 rent-like payments your sponsors are contracted to make while you wait, rather '
         + 'than money from selling anything. Your documents promise '
         + money(T.couponScheduled) + ' of it. <b>The tool does not assume all of that arrives.</b> '
         + 'A sponsor who is not earning can suspend a preferred return, and the fund most likely '
         + 'to suspend one is the fund that also hands back less than plan \u2014 so the two move '
-        + 'together here rather than independently. In a bad run this book collects '
+        + 'together here rather than independently. In a bad run this portfolio collects '
         + money(T.couponP10) + '.' : '')
       + '</p>'
       + '<table><tr><th class="l">Scenario</th><th>Total received</th><th>Profit</th><th>Multiple</th></tr>'
@@ -941,10 +966,28 @@
 
     /* The rate panel sits AFTER the lifetime table now. A reader wants the dollars first
        and the rate as the follow-up question, not the other way round. */
-    h += irrCard(st, book);
+    P.rate = irrCard(st, book);
 
-    h += glossary(T);
-    $('#tabbody').innerHTML = h;
+    P.calls = panelCalls(book);
+    return P;
+  }
+
+  /* TWO TABS, ONE FILTER. The sleeve selection drives every figure on both, so it is rendered
+     at the top of each and kept in MODE, which survives the tab switch. A filter that silently
+     reset when you moved tabs would be worse than no filter. */
+  function renderOutlook() {
+    const P = outlookPanels();
+    if (!P) return;
+    $('#tabbody').innerHTML = (P.filter || '') + (P.calls || '') + (P.cash || '')
+      + (P.cum || '') + (P.ladder || '') + (P.cone || '');
+    wire();
+  }
+
+  function renderPerf() {
+    const P = outlookPanels();
+    if (!P) return;
+    $('#tabbody').innerHTML = (P.filter || '') + (P.range || '') + (P.dist || '')
+      + (P.life || '') + (P.rate || '');
     wire();
   }
 
@@ -998,7 +1041,7 @@
       + 'theirs includes what a position is currently carried at. Neither is wrong; they are '
       + 'answering different questions. <b>And a portfolio IRR is not the average of its '
       + 'deals\u2019.</b> IRR is not additive. Every figure below pools the underlying cash '
-      + 'flows and solves once, which is why the book\u2019s number can sit well above the '
+      + 'flows and solves once, which is why the portfolio\u2019s number can sit well above the '
       + 'typical deal inside it.</p>';
 
     /* Commitment-weighted, because a $250,000 ten-year position says more about how long
@@ -1017,7 +1060,7 @@
           + '<td>' + avgHold(k).toFixed(1) + ' yrs</td>' + band(R.byClass[k]) + '</tr>';
       }
     }
-    h += '<tr><td class="l b">Whole book</td><td class="b">' + avgHold(null).toFixed(1)
+    h += '<tr><td class="l b">Whole portfolio</td><td class="b">' + avgHold(null).toFixed(1)
       + ' yrs</td>' + band(R.portfolio) + '</tr>';
     h += '</tbody></table>';
 
@@ -1029,7 +1072,7 @@
       const med = solo.map((d) => d.p50).sort((a, b) => a - b)[Math.floor(solo.length / 2)];
       if (R.byClass.venture.p50 > med + 0.02) {
         h += '<p class="note"><b>Compare the two venture rows.</b> Taken one at a time, the '
-          + 'typical single venture deal in this book returns ' + rate(med) + '. Held together as '
+          + 'typical single venture deal in this portfolio returns ' + rate(med) + '. Held together as '
           + 'a sleeve of ' + solo.length + ', the typical outcome is '
           + rate(R.byClass.venture.p50) + '. The deals are identical in both cases; only the '
           + 'number of them differs.</p>';
@@ -1043,7 +1086,8 @@
     /* The first question anyone asks of this table, and it deserves a straight answer rather
        than being left to look like an error. Three causes, and only the third is arguable. */
     if (R.byClass.income && R.byClass.venture) {
-      h += '<p class="note"><b>Why the income sleeves come out ahead of venture here, and why '
+      h += '<details class="more"><summary>Why income sleeves beat venture on a rate</summary>'
+        + '<p class="note"><b>Why the income sleeves come out ahead of venture here, and why '
         + 'that is not a mistake.</b> Three separate reasons:<br>'
         + '<b>1. Money back sooner is worth more, and a yearly rate is built to say so.</b> Two '
         + 'deals that both return 2.26x over the same seven years score 16.8% and 12.4% if one '
@@ -1060,16 +1104,17 @@
         + 'even impaired it is a firmer claim than an exit multiple.<br>'
         + 'The honest summary: venture is where the big outcomes live, and you can see that in '
         + 'the Good run column of the by-deal table. It is a worse place to look for a '
-        + '<i>rate</i>, because a rate punishes waiting.</p>';
+        + '<i>rate</i>, because a rate punishes waiting.</p></details>';
 
       /* The follow-up question, which is a good one: is venture only behind because it is
          held longer? Partly. The Typical hold column is there so the reader can see the
          gap, and this says how much of the difference it accounts for. */
-      h += '<p class="note"><b>Is venture only behind because it is held longer?</b> Partly, '
+      h += '<details class="more"><summary>Is venture only behind because it is held longer?</summary>'
+        + '<p class="note"><b>Is venture only behind because it is held longer?</b> Partly, '
         + 'and the Typical hold column above is there so you can see the gap. <b>A yearly rate '
         + 'already divides by the years</b> \u2014 that is what makes a four-year deal and a '
         + 'ten-year deal comparable at all \u2014 so there is nothing further to adjust for. '
-        + 'But dividing by more years is a real hurdle. On this book, holding the venture '
+        + 'But dividing by more years is a real hurdle. In this portfolio, holding the venture '
         + 'positions for five years instead of their actual 8 to 10 would lift the sleeve from '
         + '7.2% to 13.8% a year, and its good run from 15% to 45%. So <b>most of the good-run '
         + 'gap is the waiting</b>, and venture would win that column outright on equal terms.<br>'
@@ -1079,11 +1124,12 @@
         + '1.0x is 0% a year whether it takes four years or twenty. Duration cannot rescue a '
         + 'multiple of one. Put the other way round: to match the income sleeves\u2019 18% a '
         + 'year, a venture deal needs <b>2.3x over five years, or 5.3x over ten</b>. That is '
-        + 'the real cost of the long hold, and it is why venture has to aim so high.</p>';
+        + 'the real cost of the long hold, and it is why venture has to aim so high.</p></details>';
     }
 
     h += '<h3>By deal</h3>';
-    h += '<p class="note"><b>Three columns, three different questions.</b><br>'
+    h += '<details class="more"><summary>What each of the three columns is asking</summary>'
+      + '<p class="note"><b>Three columns, three different questions.</b><br>'
       + '<b>Sponsor case</b> is their own multiple turned into a yearly rate. Rorra at 4.3x '
       + 'over four years is 44% a year, because 4.3x IS 44% compounded four times. It is what '
       + 'the sponsor is claiming, not a prediction.<br>'
@@ -1092,7 +1138,7 @@
       + 'the best one outcome in ten.<br>'
       + '<b>Chance of losing it all</b> is the odds, not an amount. 31% means that in 31 of '
       + 'every 100 futures that deal pays back nothing at all. It is a positive number because '
-      + 'it counts how often, not how much.</p>';
+      + 'it counts how often, not how much.</p></details>';
     h += '<table><thead><tr><th class="l">Deal</th><th>Hold</th><th>Sponsor MOIC</th>'
       + '<th>Sponsor case</th><th>Typical</th><th>Good run</th>'
       + '<th>Chance of losing it all</th></tr></thead><tbody>';
@@ -1232,7 +1278,7 @@
     }
     lines.push('<span style="color:var(--muted)">One number is missing on purpose: <b>when</b>. '
       + 'Two sleeves returning the same multiple are not the same investment if one pays in '
-      + 'five years and the other in ten. The ladder below shows that.</span>');
+      + 'five years and the other in ten. The ladder on Liquidity Outlook shows that.</span>');
     return lines.length ? '<p class="note" style="margin-top:12px">' + lines.join('<br>') + '</p>' : '';
   }
 
@@ -1435,14 +1481,14 @@
     for (const b of (BOOK || [])) if (b.deal) mine[b.deal.slug || b.deal.name] = true;
 
     let h = '<div class="card"><h2>Loaded GC deals</h2>'
-      + '<p class="note">Every deal this tool already knows, in alphabetical order. The terms '
-      + 'are identical for everyone who bought the deal, so they live in one shared file per '
-      + 'deal rather than being retyped by every holder. <b>' + all.length + ' deals are '
-      + 'loaded</b> and most books hold only a handful of them.</p>'
-      + '<p class="note"><b>If a position of yours is not filling in its terms, this is where '
-      + 'to check the spelling.</b> Open any deal and it lists every name it answers to. Write '
-      + 'one of those in your tracker and the terms fill in by themselves. Anything not on this '
-      + 'list still works, it just runs on what you type.</p>';
+      + '<p class="note"><b>' + all.length + ' deals this tool already knows</b>, alphabetically. '
+      + 'The terms are the same for everyone who bought the deal, so each one lives in a single '
+      + 'shared file rather than being retyped by every holder. Most portfolios hold only a few '
+      + 'of them.</p>'
+      + '<p class="note"><b>If one of your positions is not filling in its terms, check the '
+      + 'spelling here.</b> Every deal lists the names it answers to \u2014 write one of those in '
+      + 'your tracker and the terms fill in by themselves. A deal that is not on this list still '
+      + 'works; it just runs on what you type.</p>';
 
     if (!all.length) {
       return void ($('#tabbody').innerHTML = h + '<p class="note">No deal files could be '
@@ -1679,13 +1725,13 @@
         + 'arrives that year at all. Use this rather than the average: one big winner pulls an average up '
         + 'above what most futures actually pay you, and you only get one future.'],
       ['Odds of any cash', 'How often that year pays anything at all. It is here instead of a bad-run column, '
-        + 'which on a book like this reads $0 in every single year and tells you nothing.'],
+        + 'which in a portfolio like this reads $0 in every single year and tells you nothing.'],
       ['Good run', 'Out of 100 futures, only 10 do better than this in that year. Big numbers here are real: '
         + 'several deals can happen to land in the same year.'],
       ['Why you cannot add the year-by-year column down', 'The two tables count differently, and this is the '
         + 'one thing worth getting right. In the year-by-year table each year is ranked on its own, so the '
         + 'good run in 2030 and the good run in 2034 are different futures. Adding them builds a future '
-        + 'nobody had. On a real book that overstated the lifetime figure by 69%. The by-the-end-of-year '
+        + 'nobody had. On a real portfolio that overstated the lifetime figure by 69%. The by-the-end-of-year '
         + 'table adds each future up FIRST and ranks once, so every number there is a real total that one '
         + 'real future reached. That one you can read straight down.'],
       ['Why a preferred return is taken out of the exit', 'When a sponsor quotes a multiple, that '
