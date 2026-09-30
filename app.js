@@ -132,6 +132,23 @@
     ['liqFrom',     ['liquidity from', 'payout from', 'sell-down from', 'distributions from']],
     ['liqTo',       ['liquidity to', 'payout to', 'sell-down to', 'distributions to']],
     ['name',        ['deal name', 'deal', 'name', 'investment', 'position']],
+    /* WHICH ACCOUNT THE DEAL IS HELD IN. A private deal is not a separate world from the
+       rest of a portfolio -- it sits in an IRA, a Roth, an SDIRA or a taxable account, and
+       without knowing which, allocation cannot be totalled honestly and withdrawal ordering
+       cannot be done at all.
+
+       Optional: a sheet without it parses exactly as before and everything lands in one
+       unnamed account. Account TYPE is deliberately not here -- it is typed once per
+       account on the Balances tab rather than re-typed on every deal row. If it ever does
+       come here, it must be declared ABOVE this entry, because matching is by prefix and a
+       bare 'account' would swallow 'account type'. */
+    /* DECLARED ABOVE `account`, and multi-word, for the reason 'deals in fund' is: the
+       first field whose alias matches an unclaimed header wins, so a bare 'account' takes
+       "Account type" whenever the reader happens to put that column first. It did exactly
+       that -- account read "Roth" instead of "Roth IRA" -- and which way round it fell
+       depended on the reader's own column order, which is not ours to decide. */
+    ['accountType', ['account type', 'account kind', 'registration type', 'tax treatment']],
+    ['account',     ['account', 'held in', 'custodian', 'wrapper', 'registration']],
     ['assetClass',  ['asset class', 'class', 'type', 'sleeve type']],
     ['commitment',  ['commitment', 'committed', 'total commitment']],
     /* BEFORE `funded`, and it has to stay there. Matching is by prefix, so a column headed
@@ -286,9 +303,32 @@
   /* ── the three tabs ───────────────────────────────────────────────────────
      Dashboard is what you hold now. Liquidity Outlook is when it comes back and how
      much. Background is the assumptions, so the other two can be argued with. */
-  const TABS = [['dash', 'Private Deal Dashboard'], ['outlook', 'Liquidity Outlook'],
-                ['perf', 'Performance & Returns'], ['about', 'Glossary & Background'],
-                ['universe', 'Loaded GC Deals']];
+  const BASE_TABS = [['dash', 'Private Deal Dashboard'], ['outlook', 'Liquidity Outlook'],
+                     ['perf', 'Performance & Returns'], ['about', 'Glossary & Background'],
+                     ['universe', 'Loaded GC Deals']];
+
+  /* EXTENSION POINT, and it is deliberately tiny. The next-generation app is this app plus
+     extra script tags: app.js and engine.js stay byte-identical in both, so a fix made here
+     rolls forward by a straight copy and a gate proves it arrived. Only index.html differs.
+
+     With nothing registered, window.APP_PLUGINS is undefined and TABS is exactly the list
+     above -- an extension point that quietly changes the thing it extends would be worse
+     than a fork, so a test asserts that. A plugin names the tab it wants to sit after. */
+  const PLUGINS = (typeof window !== 'undefined' && window.APP_PLUGINS) || [];
+
+  /* Every sheet of the last workbook read, by name, as arrays-of-arrays. Populated on
+     import and handed to plugins; nothing in this app reads it. */
+  let SHEETS = {};
+
+  const TABS = (() => {
+    const out = BASE_TABS.slice();
+    PLUGINS.forEach((p) => {
+      if (!p || !p.id || !p.label) return;
+      const at = out.findIndex(([k]) => k === p.after);
+      out.splice(at < 0 ? out.length : at + 1, 0, [p.id, p.label]);
+    });
+    return out;
+  })();
 
   function render() {
     if (!BOOK || !BOOK.length) return;
@@ -300,6 +340,8 @@
     document.querySelectorAll('[data-tab]').forEach((b) => {
       b.onclick = () => { TAB = b.getAttribute('data-tab'); render(); };
     });
+    const plug = PLUGINS.find((p) => p && p.id === TAB);
+    if (plug) { plug.render($('#tabbody'), { book: BOOK, mode: MODE, sheets: SHEETS }); return; }
     if (TAB === 'dash') renderDashboard();
     else if (TAB === 'about') renderBackground();
     else if (TAB === 'universe') renderUniverse();
@@ -1851,8 +1893,14 @@
       try {
         const wb = XLSX.read(e.target.result, { type: 'array' });
         // the positions sheet is whichever one parses into rows
+        SHEETS = {};
         for (const nm of wb.SheetNames) {
           const aoa = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, raw: true });
+          /* Kept as we pass, for plugins. This app has no use for a You or Balances tab
+             and deliberately does not learn what one is -- teaching it would put code in
+             the live Private Deals app that only the other app runs, and the two files
+             would stop being identical the next time the schema grew. */
+          SHEETS[nm] = aoa;
           const res = rowsFromSheet(aoa);
           if (res.rows && res.rows.length) { load(res.rows, res.skipped); return; }
         }

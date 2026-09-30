@@ -262,6 +262,10 @@ function buildBook(rows) {
 
     out.push({
       name: String(r.name || 'Unnamed'),
+      /* Empty string rather than a placeholder: the UI decides what to call an unassigned
+         holding, and a model that invents the word "Unassigned" would have it turn up in
+         exports and totals as though someone had typed it. */
+      account: String(r.account || '').trim(),
       kind,
       cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
       commitment, funded, uncalled, coupon, hold, fy, moic,
@@ -557,6 +561,12 @@ function simulate(book, opts) {
   const calls = callSchedule(book, years);
   const per = {}, cum = {}, cpn = {};
   for (const y of years) { per[y] = []; cum[y] = []; cpn[y] = []; }
+
+  /* Per-PATH yearly proceeds, recorded only when asked. The runway spends one coherent
+     future at a time, so it cannot use the per-year medians: those rank each year
+     separately, and adding them down builds a future nobody had. Off by default so no
+     existing caller allocates a paths-by-years matrix it never reads. */
+  const pathRows = opts.capturePaths ? [] : null;
   const cpnTotals = [];
   const totals = [];
   const rnd = makeRng(20260922);
@@ -656,6 +666,7 @@ function simulate(book, opts) {
     }
     totals.push(tot);
     cpnTotals.push(cpTot);
+    if (pathRows) pathRows.push(years.map((y) => yr[y]));
 
     /* THE RULE THIS WHOLE FEATURE TURNS ON. A portfolio IRR is the IRR of the pooled cash
        flow, solved ONCE per run and only then ranked across runs. It is not the average of
@@ -709,6 +720,8 @@ function simulate(book, opts) {
 
   const out = {
     years, byYear, cum: cumRows, hist,
+    /* [path][yearIndex] against `years`. Present only with opts.capturePaths. */
+    pathRows,
     histBins: CFG.histBins, histMax: CFG.histMax,
     totals: {
       committed, funded, uncalled,
