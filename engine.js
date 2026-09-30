@@ -82,8 +82,8 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.33',
-  released: '28 Sep 2026',
+  version: 'v1.34',
+  released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
      It was being conflated with the app's: v1.7 changed no columns, so the app's
@@ -818,7 +818,29 @@ function matchDeal(name, index) {
      one deal is in play the honest answer is none: the holder types their own terms, or
      writes the fuller name. Only an EXACT match is allowed to resolve this. */
   if (hits.size > 1) return null;
+  /* RESERVED NAMES. Ambiguity was the only thing protecting a holder of Asilia Credit Fund I,
+     and ambiguity is emergent: it lasted exactly as long as a second Asilia credit vehicle
+     had a file here. The moment that file went, "Asilia Credit Fund I" prefixed the sole
+     remaining candidate, resolved cleanly, and attached Evergreen's coupon, term and
+     redemption gate to somebody else's money with nothing on screen to say so. Removing a
+     deal file must not make its name start meaning a different deal, so the index names the
+     vehicles it knows about but does not carry, and a typed name consistent with one of them
+     resolves to nothing. An exact alias of a real deal has already returned above. */
+  if (best && isReserved(n, index)) return null;
   return best;
+}
+
+/* Reserved names match the way deal aliases do, prefixes and all, because the family is
+   what has to be refused rather than one spelling of it. */
+function isReserved(n, index) {
+  for (const r of (index.reserved || [])) {
+    const rl = String(r).trim().toLowerCase();
+    if (!rl) continue;
+    if (n === rl) return true;
+    if (n.length < MIN_FUZZY || rl.length < MIN_FUZZY) continue;
+    if (n.startsWith(rl) || rl.startsWith(n)) return true;
+  }
+  return false;
 }
 
 /* Is a typed value the same thing the shared file says? Numbers compare as numbers, so

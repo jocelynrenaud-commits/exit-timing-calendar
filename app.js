@@ -1530,7 +1530,8 @@
       + '<p class="note"><b>If one of your positions is not filling in its terms, check the '
       + 'spelling here.</b> Every deal lists the names it answers to \u2014 write one of those in '
       + 'your tracker and the terms fill in by themselves. A deal that is not on this list still '
-      + 'works; it just runs on what you type.</p>';
+      + 'works; it just runs on what you type.</p>'
+      + reservedNote();
 
     if (!all.length) {
       return void ($('#tabbody').innerHTML = h + '<p class="note">No deal files could be '
@@ -1556,6 +1557,17 @@
         renderUniverse();
       };
     });
+  }
+
+  /* A refusal needs a reason. Some names resolve to nothing deliberately, because they
+     belong to a vehicle with no file here, and without saying so the tab looks like it has
+     simply never heard of a deal the member definitely owns. */
+  function reservedNote() {
+    const r = ((DEALIDX && DEALIDX.reserved) || []).slice();
+    if (!r.length) return '';
+    return '<p class="note"><b>Some names are refused on purpose.</b> '
+      + esc((DEALIDX && DEALIDX.reservedNote) || '') + ' Those names are '
+      + r.map((x) => '<i>' + esc(x) + '</i>').join(', ') + '.</p>';
   }
 
   function coneChart(rows, committed, raw) {

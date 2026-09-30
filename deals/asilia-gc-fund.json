@@ -16,7 +16,7 @@
   "subStrategy": "Fund of funds, three sleeves",
   "terms": {
     "couponPct": 0.12,
-    "couponNote": "Quarterly cash distributions, beginning immediately. 12% annual cash plus roughly 11% from equity kickers is the 23.08% blended base-case IRR.",
+    "couponNote": "Quarterly cash distributions, but NOT from day one. Austin Read confirmed to Kristin Westergard on 2026-09-30 that the first distribution is for Q4 2026 and is paid 45-60 days after quarter end, so it lands around February 2027. Distributions are calculated on CALLED capital and grow as more is drawn; roughly 19% had been called as at 2026-09-30. 12% annual cash plus roughly 11% from equity kickers is the 23.08% blended base-case IRR.",
     "holdYears": 8,
     "holdNote": "8 years total and NO extension: 5 years of deployment and growth, then a 3-year harvest and wind-down. Hard stop with full liquidation required.",
     "sponsorMoic": 5.27,
@@ -62,7 +62,13 @@
       "note": "All figures net of fees. The fund-level 12.08% annual distribution is what the tool models as the coupon; the 11.0% equity yield is the kicker realised at harvest."
     },
     "uncalledYieldPct": null,
-    "uncalledYieldNote": "PARTIALLY ANSWERED, and the remaining gap is deliberate. Austin Read answered this on 2026-09-28 explicitly FOR ACFE: uncalled commitments earn ~6-7% annualised off the fund's subscription line, ending when that line matures at the end of June 2027. THIS FILE IS NOT ACFE. The Asilia GC Fund is the fund-of-funds that holds ACFE as one of three sleeves, with a 0.5/10 overlay on top. Whether a subscription-line benefit at the underlying fund reaches a feeder's investors, and at what rate after the overlay and the other two sleeves, was not asked and is not stated anywhere. So this stays at zero, which understates the position on purpose. The question for Asilia is narrow now: does the AGCF investor see any of ACFE's uncalled-capital earnings, and if so at what rate and until when? See asilia-credit-fund-evergreen.json for the answered version."
+    "uncalledYieldNote": "PARTIALLY ANSWERED, and the remaining gap is deliberate. Austin Read answered this on 2026-09-28 explicitly FOR ACFE: uncalled commitments earn ~6-7% annualised off the fund's subscription line, ending when that line matures at the end of June 2027. THIS FILE IS NOT ACFE. The Asilia GC Fund is the fund-of-funds that holds ACFE as one of three sleeves, with a 0.5/10 overlay on top. Whether a subscription-line benefit at the underlying fund reaches a feeder's investors, and at what rate after the overlay and the other two sleeves, was not asked and is not stated anywhere. So this stays at zero, which understates the position on purpose. The question for Asilia is narrow now: does the AGCF investor see any of ACFE's uncalled-capital earnings, and if so at what rate and until when? See asilia-credit-fund-evergreen.json for the answered version.",
+    "firstDistribution": "2027-02",
+    "calledPctAsOf": {
+      "pct": 0.19,
+      "asOf": "2026-09-30",
+      "source": "Austin Read to Kristin Westergard"
+    }
   },
   "liquidity": {
     "fromYear": 6,

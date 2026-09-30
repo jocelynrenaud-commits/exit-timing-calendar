@@ -1,14 +1,11 @@
 {
   "slug": "asilia-credit-fund-evergreen",
-  "name": "Asilia Credit Fund Evergreen (Fund II)",
+  "name": "Asilia Credit Fund Evergreen",
   "aliases": [
-    "Asilia Credit Fund Evergreen (Fund II)",
     "Asilia Credit Fund Evergreen",
     "Asilia Credit Evergreen",
     "Asilia Credit Evergreen Fund",
     "Asilia Evergreen",
-    "Asilia Credit Fund II",
-    "Asilia Credit Investments Fund II",
     "ACFE",
     "ACEF",
     "ACF2"
@@ -42,7 +39,7 @@
   "liquidity": null,
   "dealsInFund": null,
   "singleCompany": false,
-  "structure": "Senior secured, first-lien direct lending to large-cap, market-leading businesses owned by top-tier private equity sponsors — durable cash flows, recession-resilient sectors, low LTVs around 40%. Floating rate, so the income moves with rates. Asilia is an SEC-registered RIA that has put $1.5B+ into 100+ deals, sourcing alongside Oak Hill, TCW and Cerberus. Fund II already holds nine portfolio companies and Asilia is its largest investor, with $60M+ of GP capital committed.",
+  "structure": "Senior secured, first-lien direct lending to large-cap, market-leading businesses owned by top-tier private equity sponsors — durable cash flows, recession-resilient sectors, low LTVs around 40%. Floating rate, so the income moves with rates. Asilia is an SEC-registered RIA that has put $1.5B+ into 100+ deals, sourcing alongside Oak Hill, TCW and Cerberus. The fund already holds nine portfolio companies and Asilia is its largest investor, with $60M+ of GP capital committed.",
   "notes": [
     "This file exists because a holder pointed out that the Asilia GC Fund and this are different vehicles and were being confused. They are.",
     "Evergreen means the model cannot give you a meaningful exit multiple or payout window. What it can do is show the quarterly income. Read the outlook tab with that in mind.",
@@ -50,7 +47,7 @@
   ],
   "_about": "Global deal facts only. Terms are identical for everyone who bought the same deal, so they live here rather than being retyped by each holder. Nothing personal is in this file: your commitment, funding dates, thesis and notes stay in your own tracker and never leave your machine.",
   "asOf": "2026-09-25",
-  "source": "Asilia sales-pitch session and investor Q&A session notes, plus the Fund II deal snapshot (closed 6 Feb 2026). Fee stack and return mix from the Asilia GC Fund investor Q&A chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
+  "source": "Asilia sales-pitch session and investor Q&A session notes, plus the Evergreen deal snapshot (closed 6 Feb 2026). Fee stack and return mix from the Asilia GC Fund investor Q&A chart (~10:18), supplied by Kristin Westergard 2026-09-25.",
   "liquidityNote": "Evergreen with no wind-down and no exit multiple to quote: it returns cash rather than selling. Redemption is by 90-day notice after the 5-year lockup.",
   "trackRecord": "One borrower default in 75+ deals — First Brands, a family-owned company where the CEO committed fraud. Despite the bankruptcy, full capital recovery is expected from the first-lien position and hard collateral. The GC underwrite scored the handling of it as a positive rather than a negative.",
   "keyRisks": [
@@ -65,7 +62,7 @@
   "sections": [
     {
       "title": "What it is",
-      "body": "Senior secured, first-lien direct lending to large-cap, market-leading businesses owned by top-tier private equity sponsors — durable cash flows, recession-resilient sectors, low LTVs around 40%. Floating rate, so the income moves with rates. Asilia is an SEC-registered RIA that has put $1.5B+ into 100+ deals, sourcing alongside Oak Hill, TCW and Cerberus. Fund II already holds nine portfolio companies and Asilia is its largest investor, with $60M+ of GP capital committed."
+      "body": "Senior secured, first-lien direct lending to large-cap, market-leading businesses owned by top-tier private equity sponsors — durable cash flows, recession-resilient sectors, low LTVs around 40%. Floating rate, so the income moves with rates. Asilia is an SEC-registered RIA that has put $1.5B+ into 100+ deals, sourcing alongside Oak Hill, TCW and Cerberus. The fund already holds nine portfolio companies and Asilia is its largest investor, with $60M+ of GP capital committed."
     }
   ]
 }

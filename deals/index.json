@@ -1,6 +1,6 @@
 {
   "about": "Index of shareable deal files. The app matches a row in your tracker to one of these by name or alias and fills in the terms, so you only have to type your own numbers. A deal that is not listed still works; you just supply its terms yourself.",
-  "asOf": "2026-09-28",
+  "asOf": "2026-09-30",
   "deals": [
     {
       "slug": "aerolane",
@@ -13,7 +13,7 @@
       ],
       "assetClass": "VC",
       "vehicle": "SPV",
-      "sponsor": "Spacestation / Belltower Fund Group, Ltd."
+      "sponsor": "Spacestation Investments · Edge Logistics, Inc. d/b/a Aerolane"
     },
     {
       "slug": "aerthlings",
@@ -27,7 +27,7 @@
       ],
       "assetClass": "VC",
       "vehicle": "SPV",
-      "sponsor": "Spacestation 89 / Spacestation Investments 1, LLC"
+      "sponsor": "Spacestation Investments (SPV) · Modern Games"
     },
     {
       "slug": "amplifi-companies",
@@ -51,7 +51,6 @@
         "Ancient Crunch (MASA)",
         "MASA",
         "MASA Chips",
-        "Masa Chips",
         "Vandy",
         "Vandy Crisps",
         "Vandy Crunch",
@@ -65,36 +64,19 @@
     },
     {
       "slug": "asilia-credit-fund-evergreen",
-      "name": "Asilia Credit Fund Evergreen (Fund II)",
+      "name": "Asilia Credit Fund Evergreen",
       "aliases": [
-        "Asilia Credit Fund Evergreen (Fund II)",
         "Asilia Credit Fund Evergreen",
         "Asilia Credit Evergreen",
         "Asilia Credit Evergreen Fund",
         "Asilia Evergreen",
-        "Asilia Credit Fund II",
-        "Asilia Credit Investments Fund II",
         "ACFE",
         "ACEF",
         "ACF2"
       ],
       "assetClass": "Private Credit",
-      "vehicle": "Fund",
+      "vehicle": "Evergreen fund",
       "sponsor": "Asilia Credit Investments"
-    },
-    {
-      "slug": "asilia-debt-fund",
-      "name": "Asilia Debt Fund (2025)",
-      "aliases": [
-        "Asilia Debt Fund (2025)",
-        "Asilia Debt Fund",
-        "Asilia Debt Fund 2025",
-        "Asilia Debt",
-        "Asilia Credit Fund I",
-        "ACF1"
-      ],
-      "sponsor": "Asilia Credit Investments",
-      "assetClass": "Private Credit"
     },
     {
       "slug": "asilia-gc-fund",
@@ -203,7 +185,7 @@
       ],
       "assetClass": "VC",
       "vehicle": "SPV",
-      "sponsor": "Spacestation 87 / Spacestation Investments 1, LLC"
+      "sponsor": "Spacestation Investments (SPV) · NEXT Life Sciences"
     },
     {
       "slug": "nooshee",
@@ -258,7 +240,7 @@
       ],
       "assetClass": "VC",
       "vehicle": "SPV",
-      "sponsor": "Spacestation Investments (AngelList syndicate)"
+      "sponsor": "Spacestation Investments (SPV) · Rainmaker Technology Corporation"
     },
     {
       "slug": "rorra",
@@ -270,7 +252,7 @@
       ],
       "assetClass": "VC",
       "vehicle": "SPV",
-      "sponsor": "Spacestation / Belltower Fund Group, Ltd."
+      "sponsor": "Spacestation"
     },
     {
       "slug": "spacestation-fund",
@@ -311,7 +293,7 @@
       ],
       "assetClass": "VC",
       "vehicle": "SPV",
-      "sponsor": "Spacestation 88 / Spacestation Investments 1, LLC"
+      "sponsor": "Spacestation Investments · Telly, Inc."
     },
     {
       "slug": "tovala",
@@ -334,9 +316,17 @@
         "Turbo",
         "Turbo Insurance Group"
       ],
-      "assetClass": "VC",
+      "assetClass": "Private Equity",
       "vehicle": "SPV",
-      "sponsor": "Amplifi Turbo LLC"
+      "sponsor": "Amplifi / GC SPV · Turbo Insurance Group"
     }
-  ]
+  ],
+  "reserved": [
+    "Asilia Credit Fund I",
+    "ACF1",
+    "Asilia Debt Fund",
+    "Asilia Debt Fund (2025)",
+    "Asilia Debt Fund 2025"
+  ],
+  "reservedNote": "Names that belong to a vehicle with no file here. A position typed as one of these resolves to nothing on purpose rather than to the nearest deal that happens to share its opening words, because inheriting another fund's terms silently is worse than supplying your own. Asilia Credit Fund I, also shown as the 2025 debt fund, was the track record behind the Credit Fund Evergreen and was never offered to Growth Circle."
 }
