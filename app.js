@@ -484,16 +484,39 @@
       }
     });
     const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
+    /* "DOES THE EXIT CALENDAR RUN ON THE CURRENT DATE?" -- Kristin Westergard, 2026-10-01,
+       looking at -$258,333 against 2026 and reasonably unable to tell whether that was called
+       so far, still to come, or the year in total. It is the year in total, it is modelled
+       rather than scheduled, and part of it is already in the past. The panel now says so. */
+    const nowY = new Date().getFullYear();
+    const monthsLeft = Math.max(0, 12 - (new Date().getMonth() + 1));
     h += '<div class="card"><h2>Capital calls vs. preferred income</h2>'
       + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
       + 'money the documents promise you. Exits are left out on purpose \u2014 an exit is a hope, '
       + 'a preferred return is a promise. Exits are on Performance &amp; Returns.</p>'
+      + '<p class="note"><b>Each year is a full calendar year, and it is modelled rather than '
+      + 'scheduled.</b> Sponsors rarely publish a call schedule, so the tool takes whatever is '
+      + 'still uncalled and spreads it evenly over about three years from the year after you '
+      + 'funded. That means the current year is <b>not</b> what has been called so far, and '
+      + '<b>not</b> what is left \u2014 it is the whole of ' + nowY + ', including the months '
+      + 'already gone. <b>If you know a real call date, yours beats this</b>, and a column to '
+      + 'tell it so is coming.</p>'
       + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
       + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
       + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
           const net = prefs[y] - calls[y];
-          return '<tr><td class="l b">' + y + '</td>'
-            + '<td class="' + (calls[y] ? 'neg' : 'z') + '">' + (calls[y] ? '-' + money(calls[y]) : DASH) + '</td>'
+          /* The current year is the only one a reader is standing inside, so it is the only one
+             where "the whole year" and "what is left" differ. Approximate on purpose: it is an
+             even spread within an even spread, and a precise-looking figure would overstate
+             what the tool actually knows. */
+          const ahead = (y === nowY && calls[y] > 0)
+            ? ' <span class="muted" style="font-size:10.5px">\u2248' + moneyTight(calls[y] * monthsLeft / 12)
+              + ' still ahead</span>'
+            : '';
+          return '<tr><td class="l b">' + y + (y === nowY
+            ? ' <span class="muted" style="font-size:10px">this year</span>' : '') + '</td>'
+            + '<td class="' + (calls[y] ? 'neg' : 'z') + '">'
+            + (calls[y] ? '-' + money(calls[y]) + ahead : DASH) + '</td>'
             + '<td class="' + (prefs[y] ? 'pos' : 'z') + '">' + (prefs[y] ? money(prefs[y]) : DASH) + '</td>'
             + '<td class="' + (net < 0 ? 'neg' : 'pos') + '">' + money(net) + '</td>'
             + '<td class="l"><div style="display:flex;align-items:center;gap:3px">'
@@ -1008,11 +1031,11 @@
       + '<p class="note">What matures when. One row per position, one block per year it pays, '
       + 'darker where more of that position lands. A deal bought once is a single block; '
       + '<b>a fund that sells down appears in every year of its window</b>. The gold line is the '
-      + 'preferred return, which arrives on a schedule rather than on an exit. Hover any block '
-      + 'for the share and the amount.</p>'
+      + 'preferred return, which arrives on a schedule rather than on an exit. <b>Hover any '
+      + 'block or line</b> for the amount.</p>'
       + '<p class="note"><b>This one is not a range.</b> It is the schedule the deals\u2019 own '
       + 'terms imply, so it says when a position is due \u2014 not how likely it is to pay.</p>'
-      + ladderChart(book) + '</div>';
+      + ladderChart(book) + whoPays(book) + '</div>';
 
 
     /* the same rows, as a shape */
@@ -1446,6 +1469,67 @@
       || a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
   }
 
+  /* WHICH DEALS PRODUCED THE CASH IN A GIVEN YEAR. Asked by Kristin Westergard against the
+     Cumulative cash received table, and it deliberately does not live there. That table is
+     percentiles: each row is whichever future happened to sit at the 10th, 50th or 90th for
+     that year, and they are different futures. No set of deals "made up" a percentile, so
+     attributing one would be inventing a fact.
+
+     The ladder's schedule is attributable, because it is deterministic -- what the terms imply
+     rather than what a draw produced. So the breakdown is built from the same ladderRows() the
+     chart above is drawn from, and it says which table it reconciles to. */
+  function whoPays(book) {
+    const rows = ladderRows(book);
+    if (!rows.length) return '';
+    const byYear = {};
+    for (const r of rows) {
+      for (const k of Object.keys(r.pays)) {
+        (byYear[k] = byYear[k] || []).push(
+          { name: r.name, cls: r.cls, kind: r.kind, exit: r.exit * r.pays[k], pref: 0 });
+      }
+      for (const k of Object.keys(r.prefYears)) {
+        const hit = (byYear[k] = byYear[k] || []).find((x) => x.name === r.name);
+        if (hit) hit.pref += r.prefYears[k];
+        else byYear[k].push({ name: r.name, cls: r.cls, kind: r.kind,
+          exit: 0, pref: r.prefYears[k] });
+      }
+    }
+    const years = Object.keys(byYear).map(Number).sort((a, b) => a - b);
+    if (!years.length) return '';
+
+    let t = '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;'
+      + 'font-size:13px">Which positions pay in each year</summary>'
+      + '<p class="note" style="margin-top:10px">The same schedule as the chart above, written '
+      + 'out. <b>Preferred return is what the documents promise</b> on a date; <b>exit is the '
+      + 'expected proceeds</b>, every outcome weighed by how likely it is, placed in the year '
+      + 'the terms imply. <b>These do not add up to the percentile tables</b>, and should not: '
+      + 'a percentile is one whole future, and no set of positions makes up a percentile. This '
+      + 'is the schedule, not a range.</p>'
+      + '<table style="margin-top:8px"><tr><th class="l">Year</th><th class="l">Position</th>'
+      + '<th>Preferred</th><th>Exit</th><th>Total</th></tr>';
+    for (const y of years) {
+      const list = byYear[y].slice().sort((a, b) => (b.exit + b.pref) - (a.exit + a.pref));
+      let yt = 0;
+      list.forEach((x, i) => {
+        yt += x.exit + x.pref;
+        t += '<tr><td class="l b">' + (i === 0 ? y : '') + '</td>'
+          + '<td class="l"><span style="display:inline-block;width:8px;height:8px;'
+          + 'border-radius:50%;background:' + clsColour(x.kind === 'venture' ? 'Venture' : x.cls)
+          + ';margin-right:6px"></span>' + esc(x.name) + '</td>'
+          + '<td class="' + (x.pref > 0 ? 'pos' : 'z') + '">'
+          + (x.pref > 0 ? money(x.pref) : DASH) + '</td>'
+          + '<td class="' + (x.exit > 0 ? '' : 'z') + '">'
+          + (x.exit > 0 ? money(x.exit) : DASH) + '</td>'
+          + '<td class="b">' + money(x.exit + x.pref) + '</td></tr>';
+      });
+      if (list.length > 1) {
+        t += '<tr class="hi"><td class="l"></td><td class="l b">' + y + ' total</td>'
+          + '<td></td><td></td><td class="b">' + money(yt) + '</td></tr>';
+      }
+    }
+    return t + '</table></details>';
+  }
+
   function ladderChart(book) {
     const rows = ladderRows(book);
     if (!rows.length) return '';
@@ -1483,8 +1567,15 @@
           + '" height="' + (RH - 4) + '" fill="#F7F9FC"/>';
       }
       for (const k of Object.keys(r.prefYears)) {
+        /* THE AMOUNT, like the blocks have. Reported by Kristin Westergard: "have the lines
+           show how much of a return? (the blocks already do)". The figure was already in
+           hand -- ladderRows stores prefInYear() per year -- and the rect was drawn without
+           it, so the one element on this chart that arrives on a promised schedule was the
+           one you could not read a number off. */
         g += '<rect x="' + (X(+k) + 2).toFixed(1) + '" y="' + (yy + 16) + '" width="'
-          + (cw - 4).toFixed(1) + '" height="4" rx="2" fill="#B17930" opacity="0.55"/>';
+          + (cw - 4).toFixed(1) + '" height="4" rx="2" fill="#B17930" opacity="0.55">'
+          + '<title>' + esc(r.name + '\n' + k + ': preferred return, about '
+          + money(r.prefYears[k])) + '</title></rect>';
       }
       for (const k of Object.keys(r.pays)) {
         const share = r.pays[k];
