@@ -24,8 +24,8 @@
     "sponsorIrr": 0.1737,
     "prefHurdle": 0.08,
     "waterfall": "8% preferred return, then a 50/50 GP catch-up to 20% of total distributions, then 80/20 to a 14% LP IRR, 70/30 above 14%, and 50/50 above 20%.",
-    "mgmtFee": "1.0% annual asset management fee on contributed equity",
-    "mgmtFeeNote": "Plus a 1.0% acquisition fee and a 1.0% disposition fee. All three are waived for commitments of $1 million or more, so a smaller LP carries the full load.",
+    "mgmtFee": 0.01,
+    "mgmtFeeNote": "Charged annually on CONTRIBUTED EQUITY. Plus a 1.0% acquisition fee and a 1.0% disposition fee. All three are waived for commitments of $1 million or more, so a smaller LP carries the full load.",
     "minimum": 150000,
     "offeringSize": "$15.0M of LP equity, targeting 3 assets",
     "deploymentPeriod": "12 months; undeployed cash sits in a high-yield money market account"

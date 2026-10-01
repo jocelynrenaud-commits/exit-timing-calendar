@@ -82,7 +82,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.34',
+  version: 'v1.35',
   released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -102,6 +102,36 @@ const CFG = {
      SCALE the exit multiple rather than replacing it. Last branch, 15%, is the full
      exit. */
   income: [[0.05, 0.00], [0.25, 0.60], [0.55, 0.75]],
+
+  /* REAL ESTATE THAT PAYS NO COUPON. Until v1.35 the table was chosen by one question --
+     does the deal quote a coupon -- so Philo Hospitality Fund, a hospitality fund holding
+     three properties with a 2.08x target, was priced as a single venture SPV at a 30% chance
+     of returning nothing, and expected to return 1.003x over six years. Eephus, also real
+     estate, quotes a pref and landed on the income table at 5%. Two real estate funds, a
+     six-fold difference in loss probability, decided by whether the sponsor happened to
+     quote a preferred return.
+
+     Levered equity in property is neither. It can go to zero -- that is what a mortgage is
+     for -- but nothing like one deal in three, and the outcome it actually produces most
+     often is the one neither existing table has: a HAIRCUT. Three in ten getting 70 cents
+     back is the shape of this asset class, and the income table has no branch for it.
+
+     THE THIRD ELEMENT IS A FLAG, not a number. `true` means the multiple is ABSOLUTE rather
+     than a fraction of the sponsor's target, because "three in ten below cost" is a claim
+     about 1.0x: 0.45 of a 2.5x target is 1.13x, which is a gain. So the loss buckets are
+     absolute and only the upside scales. The implicit top branch, 15%, is the sponsor case. */
+  reEquity: [[0.10, 0.00, true], [0.30, 0.70, true], [0.45, 0.75, false]],
+
+  /* LEVERAGE IS WHAT DECIDES WHETHER PROPERTY CAN GO TO ZERO, so the weights above are the
+     reading at a reference LTV and the dial moves them. A 45%-LTV stabilised fund and an
+     80%-LTV bridge-financed one do not share a downside, and pricing them the same is the
+     same mistake as pricing Philo and a startup the same.
+
+     Only the zero weight moves; what leaves it goes to the upside bucket, so the below-cost
+     reading stays at three in ten across the range. No deal on file records an LTV yet, so
+     every one of them runs at `ref` today and the card says so rather than implying the
+     number came from the sponsor. */
+  reLtv: { low: 0.50, ref: 0.65, high: 0.80, zeroLow: 0.04, zeroRef: 0.10, zeroHigh: 0.20 },
 
   /* A DIVERSIFIED VENTURE FUND is not a big venture deal, and treating it as one was a
      real error in this model. The single-deal table above carries a 30% chance of
@@ -211,6 +241,10 @@ function buildBook(rows) {
 
     const likely = parseInt(r.exitLikely, 10) || (fy + hold);
     const kind = coupon > 0 ? 'income' : 'venture';
+    /* Read BEFORE the outcome table is chosen, because from v1.35 the table depends on both.
+       It used to be computed on the way out, where nothing could act on it. */
+    const cls = String(r.assetClass || (coupon > 0 ? 'Income' : 'VC'));
+    const ltv = num(r.ltv) > 0 ? num(r.ltv) : 0;
 
     /* A MARKED-UP MOIC IS NOT A FORECAST INPUT, and this is the only place that has to be
        said in code, because everything downstream simply never reads it.
@@ -233,9 +267,13 @@ function buildBook(rows) {
     const deals = Math.max(1, Math.round(num(r.deals)) || 1);
     const diversified = deals >= CFG.fundMinDeals;
 
-    // which outcome table, and does it scale the target or replace it
+    /* which outcome table, and does it scale the target or replace it.
+       REAL ESTATE IS TESTED BEFORE DIVERSIFICATION, because a real-estate fund holding
+       twenty properties is still real estate -- letting fundVenture claim it would price a
+       property portfolio off venture-fund TVPI benchmarks. */
     let branches = CFG.venture, scales = false;
     if (kind === 'income') { branches = CFG.income; scales = true; }
+    else if (isRealEstate(cls)) { branches = reEquityTable(ltv); scales = true; }
     else if (diversified) { branches = CFG.fundVenture; scales = true; }
 
     /* DOES IT SELL DOWN, OR IS IT BOUGHT ONCE?
@@ -267,7 +305,8 @@ function buildBook(rows) {
          exports and totals as though someone had typed it. */
       account: String(r.account || '').trim(),
       kind,
-      cls: String(r.assetClass || (coupon > 0 ? 'Income' : 'VC')),
+      cls,
+      ltv,
       commitment, funded, uncalled, coupon, hold, fy, moic,
       uncalledYieldPct: num(r.uncalledYieldPct) || 0,
       uncalledYieldUntil: num(r.uncalledYieldUntil) || 0,
@@ -529,6 +568,13 @@ function paperTrack(book) {
   };
 }
 
+/* Real estate by ASSET CLASS, which is the thing the outcome distribution actually depends
+   on. Deliberately not a list of slugs: the point of v1.35 is that a deal no longer gets a
+   distribution because of how it was spelled. */
+function isRealEstate(cls) {
+  return /real\s*estate|property|multifamily|self.?storage|hospitality/i.test(String(cls || ''));
+}
+
 function pick(rnd, branches, fallback) {
   const r = rnd();
   let acc = 0;
@@ -537,6 +583,39 @@ function pick(rnd, branches, fallback) {
     if (r <= acc) return v;
   }
   return fallback;      // the top branch, which the table deliberately leaves implicit
+}
+
+/* The same draw, but it also reports whether the branch it landed on states an ABSOLUTE
+   multiple. Separate from pick() above rather than a wider return type, because pick() is
+   also what draws the timing offset and widening it there would be change for nothing.
+
+   It takes exactly ONE number from the generator, like pick(), so every seed produces the
+   identical draw it did before this existed. That is load-bearing: the whole suite compares
+   figures across versions, and a table nobody edited must not move because the draw did. */
+function pickOutcome(rnd, branches) {
+  const r = rnd();
+  let acc = 0;
+  for (const br of branches) {
+    acc += br[0];
+    if (r <= acc) return { v: br[1], abs: br[2] === true };
+  }
+  return { v: null, abs: false };     // the implicit top branch: the sponsor's own case
+}
+
+/* The real-estate table at a given LTV. Above the reference more of the weight sits in the
+   zero bucket and below it less, taken from and returned to the upside bucket so the
+   below-cost reading does not drift. An LTV nobody recorded returns the table unchanged. */
+function reEquityTable(ltv) {
+  const T = CFG.reEquity, L = CFG.reLtv;
+  const v = Number(ltv);
+  if (!(v > 0) || !(v < 1)) return T;
+  const zero = v <= L.low ? L.zeroLow
+    : v >= L.high ? L.zeroHigh
+    : v <= L.ref ? L.zeroLow + (L.zeroRef - L.zeroLow) * (v - L.low) / (L.ref - L.low)
+    : L.zeroRef + (L.zeroHigh - L.zeroRef) * (v - L.ref) / (L.high - L.ref);
+  const shift = zero - T[0][0];
+  return [[zero, T[0][1], T[0][2]], [T[1][0], T[1][1], T[1][2]],
+    [Math.max(0, T[2][0] - shift), T[2][1], T[2][2]]];
 }
 
 /* ── The simulation ─────────────────────────────────────────────────────────
@@ -598,9 +677,10 @@ function simulate(book, opts) {
       const b = book[bi];
       const off = pick(rnd, CFG.timing, 4);
       const ey = b.likely + off;
-      let m = pick(rnd, b.branches, null);
-      if (m === null) m = b.exitMult;          // top branch: the full exit
-      else if (b.scales) m = m * b.exitMult;   // tight tables scale it
+      const drawn = pickOutcome(rnd, b.branches);
+      let m = drawn.v;
+      if (m === null) m = b.exitMult;                    // top branch: the full exit
+      else if (b.scales && !drawn.abs) m = m * b.exitMult;   // tight tables scale it
       const cash = b.commitment * m;
 
       /* The preferred return for THIS future, impaired by how this deal went. Added to the
@@ -958,6 +1038,7 @@ function applyDealFile(row, f) {
     out.uncalledYieldUntil = t.uncalledYieldUntil;
   }
   if (blank(out.hold) && t.holdYears) out.hold = t.holdYears;
+  if (blank(out.ltv) && t.ltvPct != null) out.ltv = t.ltvPct;
   if (blank(out.moic) && t.sponsorMoic) out.moic = t.sponsorMoic;
   if (blank(out.deals) && f.dealsInFund != null) out.deals = f.dealsInFund;
   if (blank(out.liqFrom) && L.fromYear) out.liqFrom = L.fromYear;

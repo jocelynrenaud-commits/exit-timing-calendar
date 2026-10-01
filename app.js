@@ -353,6 +353,8 @@
      the dashboard and the cards cannot compute it two different ways. */
   /* The branch odds, in words, read from the engine so the prose cannot drift away from
      the model it describes. */
+  const SCALED = { venture: false, income: true, fundVenture: true, reEquity: true };
+
   function branchOdds(kind, terse) {
     /* The tables hang straight off CFG as CFG.venture / CFG.income, not under a
        `branches` key. Reading the wrong path returned [] and shipped a sentence with a
@@ -362,20 +364,55 @@
     const acc = t.reduce((a, b) => a + b[0], 0);
     const p = (v) => Math.round(v * 100) + '%';
     if (terse) return t.map((b) => Math.round(b[0] * 100)).join('/') + '/' + Math.round((1 - acc) * 100);
-    const words = ['written off', 'back at cost', 'at ' + t[2][1].toFixed(2) + 'x'];
-    return t.map((b, i) => p(b[0]) + ' ' + (words[i] || ''))
+    /* A BRANCH'S THIRD ELEMENT SAYS WHETHER ITS MULTIPLE IS ABSOLUTE. Before v1.35 every
+       table this sentence described stated absolute multiples, so branch two could be called
+       "back at cost" and branch three read straight off the table. The real-estate table
+       breaks both: its branch two is 0.70x, which is BELOW cost, and its branch three is a
+       fraction of the sponsor's target rather than a multiple of capital. Describing it with
+       the old words produced a sentence about a table that does not exist. */
+    const words = t.map((b, i) => {
+      const abs = b[2] === true || !SCALED[kind];
+      if (b[1] === 0) return 'written off';
+      if (!abs) return 'at ' + Math.round(b[1] * 100) + '% of the sponsor case';
+      if (Math.abs(b[1] - 1) < 0.005) return 'back at cost';
+      return 'at ' + b[1].toFixed(2) + 'x' + (b[1] < 1 ? ' (below cost)' : '');
+    });
+    return t.map((b, i) => p(b[0]) + ' ' + words[i])
       .join(', ') + ' and ' + p(1 - acc) + ' at the sponsor case';
   }
 
   function expectedOf(x) {
     let acc = 0, e = 0;
-    for (const [p, v] of x.branches) { acc += p; e += p * (x.scales ? v * x.exitMult : v); }
+    /* A BRANCH MAY STATE AN ABSOLUTE MULTIPLE EVEN IN A TABLE THAT SCALES -- the third
+       element says so. Without that test this scaled the real-estate table's loss buckets by
+       the sponsor's target and read Philo at 1.45x while the simulation on the next tab said
+       1.22x. It must stay the same arithmetic as the draw site in engine.js; the only reason
+       the figure is computed twice is that this one is exact rather than sampled. */
+    for (const br of x.branches) {
+      acc += br[0];
+      e += br[0] * (x.scales && br[2] !== true ? br[1] * x.exitMult : br[1]);
+    }
     e += (1 - acc) * x.exitMult;
     /* Summed year by year rather than rate x hold x commitment: the base ramps while
        capital is still being called, so the shortcut overstates a part-funded position. */
     let pref = 0;
     for (let k = 1; k <= x.hold; k++) pref += Engine.prefInYear(x, k);
-    return { mult: e, exit: x.commitment * e, pref };
+
+    /* AND THE SCHEDULE IS NOT THE EXPECTATION. The simulation impairs a preferred return by
+       how the deal went -- a write-off pays a quarter of it, a well-below outcome 70% -- so
+       summing the contract gave a figure the rest of the app never produces. Under a heading
+       that reads "What the model makes of it", beside "Expected exit", a reader adds the two
+       and is 4% to 9% high on every coupon-paying deal on file. Weighted the same way the
+       multiple above is, and over the same branches, so the two halves of the card cannot
+       disagree about which outcome they are describing. */
+    let pw = 0, pacc = 0;
+    for (const br of x.branches) {
+      const m = x.scales && br[2] !== true ? br[1] * x.exitMult : br[1];
+      pacc += br[0];
+      pw += br[0] * Engine.prefFactor(x, m);
+    }
+    pw += (1 - pacc) * Engine.prefFactor(x, x.exitMult);
+    return { mult: e, exit: x.commitment * e, pref: pref * pw, prefScheduled: pref };
   }
 
   function clsColour(c) {
@@ -503,7 +540,11 @@
       + '<b>Modelled MOIC</b> weighs every outcome by how likely it is: a single venture deal '
       + 'is ' + branchOdds('venture') + '. The income sleeves are far tighter at '
       + branchOdds('income', true) + ', and a fund holding twenty or more deals gets its own '
-      + 'wider ladder. Plan against the modelled number. Of that total, '
+      + 'wider ladder. <b>Real estate that pays no preferred return</b> sits between the two at '
+      + branchOdds('reEquity', true) + ' &mdash; it can go to zero, because that is what a '
+      + 'mortgage does, but nothing like one deal in three, and the outcome it produces most '
+      + 'often is a haircut rather than either extreme. Plan against the modelled number. '
+      + 'Of that total, '
       + money(expPref) + ' comes from preferred return and ' + money(expExit)
       + ' comes from exits.</p></div>';
 
@@ -560,6 +601,10 @@
     return esc(String(v));
   }
 
+  /* Matches the engine's own isRealEstate(). Two copies of a regular expression is a real
+     risk, so E31 asserts they agree on every asset class any deal file actually uses. */
+  const RE_KIND = /real\s*estate|property|multifamily|self.?storage|hospitality/i;
+
   function dealCard(x) {
     const open = !!OPEN[x.name];
     const d = x.deal;
@@ -596,7 +641,10 @@
         + row('Exits at', mult(x.exitMult) + (x.coupon ? ' residual' : '')
           + (x.moicAssumed ? ' <span style="color:#9A5B14;font-size:10px">assumed</span>' : ''))
         + row('Expected exit', money(e.exit) + '  ' + mult(e.mult))
-        + (e.pref > 0 ? row('Preferred over the hold', money(e.pref), 'pos') : '')
+        + (e.pref > 0 ? row('Preferred over the hold', money(e.pref)
+            + (e.prefScheduled > e.pref + 1
+              ? ' <span style="color:var(--muted);font-size:11px">of '
+                + money(e.prefScheduled) + ' scheduled</span>' : ''), 'pos') : '')
         + row('Pays out', x.spread ? payWindow(x) : payWindow(x) + ' (single date)')
         + '</div></div>';
       if (d) {
@@ -606,9 +654,23 @@
         if (t.holdYears) bits.push(['Hold', t.holdYears + ' yrs']);
         if (t.equityKicker != null) bits.push(['Equity kicker', t.equityKicker]);
         if (t.sponsorMoic) bits.push(['Sponsor MOIC', mult(t.sponsorMoic)]);
-        if (t.mgmtFee != null) bits.push(['Mgmt fee', pct(t.mgmtFee)]);
+        /* A RATE FIELD HOLDING PROSE PRINTS "NaN%", and a reader who sees that quite
+           reasonably stops trusting the numbers beside it. Philo's mgmtFee was a sentence.
+           Fixed in the file too; this is the guard for the next one. */
+        if (t.mgmtFee != null) {
+          bits.push(['Mgmt fee', Number.isFinite(Number(t.mgmtFee))
+            ? pct(t.mgmtFee) : String(t.mgmtFee)]);
+        }
         if (t.carry) bits.push(['Carry', t.carry]);
         if (t.ubtiDrag != null) bits.push(['UBTI drag', pct(t.ubtiDrag)]);
+        /* LEVERAGE IS THE INPUT THAT MOST CHANGES A PROPERTY DEAL'S DOWNSIDE, and the model
+           has to use SOME number for it. When the sponsor never stated one, saying so is the
+           difference between an assumption and a quiet invention -- the same reason an
+           assumed sponsor MOIC is badged rather than printed plain. */
+        if (RE_KIND.test(String(d.assetClass || ''))) {
+          bits.push(['LTV', t.ltvPct != null ? pct(t.ltvPct)
+            : pct(Engine.CFG.reLtv.ref) + ' assumed']);
+        }
         /* A deal file whose terms are being checked says so ON THE CARD. A shared file
            that is quietly wrong is worse than no shared file, because it looks
            authoritative and nobody re-reads their own documents. */
