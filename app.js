@@ -1246,8 +1246,21 @@
     h += '<table><thead><tr><th class="l">Deal</th><th>Hold</th><th>Sponsor MOIC</th>'
       + '<th>Sponsor case</th><th>Typical</th><th>Good run</th>'
       + '<th>Chance of losing it all</th></tr></thead><tbody>';
+    /* WHICH DEALS COULD NOT BE SOLVED, and how often. Reported by Kristin Westergard on
+       2026-10-01, who read ">1000%" against ACFE as a return rather than as the solver's
+       ceiling, and quite reasonably concluded the fund had an extraordinary upside with no
+       downside. Replacing it with a bare "n/a" would take the number away and explain
+       nothing, so the deals involved are named and the reason is given. */
+    const unsolved = [];
     for (const d of R.byDeal.slice().sort((a, b) => (b.sponsorCase || -9) - (a.sponsorCase || -9))) {
-      h += '<tr><td class="l">' + esc(d.name) + '</td>'
+      const f = d.flags || {};
+      const bad = (f['above-bracket'] || 0) + (f['multi-sign'] || 0);
+      const share = d.paths ? bad / d.paths : 0;
+      if (bad > 0) unsolved.push({ name: d.name, share });
+      h += '<tr><td class="l">' + esc(d.name)
+        + (bad > 0 ? ' <span class="muted" title="A single rate of return does not describe '
+            + 'this position">\u2020</span>' : '')
+        + '</td>'
         + '<td>' + d.hold + ' yrs</td>'
         + '<td>' + mult(d.sponsorMoic) + '</td>'
         + '<td>' + rate(d.sponsorCase) + '</td>'
@@ -1257,6 +1270,20 @@
           : '<span class="muted">\u2014</span>') + '</td></tr>';
     }
     h += '</tbody></table>';
+
+    if (unsolved.length) {
+      h += '<p class="note" style="margin-top:10px">\u2020 <b>A rate of return does not '
+        + 'describe ' + (unsolved.length === 1 ? 'this position' : 'these positions') + '.</b> '
+        + unsolved.map((u) => esc(u.name) + ' (' + Math.round(u.share * 100) + '% of runs)')
+            .join(', ') + '. When most of a commitment is still uncalled, the preferred '
+        + 'return starts arriving while the money is still in your account, so cash comes '
+        + 'back before the rest of it goes out. There is no single annual rate that fits '
+        + 'that shape \u2014 mathematically there can be several, or none inside any '
+        + 'sensible range. <b>Use the multiple on capital instead</b>, on the chart above: '
+        + 'it is unaffected, and for a part-funded position it is the more honest measure '
+        + 'anyway, because a high rate on money you have not sent yet is not a return you '
+        + 'can spend. This resolves itself as the commitment gets called.</p>';
+    }
 
     /* The paper track. Shown only when the holder has actually marked something up, and
        separated from everything above by saying plainly that it is not in any of it. */

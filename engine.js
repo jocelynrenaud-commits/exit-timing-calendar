@@ -82,7 +82,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.35',
+  version: 'v1.36',
   released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -480,18 +480,25 @@ function couponSchedule(book, years) {
 function irrOf(flows, t0) {
   let anyPos = false, anyNeg = false;
   for (const f of flows) { if (f[1] > 1e-9) anyPos = true; if (f[1] < -1e-9) anyNeg = true; }
-  /* Three outcomes that are NOT zero, and showing 0% for any of them would be a lie:
+  /* Four outcomes that are NOT zero, and showing 0% for any of them would be a lie:
      no contribution at all is undefined; contributions with nothing back is exactly
-     -100%; and a return so fast it exceeds the bracket is clamped and labelled. */
+     -100%; a return that exceeds the bracket is UNDEFINED, not the bracket; and a stream
+     that changes direction more than once has several roots and no single answer. */
   if (!anyNeg) return { r: null, flag: 'no-contribution' };
   if (!anyPos) return { r: -1, flag: 'total-loss' };
   const byT = {};
   for (const f of flows) byT[f[0]] = (byT[f[0]] || 0) + f[1];
   const ts = Object.keys(byT).map(Number).sort((a, b) => a - b);
   /* A stream that changes sign more than once can have several real roots, so IRR is
-     genuinely ambiguous there. It does not occur on any book seen so far -- zero cases in
-     78,000 deal-runs -- but a coupon payer with a long call schedule could produce one,
-     and silently returning whichever root bisection lands on would be worse than saying so. */
+     genuinely ambiguous there, and silently returning whichever root bisection lands on
+     would be worse than saying so.
+
+     IT OCCURS. An earlier version of this comment said it did not -- "zero cases in 78,000
+     deal-runs" -- and that was true of the books tested, all of which were close to fully
+     funded. Kristin Westergard found it on 2026-10-01 by holding ACFE mostly uncalled: the
+     preferred return starts arriving while the capital is still in her pocket, so the early
+     years are net positive and the outflows come later. Any coupon-payer with a large
+     uncalled balance can do it. */
   let changes = 0, prev = 0;
   for (const t of ts) {
     const sg = byT[t] > 1e-9 ? 1 : (byT[t] < -1e-9 ? -1 : 0);
@@ -505,12 +512,15 @@ function irrOf(flows, t0) {
   };
   let lo = -0.9999, hi = 10;
   if (npv(lo) < 0) return { r: -1, flag: 'total-loss' };
-  if (npv(hi) > 0) return { r: hi, flag: 'above-bracket' };
+  /* NOT `{ r: hi }`. Returning the ceiling printed "1000.0%" in the by-deal table, which a
+     reader quite reasonably took for a 1000% return rather than for the solver giving up. */
+  if (npv(hi) > 0) return { r: null, flag: 'above-bracket' };
   for (let i = 0; i < 60; i++) {
     const mid = (lo + hi) / 2;
     if (npv(mid) > 0) lo = mid; else hi = mid;
   }
-  return { r: (lo + hi) / 2, flag: changes > 1 ? 'multi-sign' : 'ok' };
+  if (changes > 1) return { r: null, flag: 'multi-sign' };
+  return { r: (lo + hi) / 2, flag: 'ok' };
 }
 
 /* One position's signed cash flow for one path, built from its TERMS rather than from the
@@ -658,6 +668,7 @@ function simulate(book, opts) {
   const irrPort = [];
   const irrClass = {};
   const irrFlags = {};
+  const dealFlags = [];
   const classT0 = {};
   if (wantIrr) {
     for (const b of book) {
@@ -709,6 +720,11 @@ function simulate(book, opts) {
         const res = irrOf(fl, b.fy);
         irrDeal[bi].push(res.r);
         irrFlags[res.flag] = (irrFlags[res.flag] || 0) + 1;
+        /* PER DEAL as well as in total. The global tally existed from the start and nothing
+           ever displayed it, so a position whose rate of return could not be computed looked
+           exactly like one whose could. The table has to be able to say WHICH deal and WHY. */
+        if (!dealFlags[bi]) dealFlags[bi] = {};
+        dealFlags[bi][res.flag] = (dealFlags[bi][res.flag] || 0) + 1;
         for (const f of fl) pooled.push(f);
         if (classFlows[b.kind] == null) classFlows[b.kind] = [];
         for (const f of fl) classFlows[b.kind].push(f);
@@ -825,13 +841,25 @@ function simulate(book, opts) {
     /* Percentiles over the DEFINED values only. A run where a deal returned nothing is
        -100% and belongs in the distribution; a run where it had no cash flow at all is
        undefined and must not be silently counted as a zero. */
+    /* AN UNSOLVABLE PATH IS NOT AN ABSENT ONE. Filtering the nulls out and taking the
+       quantile of what is left reports a complete-looking band computed only from the runs
+       that behaved -- and the runs that did not behave are the ones at the TOP, so dropping
+       them drags p90 down and still prints it with a decimal point.
+
+       So they keep their place in the ordering, above every solved path, and a quantile that
+       lands among them returns null. p90 goes undefined exactly when a tenth or more of the
+       runs could not be solved; p50 is untouched until half of them cannot. A position with
+       nothing undefined is completely unaffected, which is every fully funded one. */
     const qi = (arr, pp) => {
       const v = arr.filter((x) => x != null).sort((a, b) => a - b);
-      return v.length ? v[Math.floor(pp * (v.length - 1))] : null;
+      if (!v.length) return null;
+      const i = Math.floor(pp * (arr.length - 1));
+      return i < v.length ? v[i] : null;
     };
     const band = (arr) => ({
       p10: qi(arr, 0.10), p50: qi(arr, 0.50), p90: qi(arr, 0.90),
       defined: arr.filter((x) => x != null).length,
+      paths: arr.length,
     });
 
     /* "By scenario" has two defensible readings and they disagree, so both ship and both
@@ -851,6 +879,7 @@ function simulate(book, opts) {
         name: b.name, kind: b.kind, commitment: b.commitment,
         sponsorMoic: b.moic, sponsorCase: sponsorCaseIrr(b), hold: b.hold,
         lossShare: irrDeal[i].filter((x) => x != null && x <= -0.9999).length / (irrDeal[i].length || 1),
+        flags: dealFlags[i] || {},
       }, band(irrDeal[i]))),
       flags: irrFlags,
       paper: paperTrack(book),
