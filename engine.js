@@ -82,7 +82,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.40',
+  version: 'v1.41',
   released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -321,6 +321,12 @@ function buildBook(rows) {
       markedUpMoic,                   // paper only; never reaches the simulation
       paperNav: markedUpMoic ? funded * markedUpMoic : funded,
       deal: r._deal || null,          // the shared file this matched, if any
+      /* WHICH REAL-WORLD DEAL THIS ROW IS. Two tranches of one company share a fate and must
+         share a draw. Keyed on the resolved file where there is one, because Eephus Growth
+         Fund I and II are different funds with similar names and must stay independent; a row
+         that matched nothing falls back to its own name so two hand-typed rows still group. */
+      groupKey: (r._deal && r._deal.slug)
+        || ('name:' + String(r.name || '').trim().toLowerCase()),
       overrides: r._ovr || [],        // fields the holder typed over that file
       tier: r._tier || null,          // the band this commitment landed in, if resolvable
       tierUnresolved: !!r._tierUnresolved,
@@ -757,11 +763,20 @@ function simulate(book, opts) {
     for (const y of years) { yr[y] = 0; cp[y] = 0; }
     const pooled = wantIrr ? [] : null;
     const classFlows = {};
+    /* Reset every path: a shared fate is shared WITHIN one future, not across all of them. */
+    const drawnBy = {};
     for (let bi = 0; bi < book.length; bi++) {
       const b = book[bi];
-      const off = pick(rnd, CFG.timing, 4);
+      /* ONE COMPANY, ONE FATE. Two tranches of the same deal drew independently until
+         2026-10-02, so a single future could write one off and pay the other 14.2x. The draw
+         and the timing jitter are taken once per deal per path and reused; the exit YEAR is
+         not shared, because that comes from each row's own stated dates and overruling a
+         holder's input is not this tool's job. */
+      const seen = drawnBy[b.groupKey];
+      const off = seen ? seen.off : pick(rnd, CFG.timing, 4);
       const ey = b.likely + off;
-      const drawn = pickOutcome(rnd, b.branches);
+      const drawn = seen ? seen.drawn : pickOutcome(rnd, b.branches);
+      if (!seen) drawnBy[b.groupKey] = { off, drawn };
       let m = drawn.v;
       if (m === null) m = b.exitMult;                    // top branch: the full exit
       else if (b.scales && !drawn.abs) m = m * b.exitMult;   // tight tables scale it

@@ -255,6 +255,30 @@
       if (!parseInt(r.yearFunded, 10)) problems.push(where + ': no year funded');
     });
     (skipped || []).forEach((n) => problems.push(n + ': looks like a deal but has no commitment, so it was left out'));
+
+    /* TWO TRANCHES OF ONE DEAL THAT EXIT IN DIFFERENT YEARS. They now share an outcome, so
+       one company can no longer be written off and pay its sponsor case in the same future.
+       The exit year is still each row's own, because overruling what somebody typed is not
+       this tool's job, which leaves a future that cannot happen unless it is pointed out.
+       Grouped on the NAME here because validate runs before the deal files are resolved. */
+    const byName = {};
+    rows.forEach((r) => {
+      const k = String(r.name || '').trim().toLowerCase();
+      if (!k) return;
+      (byName[k] = byName[k] || []).push(r);
+    });
+    Object.keys(byName).forEach((k) => {
+      const g = byName[k];
+      if (g.length < 2) return;
+      const yrs = [...new Set(g.map((r) => String(r.exitLikely || '').trim()).filter(Boolean))];
+      const anyBlank = g.some((r) => !String(r.exitLikely || '').trim());
+      if (yrs.length > 1 || (yrs.length === 1 && anyBlank)) {
+        problems.push(g[0].name + ': ' + g.length + ' rows of the same deal, and they do not '
+          + 'share an exit year. They now share an outcome, because one company has one fate, '
+          + 'but each row still exits on its own dates. Put the same exit years on both and '
+          + 'they will pay together.');
+      }
+    });
     return problems;
   }
 
