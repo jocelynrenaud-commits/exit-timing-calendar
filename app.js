@@ -158,6 +158,14 @@
     ['yearFunded',  ['year funded', 'funded year', 'vintage', 'year']],
     ['funded',      ['funded to date', 'funded', 'paid in', 'contributed']],
     ['uncalled',    ['uncalled', 'unfunded', 'remaining', 'callable']],
+    /* A CALL YOU ALREADY KNOW ABOUT. Optional; blank behaves exactly as before. Neither of
+       these carries a bare 'next call' alias, and that is deliberate: matching is
+       header.startsWith(alias), so 'next call' would claim a column headed "Next call amount"
+       and read a dollar figure as a date. Same trap as `yearFunded` before `funded`. */
+    ['nextCallDate',   ['next call date', 'next capital call date', 'call date',
+                        'next call expected', 'expected call date']],
+    ['nextCallAmount', ['next call amount', 'next capital call amount', 'call amount',
+                        'next call size']],
     ['hold',        ['hold', 'hold (yrs)', 'hold years', 'term', 'fund life', 'horizon']],
     /* 'coupon' stays FIRST and stays supported. The community calls these preferred
        returns and the app now says so everywhere a member reads, but every tracker
@@ -469,13 +477,13 @@
     for (let y = Engine.CFG.yearFrom; y <= Engine.CFG.yearFrom + 9; y++) yrs.push(y);
     const calls = {}, prefs = {};
     yrs.forEach((y) => { calls[y] = 0; prefs[y] = 0; });
+    /* THE ENGINE'S SCHEDULE, not a second copy of it. This panel used to spread uncalled
+       capital itself, so the rule lived in two files and the two could drift without either
+       looking wrong. It is the same function the simulation calls. */
+    const eCalls = Engine.callSchedule(b, yrs);
+    yrs.forEach((y) => { calls[y] = eCalls[y] || 0; });
+    const notes = Engine.callNotes(b);
     b.forEach((x) => {
-      if (x.uncalled > 0) {
-        for (let i = 0; i < Engine.CFG.callYears; i++) {
-          const y = x.fy + 1 + i;
-          if (calls[y] != null) calls[y] += x.uncalled / Engine.CFG.callYears;
-        }
-      }
       if (x.coupon > 0) {
         for (let i = 1; i <= x.hold; i++) {
           const y = x.fy + i;
@@ -494,13 +502,34 @@
       + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
       + 'money the documents promise you. Exits are left out on purpose \u2014 an exit is a hope, '
       + 'a preferred return is a promise. Exits are on Performance &amp; Returns.</p>'
-      + '<p class="note"><b>Each year is a full calendar year, and it is modelled rather than '
-      + 'scheduled.</b> Sponsors rarely publish a call schedule, so the tool takes whatever is '
-      + 'still uncalled and spreads it evenly over about three years from the year after you '
-      + 'funded. That means the current year is <b>not</b> what has been called so far, and '
-      + '<b>not</b> what is left \u2014 it is the whole of ' + nowY + ', including the months '
-      + 'already gone. <b>If you know a real call date, yours beats this</b>, and a column to '
-      + 'tell it so is coming.</p>'
+      + '<p class="note"><b>Each year is a full calendar year, and where you have not told it '
+      + 'otherwise it is modelled rather than scheduled.</b> Sponsors rarely publish a call '
+      + 'schedule, so the tool takes whatever is still uncalled and spreads it evenly over '
+      + 'about three years from the year after you funded. A modelled year is <b>not</b> what '
+      + 'has been called so far and <b>not</b> what is left \u2014 it is the whole of ' + nowY
+      + ', including the months already gone.</p>'
+      + '<p class="note"><b>If you know when your next call is due, say so and this stops '
+      + 'guessing.</b> Add a <b>Next call date</b> column to your tracker, and a <b>Next call '
+      + 'amount</b> if you know it. Any spelling of the date works \u2014 2027, Q1 2027, '
+      + 'March 2027 \u2014 because only the year is used: this calendar is annual. With both, '
+      + 'that amount lands in that year and the rest spreads after it. With the date alone, '
+      + 'nothing is shown arriving before it.</p>'
+      + (notes.stated.length
+          ? '<p class="note"><b>Taken from your tracker, not modelled:</b> '
+            + notes.stated.map((x) => esc(x.name) + ' \u2014 '
+                + (x.amount > 0 ? money(x.amount) + ' in ' : 'from ')
+                + (x.raw ? esc(x.raw) : x.year)).join('; ') + '.</p>'
+          : '')
+      + (notes.undated.length
+          ? '<p class="note warn"><b>An amount with no date cannot be placed.</b> '
+            + notes.undated.map((x) => esc(x.name) + ' (' + money(x.amount) + ')').join(', ')
+            + (notes.undated.length === 1 ? ' states' : ' state')
+            + ' a next call amount but no date, so '
+            + (notes.undated.length === 1 ? 'that row falls' : 'those rows fall')
+            + ' back to the even spread. '
+            + 'Putting the money in the next year would be inventing the very thing '
+            + 'the column exists to stop. Add a date and it will be used.</p>'
+          : '')
       + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
       + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
       + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
@@ -509,7 +538,11 @@
              where "the whole year" and "what is left" differ. Approximate on purpose: it is an
              even spread within an even spread, and a precise-looking figure would overstate
              what the tool actually knows. */
-          const ahead = (y === nowY && calls[y] > 0)
+          /* The split only makes sense for a MODELLED year. A call the holder dated themselves
+             has a real date, and pro-rating it by months would be the tool second-guessing the
+             one person who actually knows. */
+          const statedThisYear = notes.stated.some((x) => x.year === nowY);
+          const ahead = (y === nowY && calls[y] > 0 && !statedThisYear)
             ? ' <span class="muted" style="font-size:10.5px">\u2248' + moneyTight(calls[y] * monthsLeft / 12)
               + ' still ahead</span>'
             : '';

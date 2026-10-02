@@ -149,6 +149,14 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.38 &nbsp;&middot;&nbsp; 1 Oct 2026</span>
+      <h4>Tell it when your next capital call is due, and it stops guessing</h4>
+      <p><b>Two optional columns: Next call date and Next call amount.</b> Leave them blank and nothing changes. Fill them in and the tool uses what you know instead of what it assumed. Sponsors rarely publish a call schedule, so until now it took whatever was still uncalled and spread it evenly over about three years from the year after you funded. That is a reasonable guess and it is still the fallback, but it was being asserted over people who had better information, which is the opposite of how the rest of this works.</p>
+      <p><b>Any spelling of the date works</b> &mdash; 2027, Q1 2027, 2027-03, March 2027 &mdash; because only the year is used. This calendar is annual, and holding the quarter would imply a precision nothing downstream uses. With a date <i>and</i> an amount, that amount lands in that year and the remainder spreads after it. With the date alone, nothing is shown arriving before it, which is usually the thing you actually want to say.</p>
+      <p><b>An amount with no date is refused, out loud.</b> There is no year to put it in, and choosing one would invent exactly the thing the column exists to stop. Those rows fall back to the even spread and the panel names them, because a column you filled in that quietly did nothing is worse than no column at all.</p>
+      <p>The panel also lists which positions came from your tracker rather than from the model, and echoes your date back as you wrote it so you can see it was read correctly. A year you have dated yourself no longer shows the <i>still ahead</i> estimate, since pro-rating a known date by months elapsed would be the tool second-guessing the one person who knows.</p>
+      <p><i>Under the hood:</i> this panel had grown its own second copy of the call schedule, so the rule lived in two files and could drift without either looking wrong. It now calls the same function the simulation does.</p>
+
       <span class="tag">v1.37 &nbsp;&middot;&nbsp; 1 Oct 2026</span>
       <h4>Three more from Kristin Westergard, all about reading the screen</h4>
       <p><b>The gold preferred-return lines on the ladder now carry their amount</b>, which the exit blocks have had since the chart shipped. Hover either. The figure was always being calculated, it was just never attached to the one element that arrives on a promised schedule rather than on a hope.</p>

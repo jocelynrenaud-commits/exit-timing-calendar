@@ -82,7 +82,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.37',
+  version: 'v1.38',
   released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -239,6 +239,11 @@ function buildBook(rows) {
     let exitMult = moic;
     if (coupon > 0) exitMult = Math.max(0.2, moic - coupon * hold);
 
+    /* A CALL THE HOLDER ACTUALLY KNOWS ABOUT. Only the year is taken: the whole calendar is
+       annual, so "Q1 2027" and "2027-03" and "2027" are the same instruction here, and
+       pretending to hold the quarter would imply a precision nothing downstream uses. */
+    const nextCallYear = callYearOf(r.nextCallDate);
+    const nextCallAmt = Math.max(0, num(r.nextCallAmount));
     const likely = parseInt(r.exitLikely, 10) || (fy + hold);
     const kind = coupon > 0 ? 'income' : 'venture';
     /* Read BEFORE the outcome table is chosen, because from v1.35 the table depends on both.
@@ -308,6 +313,8 @@ function buildBook(rows) {
       cls,
       ltv,
       commitment, funded, uncalled, coupon, hold, fy, moic,
+      nextCallYear, nextCallAmt,
+      nextCallRaw: String(r.nextCallDate || '').trim(),
       uncalledYieldPct: num(r.uncalledYieldPct) || 0,
       uncalledYieldUntil: num(r.uncalledYieldUntil) || 0,
       exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed,
@@ -366,19 +373,65 @@ function num(v) {
   return n;
 }
 
-/* Capital calls are contractual, so they are deterministic and never simulated.
-   They are also the only movement on this whole calendar you actually KNOW about. */
+/* "Q1 2027", "2027-03", "March 2027", 2027. Only the YEAR is wanted, because the calendar
+   this feeds is annual, so a quarter would be precision nothing downstream can use. Forgiving
+   on purpose: nobody keeps a spreadsheet to someone else's date format. */
+function callYearOf(v) {
+  if (v == null || v === '') return 0;
+  if (typeof v === 'number' && v >= 1900 && v <= 2200) return Math.round(v);
+  const m = String(v).match(/(19|20|21)\d{2}/);
+  const y = m ? Number(m[0]) : 0;
+  return y >= 1900 && y <= 2200 ? y : 0;
+}
+
+/* Capital calls are contractual, so they are deterministic and never simulated. They are also
+   the only movement on this whole calendar you actually KNOW about -- and until v1.38 the tool
+   would not listen when you did. A holder who can name the date and the amount gets exactly
+   that; the even spread is the fallback for everyone else. */
 function callSchedule(book, years) {
   const out = {};
   for (const y of years) out[y] = 0;
   for (const b of book) {
     if (b.uncalled <= 0) continue;
+    const stated = Math.min(b.nextCallAmt || 0, b.uncalled);
+    /* A stated amount with no date cannot be placed in a year, and putting it in the next one
+       would invent the very thing this column exists to stop. It falls through to the spread,
+       and callNotes() below makes sure that is said rather than silently done. */
+    if (b.nextCallYear && stated > 0) {
+      if (out[b.nextCallYear] != null) out[b.nextCallYear] += stated;
+      const rest = b.uncalled - stated;
+      if (rest > 0.005) {
+        for (let k = 0; k < CFG.callYears; k++) {
+          const y = b.nextCallYear + 1 + k;
+          if (out[y] != null) out[y] += rest / CFG.callYears;
+        }
+      }
+      continue;
+    }
+    /* A date with no amount still says the most important thing: nothing arrives before it. */
+    const from = b.nextCallYear ? b.nextCallYear : b.fy + 1;
     for (let k = 0; k < CFG.callYears; k++) {
-      const y = b.fy + 1 + k;
+      const y = from + k;
       if (out[y] != null) out[y] += b.uncalled / CFG.callYears;
     }
   }
   return out;
+}
+
+/* What the schedule above did with what it was told, so the screen can say so. A column
+   someone filled in that quietly changed nothing is worse than no column at all. */
+function callNotes(book) {
+  const stated = [], undated = [];
+  for (const b of book) {
+    if (b.uncalled <= 0) continue;
+    if (b.nextCallYear) {
+      stated.push({ name: b.name, year: b.nextCallYear, raw: b.nextCallRaw,
+        amount: Math.min(b.nextCallAmt || 0, b.uncalled) });
+    } else if (b.nextCallAmt > 0) {
+      undated.push({ name: b.name, amount: b.nextCallAmt });
+    }
+  }
+  return { stated, undated };
 }
 
 /* Preferred returns, also deterministic. This is the most optimistic assumption in the
@@ -1081,8 +1134,12 @@ function applyDealFile(row, f) {
   return out;
 }
 
+/* callSchedule is exported because app.js had grown its OWN copy of it, so A2b would have been
+   the third place to change the same rule. Two implementations of one schedule is how the deal
+   index drifted from the deal files. */
 const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier,
-                 irrOf, dealStream, sponsorCaseIrr, paperTrack, prefFactor };
+                 irrOf, dealStream, sponsorCaseIrr, paperTrack, prefFactor,
+                 callSchedule, callNotes, callYearOf };
 /* Exported because app.js draws three panels off the same figure. A second copy of the
    ramp in the UI is exactly how the cash table and the ladder end up disagreeing. */
 Engine.prefInYear = prefInYear;
