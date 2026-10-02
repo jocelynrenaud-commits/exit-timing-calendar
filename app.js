@@ -49,6 +49,7 @@
 
   let DEALIDX = null;       // the shared deal index, loaded once
   let OPEN = {};            // which deal cards are expanded
+  let DEALSORT = 'tracker'; // by-deal table order; 'tracker' is the order she typed
 
   /* The shared deal files are fetched once and cached. A failure here is not fatal:
      the tool still runs on whatever the tracker holds, which is the whole point of the
@@ -311,9 +312,16 @@
   /* ── the three tabs ───────────────────────────────────────────────────────
      Dashboard is what you hold now. Liquidity Outlook is when it comes back and how
      much. Background is the assumptions, so the other two can be argued with. */
+  /* RENAMEABLE, and exactly one of them needs to be. "Loaded GC Deals" names a community,
+     which is right in the Growth Circle app and wrong in a generically-named one that ships
+     fictional demo deals. The next app sets window.APP_TAB_LABELS in its own index.html, the
+     same shape as APP_PLUGINS, so app.js stays byte-identical in both and the live app --
+     which sets nothing -- is unchanged. */
+  const LABELS = (typeof window !== 'undefined' && window.APP_TAB_LABELS) || {};
   const BASE_TABS = [['dash', 'Private Deal Dashboard'], ['outlook', 'Liquidity Outlook'],
                      ['perf', 'Performance & Returns'], ['about', 'Glossary & Background'],
-                     ['universe', 'Loaded GC Deals']];
+                     ['universe', 'Loaded GC Deals']]
+    .map(([k, label]) => [k, LABELS[k] || label]);
 
   /* EXTENSION POINT, and it is deliberately tiny. The next-generation app is this app plus
      extra script tags: app.js and engine.js stay byte-identical in both, so a fix made here
@@ -1176,6 +1184,12 @@
   function rate(v) {
     if (v == null) return '<span class="muted">n/a</span>';
     if (v <= -0.9999) return '<span class="neg">\u2212100%</span>';
+    /* ZERO IS NOT A LOSS. A deal whose outcome is "capital returned" has an IRR of exactly
+       zero, and bisection lands a hair under it, so this printed a red -0.0% on six of one
+       member's venture positions. Reported by Kristin Westergard, 2026-10-02: "how can venture
+       have a negative number on a bad run? You can't lose more than you put in." Anything
+       inside half a basis point is zero, and is shown in neutral ink. */
+    if (Math.abs(v) < 0.0005) return '0.0%';
     if (v >= 9.999) return '&gt;1000%';
     const t = (100 * v).toFixed(1) + '%';
     return v < 0 ? '<span class="neg">\u2212' + t.replace('-', '') + '</span>' : t;
@@ -1299,6 +1313,20 @@
       + '<b>Chance of losing it all</b> is the odds, not an amount. 31% means that in 31 of '
       + 'every 100 futures that deal pays back nothing at all. It is a positive number because '
       + 'it counts how often, not how much.</p></details>';
+    /* HER ORDER, NOT MINE. This sorted by sponsor case descending and threw away the order
+       she typed, which split her two Asilia positions and her two Plan A rows apart. Reported
+       by Kristin Westergard, 2026-10-02: "It makes it harder to compare. Is there anyway to
+       control in what order the deals are listed?" There was not. Tracker order is now the
+       default, because it is the one ordering the holder controls and the only one that keeps
+       two rows of the same deal together. */
+    h += '<div class="row" style="margin:10px 0 2px;align-items:center;gap:8px">'
+      + '<span class="note" style="margin:0">Order</span>'
+      + ['tracker', 'Your tracker', 'sponsor', 'Sponsor case', 'typical', 'Typical', 'size',
+         'Commitment'].reduce((a, v, i, arr) => (i % 2 ? a : a.concat([[v, arr[i + 1]]])), [])
+        .map(([k, lbl]) => '<button class="tab' + (DEALSORT === k ? ' on' : '')
+          + '" data-dsort="' + k + '" style="font-size:12px;padding:3px 9px">' + lbl
+          + '</button>').join('')
+      + '</div>';
     h += '<table><thead><tr><th class="l">Deal</th><th>Hold</th><th>Sponsor MOIC</th>'
       + '<th>Sponsor case</th><th>Typical</th><th>Good run</th>'
       + '<th>Chance of losing it all</th></tr></thead><tbody>';
@@ -1308,7 +1336,15 @@
        downside. Replacing it with a bare "n/a" would take the number away and explain
        nothing, so the deals involved are named and the reason is given. */
     const unsolved = [];
-    for (const d of R.byDeal.slice().sort((a, b) => (b.sponsorCase || -9) - (a.sponsorCase || -9))) {
+    const SORTS = {
+      tracker: null,          // as typed; byDeal already arrives in the order of the sheet
+      sponsor: (a, b) => (b.sponsorCase || -9) - (a.sponsorCase || -9),
+      typical: (a, b) => (b.p50 == null ? -9 : b.p50) - (a.p50 == null ? -9 : a.p50),
+      size: (a, b) => (b.commitment || 0) - (a.commitment || 0),
+    };
+    const ordered = R.byDeal.slice();
+    if (SORTS[DEALSORT]) ordered.sort(SORTS[DEALSORT]);
+    for (const d of ordered) {
       const f = d.flags || {};
       const bad = (f['above-bracket'] || 0) + (f['multi-sign'] || 0);
       const share = d.paths ? bad / d.paths : 0;
@@ -2073,6 +2109,8 @@
       b.onclick = () => { MODE = b.getAttribute('data-mode'); render(); });
     document.querySelectorAll('[data-dist]').forEach((b) =>
       b.onclick = () => { DIST = b.getAttribute('data-dist'); render(); });
+    document.querySelectorAll('[data-dsort]').forEach((b) =>
+      b.onclick = () => { DEALSORT = b.getAttribute('data-dsort'); render(); });
   }
 
   /* ── intake ──────────────────────────────────────────────────────────────── */

@@ -82,7 +82,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.39',
+  version: 'v1.40',
   released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -388,32 +388,49 @@ function callYearOf(v) {
    the only movement on this whole calendar you actually KNOW about -- and until v1.38 the tool
    would not listen when you did. A holder who can name the date and the amount gets exactly
    that; the even spread is the fallback for everyone else. */
+/* ONE POSITION'S CALLS, BY YEAR. Expressed once and consumed twice, by the capital-calls
+   panel and by the preferred return, because those two disagreed for a day and a member found
+   it: v1.38 taught the schedule about the Next call date column and did not teach calledBy(),
+   so the panel said nothing arrived before 2027 while the coupon was paid as though a third
+   had arrived the year before. Reported by Kristin Westergard on 2026-10-02, on her own book,
+   and she was right to the dollar. */
+function callsOf(b) {
+  const out = {};
+  if (!(b.uncalled > 0)) return out;
+  const add = (y, v) => { out[y] = (out[y] || 0) + v; };
+  const stated = Math.min(b.nextCallAmt || 0, b.uncalled);
+  if (b.nextCallYear && stated > 0) {
+    add(b.nextCallYear, stated);
+    const rest = b.uncalled - stated;
+    if (rest > 0.005) {
+      for (let k = 0; k < CFG.callYears; k++) add(b.nextCallYear + 1 + k, rest / CFG.callYears);
+    }
+    return out;
+  }
+  /* A stated amount with no date cannot be placed in a year, and choosing one would invent the
+     very thing the column exists to stop. It falls through to the even spread, and callNotes()
+     makes sure that is said rather than silently done. A DATE with no amount still says the
+     most important thing: nothing arrives before it. */
+  const from = b.nextCallYear ? b.nextCallYear : b.fy + 1;
+  for (let k = 0; k < CFG.callYears; k++) add(from + k, b.uncalled / CFG.callYears);
+  return out;
+}
+
+/* Everything called up to and including a year, which is the base a preferred return accrues
+   on. Derived from callsOf so it cannot drift from the schedule on screen. */
+function callsCumulative(b, year) {
+  const c = callsOf(b);
+  let acc = b.funded;
+  for (const y of Object.keys(c)) if (Number(y) <= year) acc += c[y];
+  return Math.min(acc, b.commitment);
+}
+
 function callSchedule(book, years) {
   const out = {};
   for (const y of years) out[y] = 0;
   for (const b of book) {
-    if (b.uncalled <= 0) continue;
-    const stated = Math.min(b.nextCallAmt || 0, b.uncalled);
-    /* A stated amount with no date cannot be placed in a year, and putting it in the next one
-       would invent the very thing this column exists to stop. It falls through to the spread,
-       and callNotes() below makes sure that is said rather than silently done. */
-    if (b.nextCallYear && stated > 0) {
-      if (out[b.nextCallYear] != null) out[b.nextCallYear] += stated;
-      const rest = b.uncalled - stated;
-      if (rest > 0.005) {
-        for (let k = 0; k < CFG.callYears; k++) {
-          const y = b.nextCallYear + 1 + k;
-          if (out[y] != null) out[y] += rest / CFG.callYears;
-        }
-      }
-      continue;
-    }
-    /* A date with no amount still says the most important thing: nothing arrives before it. */
-    const from = b.nextCallYear ? b.nextCallYear : b.fy + 1;
-    for (let k = 0; k < CFG.callYears; k++) {
-      const y = from + k;
-      if (out[y] != null) out[y] += b.uncalled / CFG.callYears;
-    }
+    const c = callsOf(b);
+    for (const y of Object.keys(c)) if (out[y] != null) out[y] += c[y];
   }
   return out;
 }
@@ -466,7 +483,10 @@ function prefFactor(b, m) {
 function calledBy(b, k) {
   if (k <= 0) return b.funded;
   if (!(b.uncalled > 0)) return b.commitment;
-  return b.funded + b.uncalled * Math.min(k, CFG.callYears) / CFG.callYears;
+  /* NOT its own copy of the ramp. It had one until 2026-10-02 and that copy never learned
+     about the Next call date column, so a holder who told the tool her next call was Q1 2027
+     still had a coupon paid on a third of her commitment in 2026. */
+  return callsCumulative(b, b.fy + k);
 }
 
 /* Some funds pay a small yield on money you have committed but they have not called, so it
@@ -1139,7 +1159,7 @@ function applyDealFile(row, f) {
    index drifted from the deal files. */
 const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier,
                  irrOf, dealStream, sponsorCaseIrr, paperTrack, prefFactor,
-                 callSchedule, callNotes, callYearOf };
+                 callSchedule, callNotes, callYearOf, callsOf, callsCumulative };
 /* Exported because app.js draws three panels off the same figure. A second copy of the
    ramp in the UI is exactly how the cash table and the ladder end up disagreeing. */
 Engine.prefInYear = prefInYear;

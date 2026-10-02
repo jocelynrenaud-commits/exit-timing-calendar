@@ -149,6 +149,13 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.40 &nbsp;&middot;&nbsp; 2 Oct 2026</span>
+      <h4>A capital call you dated was being ignored by the preferred return</h4>
+      <p><b>Found by Kristin Westergard on her own book, and she was right to the dollar.</b> Her Asilia Evergreen row is $400,000 committed, nothing funded, and she had told the tool the next call is <b>Q1 2027</b>. The ladder still showed <b>$37,333</b> of income for 2026. It should have been <b>$26,000</b>, which is the yield on uncalled capital, because in 2026 none of it has been called.</p>
+      <p><b>Why.</b> v1.38 added the Next call date column and taught the capital-calls panel about it. It did not teach the preferred return, which kept its own copy of the old assumption that a commitment is drawn evenly over three years from the year after you funded. So the calls table said nothing arrives before 2027 while the coupon was being paid on a third of the commitment in 2026. The $37,333 was $20,000 of coupon on money that had not been called, plus $17,333 of yield on the rest. <b>There is now one schedule</b>, used by both, so they cannot disagree again.</p>
+      <p><b>Zero is no longer shown as a loss.</b> A deal whose typical outcome is &ldquo;you get your capital back&rdquo; has a rate of return of exactly zero, and the solver lands a hair underneath it, so the table printed a red &minus;0.0%. On a book with several single venture deals that is most of the column. Anything inside half a basis point now reads 0.0% in plain ink. The genuinely negative figures are unaffected, and a sleeve <i>can</i> show a small negative: that column is a yearly rate, so &minus;0.4% a year is a few per cent of capital over a hold, not a loss bigger than what you put in.</p>
+      <p><b>And the by-deal table keeps your order.</b> It used to sort by sponsor case and throw away the order you typed, which splits two tranches of the same deal apart and makes them hard to compare. Your tracker order is now the default, with buttons to re-sort by sponsor case, typical return or commitment.</p>
+
       <span class="tag">v1.39 &nbsp;&middot;&nbsp; 1 Oct 2026</span>
       <h4>The tracker itself now has the two capital-call columns</h4>
       <p><b>You do not have to download anything.</b> The columns are optional and the app works exactly as it always has without them, so an existing tracker keeps producing the figures it produced yesterday. This is only for people who want to start dating their calls.</p>
