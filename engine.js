@@ -82,7 +82,7 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.38',
+  version: 'v1.39',
   released: '30 Sep 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
@@ -90,7 +90,7 @@ const CFG = {
      "older tracker" notice started telling people to look for a v1.7 stamp in a file that
      correctly says v1.6, and the only way to satisfy it would have been to make everyone
      re-download a spreadsheet identical to the one they already had. */
-  trackerVersion: 'v1.7',
+  trackerVersion: 'v1.8',
 
   /* Venture: the ten-deal power law. The last branch, 10%, is the sponsor's own
      projected multiple. That number is what the deal returns IF IT WORKS; using it as
