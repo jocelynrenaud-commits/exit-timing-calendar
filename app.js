@@ -252,7 +252,18 @@
       const where = r.name;
       if (!Engine.num(r.moic) && !Engine.num(r.coupon))
         problems.push(where + ': no sponsor multiple and no preferred return, so there is nothing to exit on');
-      if (!parseInt(r.yearFunded, 10)) problems.push(where + ': no year funded');
+      if (!parseInt(r.yearFunded, 10)) problems.push(where + ': no year funded, so it is treated as funded in '
+        + Engine.CFG.yearFrom + ', which sets when its preferred return and calls start');
+      /* v1.42: the three capital figures must tie. When Funded is blank the engine derives it
+         from the other two; when all three are typed and disagree, nothing can be derived and
+         the reader has to be told which figure the model ran on. */
+      const blank = (v) => v == null || String(v).trim() === '';
+      const cm = Engine.num(r.commitment), fd = Engine.num(r.funded), un = Engine.num(r.uncalled);
+      if (cm > 0 && !blank(r.funded) && !blank(r.uncalled) && Math.abs(fd + un - cm) > 1) {
+        problems.push(where + ': funded ' + money(fd) + ' plus uncalled ' + money(un)
+          + ' does not equal the ' + money(cm) + ' committed. The model calls the uncalled '
+          + 'figure and exits on the commitment, so one of the three is out of date.');
+      }
     });
     (skipped || []).forEach((n) => problems.push(n + ': looks like a deal but has no commitment, so it was left out'));
 
@@ -460,8 +471,12 @@
               'Private Equity': '#2563EB', 'Private Credit': '#B17930' })[c] || '#6B7A8C';
   }
 
+  /* v1.42: from the engine's exit plan, the same years the Positions table, the ladder and the
+     simulation use. It read fy + window / fy + hold, so a typed "Exit likely" moved every
+     other panel and left the deal card naming the old year. */
   function payWindow(x) {
-    return x.spread ? (x.fy + x.liq[0]) + '–' + (x.fy + x.liq[1]) : String(x.fy + x.hold);
+    const ys = Engine.exitPlan(x, 0).map((p) => p[0]);
+    return ys.length > 1 ? ys[0] + '–' + ys[ys.length - 1] : String(ys[0]);
   }
 
   /* ── DASHBOARD ────────────────────────────────────────────────────────────
@@ -484,7 +499,7 @@
       + 'and a venture fund holding ' + Engine.CFG.fundMinDeals + '+ deals is priced as a portfolio '
       + 'rather than as one company.</p>'
       + '<table><tr><th class="l">Deal</th><th class="l">Sleeve</th><th>Deals</th><th>Commitment</th>'
-      + '<th>Uncalled</th><th>Preferred return</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
+      + '<th>Uncalled</th><th>Preferred rate</th><th>Sponsor MOIC</th><th>Exit multiple</th><th>Exit</th></tr>'
       + book.slice().sort((p, q) => p.name.localeCompare(q.name, 'en', { sensitivity: 'base' }))
         .map((b) => '<tr><td class="l">' + esc(b.name) + '</td>'
         + '<td class="l" style="color:' + (b.kind === 'venture' ? '#7B5EA7' : '#B17930') + '">'
@@ -493,11 +508,12 @@
         + '<td>' + money(b.commitment) + '</td>'
         + '<td class="' + (b.uncalled > 0 ? 'neg' : 'z') + '">' + (b.uncalled > 0 ? money(b.uncalled) : DASH) + '</td>'
         + '<td class="' + (b.coupon ? 'pos' : 'z') + '">' + (b.coupon ? (b.coupon * 100).toFixed(1) + '%' : DASH) + '</td>'
-        + '<td>' + mult(b.moic) + '</td>'
+        /* A multiple nobody supplied is marked, here as on the card: with no MOIC given the
+           tool derives one from the preferred rate (1 + rate x hold) or falls back to 5.0x. */
+        + '<td>' + mult(b.moic) + (b.moicGiven ? '' : ' <span class="muted" title="No sponsor '
+          + 'multiple was given; this is the tool’s assumption">(assumed)</span>') + '</td>'
         + '<td class="b">' + mult(b.exitMult) + '</td>'
-        + '<td>' + (b.spread
-            ? (b.likely + b.spread[0][0]) + '-' + (b.likely + b.spread[b.spread.length - 1][0])
-            : b.likely) + '</td></tr>').join('')
+        + '<td>' + payWindow(b) + '</td></tr>').join('')
       + '</table></div>';
 
     return h;
@@ -505,8 +521,10 @@
 
   function panelCalls(b) {
     let h = '';
-    const yrs = [];
-    for (let y = Engine.CFG.yearFrom; y <= Engine.CFG.yearFrom + 9; y++) yrs.push(y);
+    /* v1.42: the ENGINE'S calendar, sized to the book. It was a fixed ten years from 2026, so
+       a call or preferred return after 2035 dropped off and the column stopped tying to
+       "Still callable". */
+    const yrs = Engine.gridYears(b);
     const calls = {}, prefs = {};
     yrs.forEach((y) => { calls[y] = 0; prefs[y] = 0; });
     /* THE ENGINE'S SCHEDULE, not a second copy of it. This panel used to spread uncalled
@@ -515,31 +533,28 @@
     const eCalls = Engine.callSchedule(b, yrs);
     yrs.forEach((y) => { calls[y] = eCalls[y] || 0; });
     const notes = Engine.callNotes(b);
-    b.forEach((x) => {
-      if (x.coupon > 0) {
-        for (let i = 1; i <= x.hold; i++) {
-          const y = x.fy + i;
-          if (prefs[y] != null) prefs[y] += Engine.prefInYear(x, i);
-        }
-      }
-    });
+    /* And the engine's coupon schedule, not a fourth copy of the loop that builds it. */
+    const ePref = Engine.couponSchedule(b, yrs);
+    yrs.forEach((y) => { prefs[y] = ePref[y] || 0; });
     const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
     /* "DOES THE EXIT CALENDAR RUN ON THE CURRENT DATE?" -- Kristin Westergard, 2026-10-01,
        looking at -$258,333 against 2026 and reasonably unable to tell whether that was called
        so far, still to come, or the year in total. It is the year in total, it is modelled
        rather than scheduled, and part of it is already in the past. The panel now says so. */
-    const nowY = new Date().getFullYear();
-    const monthsLeft = Math.max(0, 12 - (new Date().getMonth() + 1));
+    /* The engine's clock, not a second one: CFG.asOf when pinned, today otherwise. */
+    const nowY = Engine.calendarNow().year;
     h += '<div class="card"><h2>Capital calls vs. preferred income</h2>'
       + '<p class="note"><b>Contractual items only.</b> Money you are obliged to send, against '
       + 'money the documents promise you. Exits are left out on purpose \u2014 an exit is a hope, '
       + 'a preferred return is a promise. Exits are on Performance &amp; Returns.</p>'
-      + '<p class="note"><b>Each year is a full calendar year, and where you have not told it '
-      + 'otherwise it is modelled rather than scheduled.</b> Sponsors rarely publish a call '
-      + 'schedule, so the tool takes whatever is still uncalled and spreads it evenly over '
-      + 'about three years from the year after you funded. A modelled year is <b>not</b> what '
-      + 'has been called so far and <b>not</b> what is left \u2014 it is the whole of ' + nowY
-      + ', including the months already gone.</p>'
+      + '<p class="note"><b>Where you have not told it otherwise, the timing is modelled rather '
+      + 'than scheduled.</b> Sponsors rarely publish a call schedule, so the tool takes whatever '
+      + 'is still uncalled and spreads it evenly over about three years from the year after you '
+      + 'funded. Your uncalled figure is what is left <b>as of today</b>, so none of it is placed '
+      + 'in time already gone: ' + nowY + ' shows only what is still ahead this year, and a '
+      + 'spread that would have started earlier starts now and runs on into a later year. Where '
+      + 'a fund\u2019s file records the pace it calls at, the balance runs off at that pace '
+      + 'instead.</p>'
       + '<p class="note"><b>If you know when your next call is due, say so and this stops '
       + 'guessing.</b> Add a <b>Next call date</b> column to your tracker, and a <b>Next call '
       + 'amount</b> if you know it. Any spelling of the date works \u2014 2027, Q1 2027, '
@@ -563,7 +578,7 @@
             + 'the column exists to stop. Add a date and it will be used.</p>'
           : '')
       + '<table style="margin-top:12px"><tr><th class="l">Year</th><th>Capital calls out</th>'
-      + '<th>Preferred in</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
+      + '<th>Preferred in (contractual)</th><th>Net</th><th class="l" style="width:40%">&nbsp;</th></tr>'
       + yrs.filter((y) => calls[y] > 0 || prefs[y] > 0).map((y) => {
           const net = prefs[y] - calls[y];
           /* The current year is the only one a reader is standing inside, so it is the only one
@@ -573,11 +588,9 @@
           /* The split only makes sense for a MODELLED year. A call the holder dated themselves
              has a real date, and pro-rating it by months would be the tool second-guessing the
              one person who actually knows. */
-          const statedThisYear = notes.stated.some((x) => x.year === nowY);
-          const ahead = (y === nowY && calls[y] > 0 && !statedThisYear)
-            ? ' <span class="muted" style="font-size:10.5px">\u2248' + moneyTight(calls[y] * monthsLeft / 12)
-              + ' still ahead</span>'
-            : '';
+          /* v1.42: the engine no longer places a call in time already gone, so the current
+             year IS what is still ahead; the old pro-rated note would shrink it a second time. */
+          const ahead = '';
           return '<tr><td class="l b">' + y + (y === nowY
             ? ' <span class="muted" style="font-size:10px">this year</span>' : '') + '</td>'
             + '<td class="' + (calls[y] ? 'neg' : 'z') + '">'
@@ -613,7 +626,7 @@
       + kpi('Funded', money(funded))
       + kpi('Still callable', money(uncalled), uncalled > 0 ? 'neg' : '')
       + kpi('Sponsor MOIC', mult(sponsorWt))
-      + kpi('Modelled MOIC', mult(committed > 0 ? expTotal / committed : 0), 'b')
+      + kpi('Modelled MOIC (average)', mult(committed > 0 ? expTotal / committed : 0), 'b')
       + '</div>'
       /* This figure is NOT sampled. expectedOf walks each deal's four outcome branches and
          weights them exactly, so there is no path count to quote here -- the simulated
@@ -627,12 +640,14 @@
       + '<b>Sponsor MOIC</b> is what these deals return <b>if they work</b>. The '
       + '<b>Modelled MOIC</b> weighs every outcome by how likely it is: a single venture deal '
       + 'is ' + branchOdds('venture') + '. The income sleeves are far tighter at '
-      + branchOdds('income', true) + ', and a fund holding twenty or more deals gets its own '
+      + branchOdds('income', true) + ', and a fund holding ' + Engine.CFG.fundMinDeals + ' or more deals gets its own '
       + 'wider ladder. <b>Real estate that pays no preferred return</b> sits between the two at '
       + branchOdds('reEquity', true) + ' &mdash; it can go to zero, because that is what a '
       + 'mortgage does, but nothing like one deal in three, and the outcome it produces most '
-      + 'often is a haircut rather than either extreme. Plan against the modelled number. '
-      + 'Of that total, '
+      + 'often is a haircut rather than either extreme. The modelled MOIC is an <b>average</b> '
+      + 'across those outcomes. One big winner lifts an average above what most futures pay, '
+      + 'so Performance &amp; Returns leads with the <b>median</b>, the typical future, and that '
+      + 'is the one to plan against. Of the average, '
       + money(expPref) + ' comes from preferred return and ' + money(expExit)
       + ' comes from exits.</p></div>';
 
@@ -908,7 +923,8 @@
     ];
     $('#tabbody').innerHTML = '<div class="card"><h2>What this does</h2>'
       + '<p class="note">You type what you committed to; this works out when the money might '
-      + 'come back, and how much. Three tabs, three questions:</p>'
+      + 'come back, and how much. Three tabs do the work, each answering one question; the '
+      + 'other two are this glossary and the list of deals the tool knows:</p>'
       + '<div class="glos"><div class="t">Private Deal Dashboard</div><div class="d">'
       + '<b>What do I hold?</b> Totals, the mix, every position and a card per deal. Mostly '
       + 'bookkeeping \u2014 these are facts you typed.</div></div>'
@@ -932,7 +948,7 @@
       + 'of handing back roughly what you put in, a 30% chance of a modest result around 1.65x, '
       + 'and a <b>10% chance of reaching the sponsor\u2019s own number</b>. That last point is '
       + 'the one people miss: a sponsor\u2019s multiple is not the expected case here, it is '
-      + 'the best one outcome in ten. A fund holding twenty or more companies gets a different '
+      + 'the best one outcome in ten. A fund holding ' + Engine.CFG.fundMinDeals + ' or more companies gets a different '
       + 'table entirely, because a fund returning zero would need every company in it to fail '
       + 'at once, and that does not happen. An income sleeve gets a tighter table again: 5% '
       + 'written off, and most outcomes clustered near plan.</div></div>'
@@ -948,8 +964,10 @@
       + 'still paying seven years of coupon, which is not how it goes.</div></div>'
 
       + '<div class="glos"><div class="t">When the money shows up</div><div class="d">'
-      + 'Exits slip; nothing makes them early. So timing is skewed late: <b>20%</b> earlier than '
-      + 'expected, <b>50%</b> on time, <b>25%</b> two years late and <b>5%</b> four years late. '
+      + 'Exits slip more often than they come early, so timing is skewed late: <b>20%</b> three '
+      + 'years earlier than expected, <b>50%</b> on time, <b>25%</b> two years late and <b>5%</b> '
+      + 'four years late. An exit is never placed before the current year, because a position you '
+      + 'still hold has not exited yet. '
       + 'A fund does not exit on a date at all, it sells down over several years, so its '
       + 'proceeds are spread across a window with the largest payment usually last. Staging '
       + 'only moves money between years \u2014 it never creates or destroys any, and the '
@@ -957,7 +975,11 @@
 
       + '<div class="glos"><div class="t">Capital calls</div><div class="d">'
       + 'Whatever you have committed but not yet funded is assumed to be called over about '
-      + '<b>three years</b>, starting the year after you funded. Exit proceeds are measured '
+      + '<b>three years</b>, starting the year after you funded. Because your uncalled figure is '
+      + 'what is left today, none of it is placed in time already gone: a spread that would '
+      + 'have started earlier starts now. A <b>Next call date</b> and <b>Next call amount</b> '
+      + 'in your tracker replace the guess, and a fund whose file records the pace it calls at '
+      + 'runs off at that pace. Exit proceeds are measured '
       + 'against your <b>full commitment</b>, not against what you have paid in so far, because '
       + 'by the time a deal exits the whole commitment will have been called.</div></div>'
 
@@ -967,7 +989,7 @@
       + 'tool\u2019s convention rather than passed off as anybody\u2019s projection.</div></div>'
 
       + '<div class="glos"><div class="t">What it runs on</div><div class="d">'
-      + '<b>6,000 simulated futures</b>, from a fixed starting seed, so the same portfolio '
+      + '<b>' + Engine.CFG.paths.toLocaleString('en-US') + ' simulated futures</b>, from a fixed starting seed, so the same portfolio '
       + 'always produces the same answer. If a number moves, something moved it.</div></div>'
       + '</div>'
 
@@ -1006,14 +1028,21 @@
   }
 
   function outlookPanels() {
+    /* v1.42: a sleeve this book does not hold has nothing to show, and the old early return
+       painted only "No positions in this view." with no sleeve buttons, so the reader had no
+       way back. Fall back to the whole portfolio instead. */
+    if (!subset(MODE).length) MODE = 'all';
     const book = subset(MODE);
-    const st = Engine.simulate(book, { paths: 6000, irr: true });
+    const st = Engine.simulate(book, { paths: Engine.CFG.paths, irr: true });
     if (!st) { $('#tabbody').innerHTML = '<div class="card">No positions in this view.</div>'; return null; }
     const T = st.totals;
 
-    const vSt = Engine.simulate(subset('venture'), { paths: 3000 });
-    const iSt = Engine.simulate(subset('income'), { paths: 3000 });
-    const aSt = Engine.simulate(subset('all'), { paths: 3000 });
+    /* ONE path count for every panel on the tab. The sleeve comparison ran on 3,000 futures
+       while the lifetime table two cards below ran on 6,000, so the same sleeve printed two
+       different medians on one page. */
+    const vSt = Engine.simulate(subset('venture'), { paths: Engine.CFG.paths });
+    const iSt = Engine.simulate(subset('income'), { paths: Engine.CFG.paths });
+    const aSt = Engine.simulate(subset('all'), { paths: Engine.CFG.paths });
     const series = [];
     if (vSt) series.push({ key: 'venture', label: 'Venture only', col: 'var(--vc)', raw: '#7B5EA7', st: vSt });
     if (iSt) series.push({ key: 'income', label: 'Income sleeves only', col: 'var(--inc)', raw: '#B17930', st: iSt });
@@ -1042,7 +1071,7 @@
         + rangeChart(series) + rangeRead(series) + '</div>';
 
       P.dist = '<div class="card"><h2>Outcome distribution</h2>'
-        + '<p class="note">Where 3,000 simulated futures landed, as a multiple on what you committed. '
+        + '<p class="note">Where ' + Engine.CFG.paths.toLocaleString('en-US') + ' simulated futures landed, as a multiple on what you committed. '
         + 'The percentiles above are three points on this curve; this is the whole shape. Anything '
         + 'above ' + series[0].st.histMax.toFixed(1) + 'x sits in the last bar.</p>'
         + '<div class="row" style="margin-top:12px">'
@@ -1063,7 +1092,10 @@
       + '<span class="warn">This table cannot be added down.</span> Stacking the good-run column gives '
       + money(T.stackedP90) + ' against a real lifetime figure of ' + money(T.p90) + '. Use it to spot the '
       + 'thin years; use the next panel to plan.</p>'
-      + '<table><tr><th class="l">Year</th><th>Preferred return</th><th>Capital calls</th>'
+      + '<p class="note">The <b>preferred return</b> column here is the typical (median) amount '
+      + 'after the chance a sponsor suspends it, so it is lower than the contractual figure in '
+      + 'the capital-calls panel above, which is what the documents promise.</p>'
+      + '<table><tr><th class="l">Year</th><th>Preferred return (typical)</th><th>Capital calls</th>'
       + '<th>Typical year (median)</th><th>Odds of any cash</th><th>Good run (90th pct)</th></tr>'
       + yrRows.map((r) => '<tr><td class="l b">' + r.year + '</td>'
         + '<td class="' + (r.coupon ? 'pos' : 'z') + '">' + (r.coupon ? money(r.coupon) : DASH) + '</td>'
@@ -1096,7 +1128,8 @@
       + '<p class="note">What matures when. One row per position, one block per year it pays, '
       + 'darker where more of that position lands. A deal bought once is a single block; '
       + '<b>a fund that sells down appears in every year of its window</b>. The gold line is the '
-      + 'preferred return, which arrives on a schedule rather than on an exit. <b>Hover any '
+      + 'preferred return, which arrives on a schedule rather than on an exit, shown after the '
+      + 'chance a sponsor suspends it so it sits on the same footing as the expected exit. <b>Hover any '
       + 'block or line</b> for the amount.</p>'
       + '<p class="note"><b>This one is not a range.</b> It is the schedule the deals\u2019 own '
       + 'terms imply, so it says when a position is due \u2014 not how likely it is to pay.</p>'
@@ -1219,6 +1252,38 @@
     return v < 0 ? '<span class="neg">\u2212' + t.replace('-', '') + '</span>' : t;
   }
 
+  /* v1.42: COMPUTED FROM THE BOOK ON SCREEN. This paragraph printed one portfolio's figures --
+     the venture sleeve's rate at a five-year hold, the income sleeves' rate and the multiples
+     needed to match it, all typed in as literals -- to every member, whatever they held. It
+     now re-runs this book's venture positions at a five-year hold and solves the multiples
+     from this book's income rate. */
+  function heldLonger(book, R) {
+    const vc = book.filter((b) => b.kind === 'venture');
+    const inc = R.byClass.income && R.byClass.income.p50;
+    if (!vc.length || inc == null) return '';
+    const holds = vc.map((b) => b.hold);
+    const lo = Math.min.apply(null, holds), hi = Math.max.apply(null, holds);
+    const short = vc.map((b) => Object.assign({}, b, { hold: 5, likely: b.fy + 5 }));
+    const S = Engine.simulate(short, { paths: Engine.CFG.paths, irr: true });
+    const sv = S && S.irr && S.irr.byClass.venture;
+    const now = R.byClass.venture;
+    let t = 'But dividing by more years is a real hurdle. ';
+    if (sv && lo !== 5) {
+      t += 'In this portfolio, holding the venture positions for five years instead of their '
+        + 'actual ' + (lo === hi ? lo : lo + ' to ' + hi) + ' would move the sleeve from '
+        + rate(now.p50) + ' to ' + rate(sv.p50) + ' a year, and its good run from '
+        + rate(now.p90) + ' to ' + rate(sv.p90) + '. That gap is the waiting.<br>';
+    }
+    t += '<b>What the waiting does not explain is the middle.</b> The typical single venture '
+      + 'deal returns <b>exactly your money back</b> — and 1.0x is 0% a year whether it '
+      + 'takes four years or twenty. Duration cannot rescue a multiple of one. Put the other '
+      + 'way round: to match the income sleeves’ ' + rate(inc) + ' a year, a venture deal '
+      + 'needs <b>' + mult(Math.pow(1 + inc, 5)) + ' over five years, or '
+      + mult(Math.pow(1 + inc, 10)) + ' over ten</b>. That is the real cost of the long hold, '
+      + 'and it is why venture has to aim so high.';
+    return t;
+  }
+
   function irrCard(st, book) {
     const R = st.irr;
     if (!R) return '';
@@ -1283,7 +1348,11 @@
 
     /* The first question anyone asks of this table, and it deserves a straight answer rather
        than being left to look like an error. Three causes, and only the third is arguable. */
-    if (R.byClass.income && R.byClass.venture) {
+    /* v1.42: only when it is TRUE of this book. The panel asserted "the income sleeves come
+       out ahead of venture here" for any book holding both, including one where venture led. */
+    const incP = R.byClass.income && R.byClass.income.p50;
+    const vcP = R.byClass.venture && R.byClass.venture.p50;
+    if (incP != null && vcP != null && incP > vcP) {
       h += '<details class="more"><summary>Why income sleeves beat venture on a rate</summary>'
         + '<p class="note"><b>Why the income sleeves come out ahead of venture here, and why '
         + 'that is not a mistake.</b> Three separate reasons:<br>'
@@ -1312,23 +1381,13 @@
         + 'and the Typical hold column above is there so you can see the gap. <b>A yearly rate '
         + 'already divides by the years</b> \u2014 that is what makes a four-year deal and a '
         + 'ten-year deal comparable at all \u2014 so there is nothing further to adjust for. '
-        + 'But dividing by more years is a real hurdle. In this portfolio, holding the venture '
-        + 'positions for five years instead of their actual 8 to 10 would lift the sleeve from '
-        + '7.2% to 13.8% a year, and its good run from 15% to 45%. So <b>most of the good-run '
-        + 'gap is the waiting</b>, and venture would win that column outright on equal terms.<br>'
-        + '<b>What the waiting does not explain is the middle.</b> Even shortened to five '
-        + 'years, venture\u2019s typical outcome still sits below the income sleeves, because '
-        + 'the typical single venture deal returns <b>exactly your money back</b> \u2014 and '
-        + '1.0x is 0% a year whether it takes four years or twenty. Duration cannot rescue a '
-        + 'multiple of one. Put the other way round: to match the income sleeves\u2019 18% a '
-        + 'year, a venture deal needs <b>2.3x over five years, or 5.3x over ten</b>. That is '
-        + 'the real cost of the long hold, and it is why venture has to aim so high.</p></details>';
+        + heldLonger(book, R) + '</p></details>';
     }
 
     h += '<h3>By deal</h3>';
     h += '<details class="more"><summary>What each of the three columns is asking</summary>'
       + '<p class="note"><b>Three columns, three different questions.</b><br>'
-      + '<b>Sponsor case</b> is their own multiple turned into a yearly rate. Rorra at 4.3x '
+      + '<b>Sponsor case</b> is their own multiple turned into a yearly rate. For example, 4.3x '
       + 'over four years is 44% a year, because 4.3x IS 44% compounded four times. It is what '
       + 'the sponsor is claiming, not a prediction.<br>'
       + '<b>Typical</b> is what this tool expects once the chance of failure is counted. For a '
@@ -1538,20 +1597,18 @@
     const out = [];
     for (const b of book) {
       const e = expectedOf(b);
+      /* v1.42: the engine's exit plan (no year already gone, past tranches renormalised), the
+         same years the simulation pays into. This kept its own copy, without either rule. */
       const pays = {};
-      if (b.spread && b.spread.length) {
-        let sw = 0;
-        for (const sp of b.spread) sw += sp[1];
-        for (const sp of b.spread) {
-          const y = b.likely + sp[0];
-          pays[y] = (pays[y] || 0) + sp[1] / (sw || 1);
-        }
-      } else {
-        pays[b.likely] = 1;
-      }
+      for (const [y, w] of Engine.exitPlan(b, 0)) pays[y] = (pays[y] || 0) + w;
+      /* EXPECTED preferred return, like the exit beside it. The rows stored the contractual
+         schedule, so "Expected in the year" added a probability-weighted exit to an unimpaired
+         coupon and overstated the example book's preferred income by about $36k against the
+         Dashboard's expected total. Scaled by the same outcome weighting expectedOf() uses. */
+      const pw = e.prefScheduled > 0 ? e.pref / e.prefScheduled : 0;
       const prefYears = {};
       if (b.coupon > 0) {
-        for (let k = 1; k <= b.hold; k++) prefYears[b.fy + k] = Engine.prefInYear(b, k);
+        for (let k = 1; k <= b.hold; k++) prefYears[b.fy + k] = Engine.prefInYear(b, k) * pw;
       }
       const yrs = Object.keys(pays).map(Number).sort((x, y) => x - y);
       out.push({ name: b.name, cls: b.cls, kind: b.kind, exit: e.exit, pays,
@@ -1593,9 +1650,10 @@
     let t = '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;'
       + 'font-size:13px">Which positions pay in each year</summary>'
       + '<p class="note" style="margin-top:10px">The same schedule as the chart above, written '
-      + 'out. <b>Preferred return is what the documents promise</b> on a date; <b>exit is the '
-      + 'expected proceeds</b>, every outcome weighed by how likely it is, placed in the year '
-      + 'the terms imply. <b>These do not add up to the percentile tables</b>, and should not: '
+      + 'out. Both columns are <b>expected</b> amounts: the preferred return after the chance a '
+      + 'sponsor suspends it, and <b>the exit as expected proceeds</b>, every outcome weighed '
+      + 'by how likely it is. The contractual preferred schedule is in the capital-calls panel at the top of this tab. Each '
+      + 'is placed in the year the terms imply. <b>These do not add up to the percentile tables</b>, and should not: '
       + 'a percentile is one whole future, and no set of positions makes up a percentile. This '
       + 'is the schedule, not a range.</p>'
       + '<table style="margin-top:8px"><tr><th class="l">Year</th><th class="l">Position</th>'
@@ -1667,7 +1725,7 @@
            one you could not read a number off. */
         g += '<rect x="' + (X(+k) + 2).toFixed(1) + '" y="' + (yy + 16) + '" width="'
           + (cw - 4).toFixed(1) + '" height="4" rx="2" fill="#B17930" opacity="0.55">'
-          + '<title>' + esc(r.name + '\n' + k + ': preferred return, about '
+          + '<title>' + esc(r.name + '\n' + k + ': expected preferred return, about '
           + money(r.prefYears[k])) + '</title></rect>';
       }
       for (const k of Object.keys(r.pays)) {
@@ -2047,7 +2105,7 @@
 
   function glossary(T) {
     const G = [
-      ['Typical', 'The tool plays your portfolio out 6,000 times. Line those futures up from worst to best '
+      ['Typical', 'The tool plays your portfolio out ' + Engine.CFG.paths.toLocaleString('en-US') + ' times. Line those futures up from worst to best '
         + 'and this is the one in the middle. If a year shows $0, it means more than half the time nothing '
         + 'arrives that year at all. Use this rather than the average: one big winner pulls an average up '
         + 'above what most futures actually pay you, and you only get one future.'],
@@ -2074,7 +2132,9 @@
       ['Liquidity window', 'When a fund actually sells down, in years from when you funded it. That is not the '
         + 'same as its stated life, because a fund can finish paying out and wind up afterwards. If a sponsor '
         + 'has told you "years five through eight", put 5 and 8 in the two liquidity columns. Left blank it '
-        + 'runs over the back 40% of the hold, which is roughly what most sponsors describe anyway.'],
+        + 'runs over the back 40% of the hold, which is roughly what most sponsors describe anyway. '
+        + 'A venture fund’s window runs ' + Engine.CFG.liqTailVenture + ' years past the hold, because venture funds '
+        + 'routinely extend; an income fund winds up on its hold.'],
       ['What a yearly return means here',
         'A multiple tells you how much came back. A yearly return tells you how fast. If you '
         + 'put in $100 and got $226 back after seven years, the multiple is 2.26x and the '
@@ -2083,8 +2143,8 @@
         + 'the figure in their own documents. Nothing is assumed about what you do with the cash '
         + 'once it is back in your hands.'],
       ['Why two deals with the same multiple can have very different yearly returns',
-        'Because a yearly return counts the waiting. Telly is modelled at 5.0x over ten years '
-        + 'and Rorra at 4.3x over four. Rorra has the smaller multiple and roughly three times '
+        'Because a yearly return counts the waiting. Take one deal at 5.0x over ten years '
+        + 'and another at 4.3x over four. The second has the smaller multiple and roughly three times '
         + 'the yearly return, because your money is only tied up for four years and then you '
         + 'have it back to do something else with. If you care about total dollars, read the '
         + 'multiple. If you care about how hard your money is working while it sits there, read '
@@ -2166,8 +2226,8 @@
     const age = ageNote(LASTMAP);
     $('#intakeErr').innerHTML = age + matchNote() + (problems.length
       ? '<div class="err"><b>Loaded ' + BOOK.length + ' positions, with ' + problems.length
-        + ' thing' + (problems.length > 1 ? 's' : '') + ' worth fixing.</b> Nothing was guessed at; these rows '
-        + 'are running on whatever was there.<br>' + problems.slice(0, 8).map(esc).join('<br>') + '</div>'
+        + ' thing' + (problems.length > 1 ? 's' : '') + ' worth fixing.</b> These rows are '
+        + 'running on whatever was there, plus the defaults each line below names.<br>' + problems.slice(0, 8).map(esc).join('<br>') + '</div>'
       : '');
     MODE = 'all'; DIST = 'all'; TAB = 'dash'; OPEN = {};
     render();
@@ -2223,7 +2283,10 @@
   $('#pick').onclick = () => $('#file').click();
   $('#file').onchange = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); };
   $('#demo').onclick = () => {
-    fetch('example-book.json').then((r) => r.json()).then(load).catch(() => {
+    /* Tagged with the version like the deal files, or a release serves yesterday's example
+       book out of the ten-minute Pages cache against today's engine. */
+    LASTMAP = null;   // the demo is not the tracker loaded before it; its age note must not carry over
+    fetch('example-book.json?v=' + encodeURIComponent(Engine.CFG.version)).then((r) => r.json()).then(load).catch(() => {
       $('#intakeErr').innerHTML = '<div class="err">Example file not found next to this page.</div>';
     });
   };

@@ -52,6 +52,9 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.42 capital calls: none is ever placed in time already gone, a fund that calls at
+             a known pace runs off at it, and the deal IRR uses the same schedule as the
+             calls panel; the example book carries its real next calls
        v1.32 the app speaks in sleeves and portfolios, the way Growth Circle does
        v1.31 the dashboard prints the real outcome odds instead of describing them
        v1.30 a deal card reads in headed sections, and no longer shows where its
@@ -82,8 +85,8 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.41',
-  released: '30 Sep 2026',
+  version: 'v1.42',
+  released: '3 Oct 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
      It was being conflated with the app's: v1.7 changed no columns, so the app's
@@ -175,6 +178,9 @@ const CFG = {
   timing: [[0.20, -3], [0.50, 0], [0.25, 2], [0.05, 4]],
 
   callYears: 3,        // an uncalled commitment is drawn down over roughly this long
+  /* THE DATE THE CALENDAR STANDS ON. null means today. A test pins it, because the
+     current-year capital call depends on how much of the year is left (see callsOf). */
+  asOf: (typeof process !== 'undefined' && process.env && process.env.PD_AS_OF) || null,
   paths: 6000,
   /* The bar width is what matters, not the bin count: at 0.10x a reader can see the
      shape. The range used to stop at 3.0x, which put 5.7% of futures -- one run in
@@ -216,8 +222,16 @@ function buildBook(rows) {
   for (const r of rows) {
     const commitment = num(r.commitment);
     if (!(commitment > 0)) continue;
-    const funded = Math.min(num(r.funded), commitment);
-    const uncalled = r.uncalled != null && r.uncalled !== ''
+    /* v1.42: FUNDED, UNCALLED AND COMMITMENT MUST TIE. A row with Uncalled typed and Funded
+       left blank used to read as $0 funded, so $100k committed with $30k uncalled called only
+       the $30k, paid its preferred return on $30k, exited on $100k, and solved an IRR on $30k
+       going out. Funded is now derived from the other two when it is the one left blank. */
+    const hasFunded = r.funded != null && String(r.funded).trim() !== '';
+    const hasUncalled = r.uncalled != null && r.uncalled !== '';
+    const funded = (!hasFunded && hasUncalled)
+      ? Math.max(0, commitment - Math.max(0, num(r.uncalled)))
+      : Math.min(num(r.funded), commitment);
+    const uncalled = hasUncalled
       ? Math.max(0, num(r.uncalled))
       : Math.max(0, commitment - funded);
     const hold = num(r.hold) || 10;
@@ -314,10 +328,11 @@ function buildBook(rows) {
       ltv,
       commitment, funded, uncalled, coupon, hold, fy, moic,
       nextCallYear, nextCallAmt,
+      callPctPerYear: num(r.callPctPerYear) > 0 ? num(r.callPctPerYear) : 0,
       nextCallRaw: String(r.nextCallDate || '').trim(),
       uncalledYieldPct: num(r.uncalledYieldPct) || 0,
       uncalledYieldUntil: num(r.uncalledYieldUntil) || 0,
-      exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed,
+      exitMult, deals, isFund, diversified, branches, scales, liq, moicAssumed, moicGiven,
       markedUpMoic,                   // paper only; never reaches the simulation
       paperNav: markedUpMoic ? funded * markedUpMoic : funded,
       deal: r._deal || null,          // the shared file this matched, if any
@@ -400,25 +415,69 @@ function callYearOf(v) {
    so the panel said nothing arrived before 2027 while the coupon was paid as though a third
    had arrived the year before. Reported by Kristin Westergard on 2026-10-02, on her own book,
    and she was right to the dollar. */
+/* TODAY, as a calendar year and the share of it still ahead. Day-granular, so two renders on
+   one day agree, and the same arithmetic APEX uses for its year-end stub. */
+function calendarNow() {
+  const d = CFG.asOf ? new Date(String(CFG.asOf).slice(0, 10) + 'T00:00:00') : new Date();
+  const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const yearEnd = new Date(today.getFullYear(), 11, 31);
+  return { year: today.getFullYear(),
+           left: Math.max(0, Math.min(1, (yearEnd - today) / (365.25 * 24 * 3600 * 1000))) };
+}
+
+/* v1.42: TWO RULES THIS FUNCTION DID NOT KNOW.
+   (1) THE UNCALLED BALANCE IS WHAT IS LEFT AS OF TODAY, so none of it can be called in time
+   that has already gone. The even spread started the year after funding wherever "today"
+   was, so a 2025 commitment put a full third of its uncalled balance in 2026 -- including the
+   months already behind the reader -- and the panel had to bolt on an "about $10k still
+   ahead" note to apologise for it. SpaceStation read -$58,333 for 2026 against the one
+   $12,500 call actually left. Now a modelled spread that would begin in the past begins
+   TODAY: the current year carries only the share of a year still ahead, and the tail runs
+   into the year after the window would have closed. Totals are unchanged; only when moves.
+   A stated next call dated in the past lands in the current year, not in a year nobody can
+   pay into.
+   (2) A FUND THAT CALLS AT A KNOWN PACE. SpaceStation has called 5% of commitment every
+   quarter. `callPctPerYear` (from the deal file, or typed) runs the balance off at that pace
+   instead of an even three-year spread. */
 function callsOf(b) {
   const out = {};
   if (!(b.uncalled > 0)) return out;
-  const add = (y, v) => { out[y] = (out[y] || 0) + v; };
+  const add = (y, v) => { if (v > 0.005) out[y] = (out[y] || 0) + v; };
+  const now = calendarNow();
+  const pace = (b.callPctPerYear > 0 && b.commitment > 0) ? b.callPctPerYear * b.commitment : 0;
+  /* Run `amt` off at the pace from year y0, of which only `first` (0..1) of a year is left. */
+  const runOff = (amt, y0, first) => {
+    let left = amt, y = y0, share = first;
+    for (let k = 0; left > 0.005 && k < 80; k++) {
+      const c = Math.min(left, pace * share);
+      add(y, c); left -= c; y++; share = 1;
+    }
+  };
+  /* Spread `amt` evenly over CFG.callYears years starting at y0, the first of which has only
+     `first` of a year left; whatever that first year cannot take lands after the window. */
+  const spread = (amt, y0, first) => {
+    const per = amt / CFG.callYears;
+    add(y0, per * first);
+    for (let k = 1; k < CFG.callYears; k++) add(y0 + k, per);
+    add(y0 + CFG.callYears, per * (1 - first));
+  };
+  const place = pace > 0 ? runOff : spread;
   const stated = Math.min(b.nextCallAmt || 0, b.uncalled);
   if (b.nextCallYear && stated > 0) {
-    add(b.nextCallYear, stated);
+    const y = Math.max(b.nextCallYear, now.year);
+    add(y, stated);
     const rest = b.uncalled - stated;
-    if (rest > 0.005) {
-      for (let k = 0; k < CFG.callYears; k++) add(b.nextCallYear + 1 + k, rest / CFG.callYears);
-    }
+    if (rest > 0.005) place(rest, y + 1, 1);
     return out;
   }
   /* A stated amount with no date cannot be placed in a year, and choosing one would invent the
-     very thing the column exists to stop. It falls through to the even spread, and callNotes()
-     makes sure that is said rather than silently done. A DATE with no amount still says the
-     most important thing: nothing arrives before it. */
-  const from = b.nextCallYear ? b.nextCallYear : b.fy + 1;
-  for (let k = 0; k < CFG.callYears; k++) add(from + k, b.uncalled / CFG.callYears);
+     very thing the column exists to stop. It falls through to the modelled spread, and
+     callNotes() makes sure that is said rather than silently done. A DATE with no amount still
+     says the most important thing: nothing arrives before it. */
+  if (b.nextCallYear) { place(b.uncalled, Math.max(b.nextCallYear, now.year), b.nextCallYear > now.year ? 1 : now.left); return out; }
+  const start = b.fy + 1;
+  if (start > now.year) place(b.uncalled, start, 1);
+  else place(b.uncalled, now.year, now.left);
   return out;
 }
 
@@ -610,9 +669,11 @@ function irrOf(flows, t0) {
    that IRR and the cone describe the SAME futures and no extra number is drawn. */
 function dealStream(b, off, m) {
   const f = [[b.fy, -b.funded]];
-  if (b.uncalled > 0) {
-    for (let k = 0; k < CFG.callYears; k++) f.push([b.fy + 1 + k, -b.uncalled / CFG.callYears]);
-  }
+  /* v1.42: the call schedule, not a third copy of the even ramp. This one never learned about
+     the Next call date column, so a deal's IRR was solved on calls the panel beside it did not
+     show. */
+  const cs = callsOf(b);
+  for (const y of Object.keys(cs)) f.push([Number(y), -cs[y]]);
   if (b.coupon > 0) {
     /* Impaired by the same draw the exit uses. An IRR computed on a preferred return that
        never fails would disagree with the cash tables beside it. */
@@ -622,15 +683,46 @@ function dealStream(b, off, m) {
     }
   }
   const cash = b.commitment * m;
-  if (cash > 0) {
-    const ey = b.likely + off;
-    if (b.spread) {
-      let sw = 0;
-      for (const sp of b.spread) sw += sp[1];
-      for (const sp of b.spread) f.push([ey + sp[0], cash * sp[1] / sw]);
-    } else f.push([ey, cash]);
-  }
+  if (cash > 0) for (const [y, w] of exitPlan(b, off)) f.push([y, cash * w]);
   return f;
+}
+
+/* WHERE ONE POSITION'S EXIT CASH LANDS, as [[year, share]] summing to 1, for a timing draw
+   `off`. ONE helper for the simulation, the IRR stream and the ladder, which each had their
+   own copy until v1.42 and did not agree at the edges:
+   - an exit is never placed in a year that has already ended. A position you still hold has
+     not exited, so a 2019 deal whose "early" draw said 2023 lands this year rather than
+     vanishing off the front of the calendar (it was dropped outright, which put the
+     Performance mean 20% under the Dashboard's expectation on such a book);
+   - a sell-down tranche before this year is folded into the years still ahead, renormalised,
+     so staging still only MOVES money; a window entirely in the past lands this year. */
+function exitPlan(b, off) {
+  const now = calendarNow().year;
+  const ey = b.likely + (off || 0);
+  if (!b.spread || !b.spread.length) return [[Math.max(ey, now), 1]];
+  let ws = 0;
+  for (const [d, w] of b.spread) if (ey + d >= now) ws += w;
+  if (!(ws > 0)) return [[now, 1]];
+  const out = [];
+  for (const [d, w] of b.spread) if (ey + d >= now) out.push([ey + d, w / ws]);
+  return out;
+}
+
+/* THE CALENDAR'S YEARS: from this year to whichever is later, CFG.yearTo or the last year
+   anything in this book can land -- the latest exit draw plus its sell-down, the last call,
+   the last preferred-return year. A fixed 2042 end silently dropped a long fund's tail. */
+function gridYears(book) {
+  const from = calendarNow().year;
+  let to = Math.max(CFG.yearTo, from);
+  const lateOff = CFG.timing.reduce((a, t) => Math.max(a, t[1]), 0);
+  for (const b of book || []) {
+    for (const [y] of exitPlan(b, lateOff)) to = Math.max(to, y);
+    for (const y of Object.keys(callsOf(b))) to = Math.max(to, Number(y));
+    if (b.coupon > 0) to = Math.max(to, b.fy + b.hold);
+  }
+  const years = [];
+  for (let y = from; y <= to; y++) years.push(y);
+  return years;
 }
 
 /* The sponsor's own case as an IRR: their multiple, at the likely exit, with the real call
@@ -719,9 +811,8 @@ function reEquityTable(ltv) {
 function simulate(book, opts) {
   opts = opts || {};
   const paths = opts.paths || CFG.paths;
-  const years = [];
-  for (let y = CFG.yearFrom; y <= CFG.yearTo; y++) years.push(y);
   if (!book.length) return null;
+  const years = gridYears(book);
 
   /* The CONTRACTUAL schedule, still computed, because a reader wants to know what was
      promised as well as what the model expects to arrive. It is no longer what gets paid. */
@@ -774,7 +865,6 @@ function simulate(book, opts) {
          holder's input is not this tool's job. */
       const seen = drawnBy[b.groupKey];
       const off = seen ? seen.off : pick(rnd, CFG.timing, 4);
-      const ey = b.likely + off;
       const drawn = seen ? seen.drawn : pickOutcome(rnd, b.branches);
       if (!seen) drawnBy[b.groupKey] = { off, drawn };
       let m = drawn.v;
@@ -818,25 +908,13 @@ function simulate(book, opts) {
         for (const f of fl) classFlows[b.kind].push(f);
       }
       if (!(cash > 0)) continue;
-      if (b.spread) {
-        /* A fund sells down over several years rather than exiting on one date.
-           The window can run off the front of the calendar -- a 2027 exit staged from
-           two years earlier starts in 2025 -- so the in-range weights are renormalised
-           rather than the stray tranche being dropped. Dropping it silently deleted
-           0.12% of the book's mean, which is exactly the kind of quiet leak that makes
-           a model untrustworthy. Renormalising keeps the total intact and avoids
-           inventing a spike on the boundary year. */
-        let wsum = 0;
-        for (const [d, w] of b.spread) if (yr[ey + d] != null) wsum += w;
-        if (wsum > 0) {
-          for (const [d, w] of b.spread) {
-            const y = ey + d;
-            if (yr[y] != null) yr[y] += cash * (w / wsum);
-          }
-        }
-      } else if (yr[ey] != null) {
-        yr[ey] += cash;
-      }
+      /* A fund sells down over several years rather than exiting on one date. The window can
+         run off the front of the calendar -- a 2027 exit staged from two years earlier starts
+         in 2025 -- so the in-range weights are renormalised rather than the stray tranche
+         being dropped (that once deleted 0.12% of the book's mean). exitPlan() does it, for
+         this loop, the IRR stream and the ladder alike, and the grid is sized to the book so
+         nothing falls off the far end either. */
+      for (const [y, w] of exitPlan(b, off)) if (yr[y] != null) yr[y] += cash * w;
     }
     let run = 0, tot = 0;
     let cpTot = 0;
@@ -1155,6 +1233,7 @@ function applyDealFile(row, f) {
     out.uncalledYieldUntil = t.uncalledYieldUntil;
   }
   if (blank(out.hold) && t.holdYears) out.hold = t.holdYears;
+  if (blank(out.callPctPerYear) && t.callPctPerYear != null) out.callPctPerYear = t.callPctPerYear;
   if (blank(out.ltv) && t.ltvPct != null) out.ltv = t.ltvPct;
   if (blank(out.moic) && t.sponsorMoic) out.moic = t.sponsorMoic;
   if (blank(out.deals) && f.dealsInFund != null) out.deals = f.dealsInFund;
@@ -1174,7 +1253,8 @@ function applyDealFile(row, f) {
    index drifted from the deal files. */
 const Engine = { CFG, buildBook, simulate, makeRng, num, matchDeal, applyDealFile, resolveTier,
                  irrOf, dealStream, sponsorCaseIrr, paperTrack, prefFactor,
-                 callSchedule, callNotes, callYearOf, callsOf, callsCumulative };
+                 callSchedule, callNotes, callYearOf, callsOf, callsCumulative, calendarNow,
+                 couponSchedule, exitPlan, gridYears };
 /* Exported because app.js draws three panels off the same figure. A second copy of the
    ramp in the UI is exactly how the cash table and the ladder end up disagreeing. */
 Engine.prefInYear = prefInYear;

@@ -149,6 +149,22 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.42 &nbsp;&middot;&nbsp; 3 Oct 2026</span>
+      <h4>Capital calls land when they can actually happen, and every panel agrees on them</h4>
+      <p><b>The example book showed SpaceStation calling $58,333 in 2026, when only one $12,500 call is left this year.</b> Two things caused it. The example book did not carry the next calls its owner already knows about, and the tool spread whatever was uncalled evenly over three years from the year after funding &mdash; including the months already behind you. Your uncalled figure is what is left <b>today</b>, so none of it can be called in the past. A modelled spread that would have started earlier now starts now: the current year shows only what is still ahead, and the tail runs on into a later year. The panel&rsquo;s old &ldquo;about $10k still ahead&rdquo; note is gone because the figure itself now means that.</p>
+      <p><b>A fund that calls at a known pace runs off at it.</b> SpaceStation has called 5% of commitment every quarter, so its file now says so and the balance runs off at 20% a year instead of an even three-year guess. The example book carries its real next calls (SpaceStation Q4 2026, Asilia Q1 2027). The deal&rsquo;s rate of return now uses the same call schedule as the calls panel; it had kept its own copy.</p>
+      <p><b>Other fixes from a full audit.</b></p>
+      <ul>
+        <li>A deal funded years ago could &ldquo;exit early&rdquo; into a year already gone, and that cash quietly vanished. Exits now never land before the current year. The calendar also runs as far as your book needs, so a long fund&rsquo;s tail no longer drops off the end.</li>
+        <li>A row with Uncalled filled in and Funded left blank now derives Funded from the other two. When all three are typed and do not add up, the page says so.</li>
+        <li>The ladder&rsquo;s &ldquo;Expected in the year&rdquo; row now uses the expected preferred return beside the expected exit, rather than the contractual one. Preferred-return columns now say whether they are contractual or typical.</li>
+        <li>Every panel on Performance &amp; Returns runs on the same 6,000 futures, so one sleeve no longer shows two medians.</li>
+        <li>Choosing a sleeve your book does not hold no longer strands you on an empty page.</li>
+        <li>The deal card&rsquo;s payout years follow a typed Exit likely.</li>
+        <li>The figures in &ldquo;Is venture only behind because it is held longer?&rdquo; are computed from your own book. They had been one portfolio&rsquo;s numbers, shown to everyone.</li>
+        <li>An assumed sponsor multiple is marked in the positions table.</li>
+      </ul>
+
       <span class="tag">v1.41 &nbsp;&middot;&nbsp; 2 Oct 2026</span>
       <h4>Two tranches of the same deal now share one fate</h4>
       <p><b>If you bought into the same deal twice, the model was treating the two rows as two different companies.</b> Each drew its own outcome, so a single simulated future could write one tranche off entirely and pay the other its sponsor case. That cannot happen: one company has one fate. It also quietly manufactured diversification that does not exist, so two $10,000 tranches of one deal looked safer than one $20,000 position in it.</p>
@@ -868,7 +884,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="engine.js"></script>
-<script src="app.js"></script>
+<script src="engine.js?v=1.42"></script>
+<script src="app.js?v=1.42"></script>
 </body>
 </html>

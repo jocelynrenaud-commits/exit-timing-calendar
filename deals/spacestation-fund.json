@@ -20,6 +20,8 @@
     "holdYears": 10,
     "sponsorMoic": 3.96,
     "capitalCalls": "Called over roughly three and a half years against a five-year investment period, in tranches as deals are done rather than on a fixed schedule.",
+    "callPctPerYear": 0.2,
+    "callPctPerYearNote": "OBSERVED, not contractual: every call to date has been 5% of commitment, quarterly (calls #1-#6 through 28 Aug 2026), so the tool runs the uncalled balance off at 20% of commitment a year. The Partnership Agreement allows calls as deals are done; if the pace changes, so does this.",
     "minimum": 250000,
     "holdNote": "Ten years from the Final Closing, extendable by the GP for two one-year periods at its discretion and further with Advisory Board consent. The investment period is five years.",
     "mgmtFee": 0.02,
