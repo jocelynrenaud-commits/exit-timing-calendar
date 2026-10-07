@@ -52,6 +52,7 @@ const CFG = {
              what the fund actually holds
        v1.14 a multiple nobody supplied is now flagged instead of passed off as a real one;
              Rainmaker documented
+       v1.43 the example book carries Asilia's second capital call ($5,000, due 19 Oct 2026)
        v1.42 capital calls: none is ever placed in time already gone, a fund that calls at
              a known pace runs off at it, and the deal IRR uses the same schedule as the
              calls panel; the example book carries its real next calls
@@ -85,8 +86,8 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.42',
-  released: '3 Oct 2026',
+  version: 'v1.44',
+  released: '5 Oct 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
      It was being conflated with the app's: v1.7 changed no columns, so the app's

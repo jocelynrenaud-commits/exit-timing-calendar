@@ -604,9 +604,81 @@
             + '%;background:var(--green);border-radius:0 2px 2px 0"></div></div>'
             + '</div></td></tr>';
         }).join('')
-      + '</table></div>';
+      + '</table>' + whoCalls(b) + '</div>';
 
     return h;
+  }
+
+  /* WHICH COMPANIES ARE CALLING, AND WHICH ARE PAYING, IN EACH YEAR. Asked for by Kristin
+     Westergard on 2026-10-04, after the same breakdown appeared under the ladder. Both sides
+     of this panel are contractual rather than simulated, so both are honestly attributable:
+     the calls come from the engine's own schedule and the preferred return from prefInYear.
+
+     A table rather than a hover, like the ladder's, because this is a comparison and a tooltip
+     cannot be read beside the year above it. */
+  function whoCalls(book) {
+    const rows = {};
+    const add = (y, name, cls, kind, field, v) => {
+      if (!(v > 0.5)) return;
+      const g = (rows[y] = rows[y] || {});
+      const r = (g[name] = g[name] || { name, cls, kind, call: 0, pref: 0 });
+      r[field] += v;
+    };
+    for (const b of book) {
+      const c = Engine.callsOf(b);
+      for (const y of Object.keys(c)) add(+y, b.name, b.cls, b.kind, 'call', c[y]);
+      if (b.coupon > 0) {
+        for (let k = 1; k <= b.hold; k++) {
+          add(b.fy + k, b.name, b.cls, b.kind, 'pref', Engine.prefInYear(b, k));
+        }
+      }
+    }
+    const years = Object.keys(rows).map(Number).sort((a, b2) => a - b2);
+    if (!years.length) return '';
+
+    let t = '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;'
+      + 'font-size:13px">Which positions call, and which pay, in each year</summary>'
+      + '<p class="note" style="margin-top:10px">The same two columns as above, split by '
+      + 'position. <b>Both sides are contractual</b> rather than simulated: a call is money you '
+      + 'are obliged to send and a preferred return is money the documents promise you, so '
+      + 'unlike the outcome charts these can be attributed exactly. A call with no date of its '
+      + 'own is spread evenly, which the note above the table explains.</p>'
+      /* PRE-EMPTING THE OBVIOUS COMPARISON. The same preferred return appears on the
+         ladder at a lower figure, because there it sits beside probability-weighted
+         exits and is weighted the same way. Both are right for their own panel and a
+         reader putting them side by side has every reason to think one is wrong. */
+      + '<p class="note"><b>These preferred figures are the full contractual schedule</b>, '
+      + 'which is why they are higher than the gold lines on the liquidity ladder. There '
+      + 'the same income is weighted by how the deal actually goes, because it sits beside '
+      + 'exit proceeds that are weighted too. Here nothing is weighted: this panel is what '
+      + 'the documents say, not what the model expects.</p>'
+      + '<table style="margin-top:8px"><tr><th class="l">Year</th><th class="l">Position</th>'
+      + '<th>Calls out</th><th>Preferred in</th><th>Net</th></tr>';
+    for (const y of years) {
+      const list = Object.keys(rows[y]).map((k) => rows[y][k])
+        .sort((a, b2) => (b2.call + b2.pref) - (a.call + a.pref));
+      let yc = 0, yp = 0;
+      list.forEach((x, i) => {
+        yc += x.call; yp += x.pref;
+        t += '<tr><td class="l b">' + (i === 0 ? y : '') + '</td>'
+          + '<td class="l"><span style="display:inline-block;width:8px;height:8px;'
+          + 'border-radius:50%;background:' + clsColour(x.kind === 'venture' ? 'Venture' : x.cls)
+          + ';margin-right:6px"></span>' + esc(x.name) + '</td>'
+          + '<td class="' + (x.call > 0 ? 'neg' : 'z') + '">'
+          + (x.call > 0 ? '-' + money(x.call) : DASH) + '</td>'
+          + '<td class="' + (x.pref > 0 ? 'pos' : 'z') + '">'
+          + (x.pref > 0 ? money(x.pref) : DASH) + '</td>'
+          + '<td class="' + (x.pref - x.call < 0 ? 'neg' : 'pos') + '">'
+          + money(x.pref - x.call) + '</td></tr>';
+      });
+      if (list.length > 1) {
+        t += '<tr class="hi"><td class="l"></td><td class="l b">' + y + ' total</td>'
+          + '<td class="' + (yc ? 'neg' : 'z') + '">' + (yc ? '-' + money(yc) : DASH) + '</td>'
+          + '<td class="' + (yp ? 'pos' : 'z') + '">' + (yp ? money(yp) : DASH) + '</td>'
+          + '<td class="b">' + money(yp - yc) + '</td></tr>';
+      }
+    }
+    return t + '</table></details>';
   }
 
   function renderDashboard() {
