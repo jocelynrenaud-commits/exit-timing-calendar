@@ -66,8 +66,8 @@
  {
   "name": "Asilia GC Fund",
   "commitment": 100000,
-  "funded": 19000,
-  "uncalled": 81000,
+  "funded": 24000,
+  "uncalled": 76000,
   "yearFunded": 2026,
   "markedUpMoic": "",
   "conviction": "High",
@@ -76,8 +76,8 @@
   "liqFrom": "",
   "liqTo": "",
   "thesis": "Highest coupon in the book and a credit-tilted base case. Sized for the income, not the kicker.",
-  "nextCallDate": "Oct 19 2026",
-  "nextCallAmount": 5000
+  "nextCallDate": "Q1 2027",
+  "nextCallAmount": 20000
  },
  {
   "name": "SpaceStation Fund",
