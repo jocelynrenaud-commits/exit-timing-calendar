@@ -86,8 +86,8 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.45',
-  released: '7 Oct 2026',
+  version: 'v1.46',
+  released: '8 Oct 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
      It was being conflated with the app's: v1.7 changed no columns, so the app's
