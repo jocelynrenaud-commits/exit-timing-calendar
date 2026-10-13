@@ -149,6 +149,14 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.47 &nbsp;&middot;&nbsp; 12 Oct 2026</span>
+      <h4>Hardening the retirement simulator for somebody else's numbers</h4>
+      <p><b>Everything in that tab had been tested against one book: mine.</b> The configurations that break a model are never the ones its author types, so rather than adding more examples I swept it for inputs where it produces something it cannot possibly mean. Three real defects came out.</p>
+      <p><b>A plan that asks for nothing printed &ldquo;NaN%&rdquo;.</b> The share of your target that got funded is a division, and a plan with no target divides by zero. Anyone modelling &ldquo;what if I live on the rental income alone&rdquo; hits it on the first try. A plan that asked for nothing got all of nothing, which is 100%.</p>
+      <p><b>A plan age typed as a year ran a two-thousand-year retirement without comment.</b> If you have just entered 1968 as a birth year and 2030 as a stop year, 2095 in the next box is an easy slip, and the model took it literally: every percentile computed, a result that looks entirely normal until you read the axis. It now refuses, and works out that 2095 from a 1968 birth year is age 127, so you can see the mistake rather than just be told there is one. It does <b>not</b> quietly read 2095 as 95, because guessing at what you typed is not something this tool does anywhere else.</p>
+      <p><b>And when there is nothing to run, it says which number is the problem.</b> There are four reasons the simulator can come back empty and the panel named two of them, which tells you nothing at all if you have one of the other two.</p>
+      <p>Seven regression tests cover those, plus the direction every answer has to move in: spending more can never improve a plan, more money can never make one worse, working longer can never hurt, and a one-time withdrawal has to cost something measurable. <b>That last one started as a weaker test that passed even with the feature switched off</b>, which is worth admitting, because a test that cannot fail is the thing these are meant to catch.</p>
+
       <span class="tag">v1.46 &nbsp;&middot;&nbsp; 8 Oct 2026</span>
       <h4>SpaceStation&rsquo;s final 2026 call is larger than its usual pace</h4>
       <p>SpaceStation announced on 7 October that its last fund-wide capital call of 2026 will be 7.5% of commitment, with the notice on 2 November and payment due 17 November. That is $18,750 on the example book&rsquo;s $250,000 commitment, against the $12,500 (5%) quarterly pace the book had assumed, so the calls panel now shows $18,750 for 2026. The fund is also extending its Final Close past 31 October to the end of the year for new investors and commitment increases, which must be finalized by 13 November. No change to the model.</p>
@@ -903,7 +911,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="engine.js?v=1.46"></script>
-<script src="app.js?v=1.46"></script>
+<script src="engine.js?v=1.47"></script>
+<script src="app.js?v=1.47"></script>
 </body>
 </html>
