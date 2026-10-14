@@ -284,10 +284,13 @@
       const yrs = [...new Set(g.map((r) => String(r.exitLikely || '').trim()).filter(Boolean))];
       const anyBlank = g.some((r) => !String(r.exitLikely || '').trim());
       if (yrs.length > 1 || (yrs.length === 1 && anyBlank)) {
-        problems.push(g[0].name + ': ' + g.length + ' rows of the same deal, and they do not '
-          + 'share an exit year. They now share an outcome, because one company has one fate, '
-          + 'but each row still exits on its own dates. Put the same exit years on both and '
-          + 'they will pay together.');
+        /* v1.48: lead with what does NOT happen. Kristin Westergard read the old wording as
+           "if I do that it will treat it as one investment" -- the rows stay separate. */
+        problems.push(g[0].name + ': ' + g.length + ' rows of the same deal with different exit '
+          + 'years. They stay ' + g.length + ' separate rows with their own commitments and '
+          + 'funding dates; nothing is merged. But one company has one fate, so they already '
+          + 'share an outcome, and a company only exits once. Put the same exit years on '
+          + (g.length === 2 ? 'both' : 'all of them') + ' and they will pay together.');
       }
     });
     return problems;
@@ -476,7 +479,37 @@
      other panel and left the deal card naming the old year. */
   function payWindow(x) {
     const ys = Engine.exitPlan(x, 0).map((p) => p[0]);
-    return ys.length > 1 ? ys[0] + '–' + ys[ys.length - 1] : String(ys[0]);
+    const w = ys.length > 1 ? ys[0] + '–' + ys[ys.length - 1] : String(ys[0]);
+    const tags = [];
+    if (isEvergreen(x)) tags.push('<span class="muted" title="An evergreen fund is not sold. '
+      + 'This is your capital coming back as redemptions, at 1.0x; the preferred return is the '
+      + 'real return.">capital back</span>');
+    if (x.isFund && !x.liqStated) tags.push('<span class="muted" title="Derived from the hold, '
+      + 'because Liquidity from and Liquidity to are blank. Fill them in (fund-years) to set '
+      + 'the payout years yourself.">derived</span>');
+    return w + (tags.length ? ' ' + tags.join(' ') : '');
+  }
+
+  /* AN EVERGREEN FUND DOES NOT EXIT. Raised by Kristin Westergard (Asilia Credit Fund
+     Evergreen, 2026-10-04): the page called its payout an exit, so she asked how to move the
+     exit. There is no sale; what the model places in those years is her capital coming back
+     as redemptions, at 1.0x. Display only: the numbers do not change. */
+  function isEvergreen(b) {
+    return /evergreen/i.test((b.deal && b.deal.vehicle) || '') || /evergreen/i.test(b.name || '');
+  }
+
+  /* "I PUT 2035 AS THE EARLIEST EXIT AND NOTHING CHANGED." A fund pays across its liquidity
+     window, and with Liquidity from and to blank that window is derived from the hold; Exit:
+     earliest never enters into it. Say so, by name, with the fix, rather than leave a typed
+     value silently ignored. */
+  function windowNote(book) {
+    const hit = book.filter((b) => b.isFund && !b.liqStated && b.earliestTyped);
+    if (!hit.length) return '';
+    return '<p class="note warn"><b>Exit: earliest does not move a fund’s payout.</b> '
+      + hit.map((b) => esc(b.name) + ' pays across ' + payWindow(b).replace(/ <span[\s\S]*$/, '')).join('; ')
+      + ', derived from ' + (hit.length === 1 ? 'its' : 'each one’s') + ' hold. A fund pays '
+      + 'across a window rather than on one date, so to change it fill in <b>Liquidity from</b> '
+      + 'and <b>Liquidity to</b>, in years from funding: 10 and 10 puts it all in year ten.</p>';
   }
 
   /* ── DASHBOARD ────────────────────────────────────────────────────────────
@@ -514,7 +547,7 @@
           + 'multiple was given; this is the tool’s assumption">(assumed)</span>') + '</td>'
         + '<td class="b">' + mult(b.exitMult) + '</td>'
         + '<td>' + payWindow(b) + '</td></tr>').join('')
-      + '</table></div>';
+      + '</table>' + windowNote(book) + '</div>';
 
     return h;
   }
@@ -537,6 +570,8 @@
     const ePref = Engine.couponSchedule(b, yrs);
     yrs.forEach((y) => { prefs[y] = ePref[y] || 0; });
     const peak = Math.max(1, ...yrs.map((y) => Math.max(calls[y], prefs[y])));
+    const who = positionsByYear(b);
+    const tipAttr = (y, field, total) => ' title="' + esc(barTip(who, y, field, total)) + '"';
     /* "DOES THE EXIT CALENDAR RUN ON THE CURRENT DATE?" -- Kristin Westergard, 2026-10-01,
        looking at -$258,333 against 2026 and reasonably unable to tell whether that was called
        so far, still to come, or the year in total. It is the year in total, it is modelled
@@ -593,15 +628,20 @@
           const ahead = '';
           return '<tr><td class="l b">' + y + (y === nowY
             ? ' <span class="muted" style="font-size:10px">this year</span>' : '') + '</td>'
-            + '<td class="' + (calls[y] ? 'neg' : 'z') + '">'
+            + '<td class="' + (calls[y] ? 'neg' : 'z') + '"'
+            + (calls[y] ? tipAttr(y, 'call', calls[y]) + ' style="cursor:help"' : '') + '>'
             + (calls[y] ? '-' + money(calls[y]) + ahead : DASH) + '</td>'
-            + '<td class="' + (prefs[y] ? 'pos' : 'z') + '">' + (prefs[y] ? money(prefs[y]) : DASH) + '</td>'
+            + '<td class="' + (prefs[y] ? 'pos' : 'z') + '"'
+            + (prefs[y] ? tipAttr(y, 'pref', prefs[y]) + ' style="cursor:help"' : '') + '>'
+            + (prefs[y] ? money(prefs[y]) : DASH) + '</td>'
             + '<td class="' + (net < 0 ? 'neg' : 'pos') + '">' + money(net) + '</td>'
             + '<td class="l"><div style="display:flex;align-items:center;gap:3px">'
             + '<div style="flex:1;display:flex;justify-content:flex-end"><div style="height:11px;width:'
-            + (calls[y] / peak * 100) + '%;background:var(--red);border-radius:2px 0 0 2px"></div></div>'
+            + (calls[y] / peak * 100) + '%;background:var(--red);border-radius:2px 0 0 2px'
+            + (calls[y] ? ';cursor:help"' + tipAttr(y, 'call', calls[y]) : '"') + '></div></div>'
             + '<div style="flex:1"><div style="height:11px;width:' + (prefs[y] / peak * 100)
-            + '%;background:var(--green);border-radius:0 2px 2px 0"></div></div>'
+            + '%;background:var(--green);border-radius:0 2px 2px 0'
+            + (prefs[y] ? ';cursor:help"' + tipAttr(y, 'pref', prefs[y]) : '"') + '></div></div>'
             + '</div></td></tr>';
         }).join('')
       + '</table>' + whoCalls(b) + '</div>';
@@ -616,7 +656,9 @@
 
      A table rather than a hover, like the ladder's, because this is a comparison and a tooltip
      cannot be read beside the year above it. */
-  function whoCalls(book) {
+  /* One per-position split of the calls and preferred columns, shared by the breakdown
+     table below and the hover on the bars, so the two can never disagree. */
+  function positionsByYear(book) {
     const rows = {};
     const add = (y, name, cls, kind, field, v) => {
       if (!(v > 0.5)) return;
@@ -633,6 +675,25 @@
         }
       }
     }
+    return rows;
+  }
+
+  /* HOVER ON THE RED AND GREEN BARS. Asked for by Kristin Westergard on 2026-10-04: point at
+     a year's calls or preferred income and see which positions make it up, the way the
+     ladder's blocks and lines already do. Native tooltips, like the ladder, so the two charts
+     behave the same. The table under the panel stays, because it can be read side by side. */
+  function barTip(rows, y, field, total) {
+    const list = Object.keys(rows[y] || {}).map((k) => rows[y][k])
+      .filter((x) => x[field] > 0.5).sort((a, b2) => b2[field] - a[field]);
+    const head = y + (field === 'call' ? ': capital calls out' : ': preferred income in (contractual)');
+    const sign = field === 'call' ? '-' : '';
+    const lines = list.map((x) => x.name + ': ' + sign + money(x[field]));
+    if (list.length > 1) lines.push('Total: ' + sign + money(total));
+    return head + '\n' + lines.join('\n');
+  }
+
+  function whoCalls(book) {
+    const rows = positionsByYear(book);
     const years = Object.keys(rows).map(Number).sort((a, b2) => a - b2);
     if (!years.length) return '';
 
@@ -1205,7 +1266,7 @@
       + 'block or line</b> for the amount.</p>'
       + '<p class="note"><b>This one is not a range.</b> It is the schedule the deals\u2019 own '
       + 'terms imply, so it says when a position is due \u2014 not how likely it is to pay.</p>'
-      + ladderChart(book) + whoPays(book) + '</div>';
+      + windowNote(book) + ladderChart(book) + whoPays(book) + '</div>';
 
 
     /* the same rows, as a shape */
@@ -1683,7 +1744,7 @@
         for (let k = 1; k <= b.hold; k++) prefYears[b.fy + k] = Engine.prefInYear(b, k) * pw;
       }
       const yrs = Object.keys(pays).map(Number).sort((x, y) => x - y);
-      out.push({ name: b.name, cls: b.cls, kind: b.kind, exit: e.exit, pays,
+      out.push({ name: b.name, cls: b.cls, kind: b.kind, exit: e.exit, pays, evergreen: isEvergreen(b),
                  prefYears, first: yrs[0], last: yrs[yrs.length - 1],
                  window: yrs.length > 1 ? yrs[0] + '\u2013' + yrs[yrs.length - 1] : String(yrs[0]) });
     }
@@ -1805,7 +1866,9 @@
         g += '<rect x="' + (X(+k) + 2).toFixed(1) + '" y="' + (yy + 3) + '" width="'
           + (cw - 4).toFixed(1) + '" height="12" rx="3" fill="' + col + '" opacity="'
           + (0.25 + 0.7 * share).toFixed(2) + '"><title>' + esc(r.name + '\n' + k + ': '
-          + Math.round(share * 100) + '% of its exit, about ' + money(r.exit * share)) + '</title></rect>';
+          + Math.round(share * 100) + '% of its exit' + (r.evergreen
+            ? ' (an evergreen fund is not sold: this is your capital coming back)' : '')
+          + ', about ' + money(r.exit * share)) + '</title></rect>';
       }
       g += '<text x="' + (W - R + 8) + '" y="' + (yy + 16) + '" font-size="10.5" fill="#6B7A8C">'
         + esc(r.window) + '</text>';
@@ -2333,6 +2396,59 @@
     };
     fr.readAsArrayBuffer(f);
   }
+
+  /* DISCOVERABLE HOVER. The charts have carried per-year amounts since v1.23 as native
+     tooltips (an SVG <title>, or a title attribute), and nobody knew: browsers wait about a
+     second before showing one and give no cue that it exists. Kristin Westergard asked for
+     hover on a chart that already had it. So inside the results, any element carrying a
+     tooltip now shows it at once, in a drawn box that follows the pointer, and the cursor
+     changes over it. The text is moved, not copied, so the browser's own tooltip does not
+     pop up on top of ours; an aria-label keeps it readable to a screen reader. */
+  (function () {
+    const tip = document.createElement('div');
+    tip.className = 'tipbox';
+    tip.setAttribute('role', 'tooltip');
+    tip.style.display = 'none';
+    document.body.appendChild(tip);
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const claim = (el) => {
+      for (let n = el; n && n.nodeType === 1 && n.id !== 'out'; n = n.parentNode) {
+        if (n.hasAttribute('data-tip')) return n;
+        if (!n.closest || !n.closest('#out')) return null;
+        if (n.hasAttribute('title')) {
+          const t = n.getAttribute('title');
+          n.removeAttribute('title'); n.setAttribute('data-tip', t);
+          if (!n.hasAttribute('aria-label')) n.setAttribute('aria-label', t);
+          return n;
+        }
+        if (n.namespaceURI === SVGNS) {
+          const t = Array.prototype.find.call(n.children, (c) => c.tagName.toLowerCase() === 'title');
+          if (t) {
+            n.setAttribute('data-tip', t.textContent); n.setAttribute('aria-label', t.textContent);
+            t.remove();
+            return n;
+          }
+        }
+      }
+      return null;
+    };
+    const place = (e) => {
+      const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+      let x = e.clientX + pad, y = e.clientY + pad;
+      if (x + w > window.innerWidth - 8) x = Math.max(8, e.clientX - w - pad);
+      if (y + h > window.innerHeight - 8) y = Math.max(8, e.clientY - h - pad);
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    };
+    document.addEventListener('mouseover', (e) => {
+      const el = claim(e.target);
+      if (!el) { tip.style.display = 'none'; return; }
+      tip.textContent = el.getAttribute('data-tip');
+      tip.style.display = 'block';
+      place(e);
+    });
+    document.addEventListener('mousemove', (e) => { if (tip.style.display === 'block') place(e); });
+    document.addEventListener('scroll', () => { tip.style.display = 'none'; }, true);
+  })();
 
   // the badge reads the engine's own version, so the label cannot drift from the model
   (function () {

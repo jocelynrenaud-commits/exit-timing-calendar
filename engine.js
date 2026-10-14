@@ -86,8 +86,8 @@ const CFG = {
              paper track beside the cash line and never inside it
        v1.15 the three Asilia vehicles untangled, ACFE documented from its own pitch, and
              Rorra's hold corrected from 10 years to 4 */
-  version: 'v1.47',
-  released: '8 Oct 2026',
+  version: 'v1.48',
+  released: '13 Oct 2026',
 
   /* The TRACKER's version is the version of its COLUMNS, and moves only when they change.
      It was being conflated with the app's: v1.7 changed no columns, so the app's
@@ -348,6 +348,11 @@ function buildBook(rows) {
       tierUnresolved: !!r._tierUnresolved,
       thesis: String(r.thesis || ''), // the holder's own words, from their tracker
       spread: liq ? liqSpread(hold, liq) : null,
+      /* v1.48: display-only flags, never read by the simulation. Kristin Westergard typed an
+         Exit: earliest on a fund and nothing moved, because a fund pays across its liquidity
+         window and that window ignores it. The page now says so instead of staying quiet. */
+      earliestTyped: parseInt(r.exitEarliest, 10) > 0,
+      liqStated: num(r.liqFrom) > 0 || num(r.liqTo) > 0,
       earliest: parseInt(r.exitEarliest, 10) || (likely - Math.min(3, Math.max(1, Math.round(hold * 0.3)))),
       likely,
       latest: parseInt(r.exitLatest, 10) || (likely + 2),

@@ -22,6 +22,12 @@
   .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;
         padding:20px 22px;margin-bottom:16px}
   .note{font-size:14px;color:var(--muted);line-height:1.65;max-width:900px}
+  /* v1.48: the drawn hover box, and a cue that there is something to hover */
+  .tipbox{position:fixed;z-index:50;pointer-events:none;max-width:340px;background:#fff;
+          color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;
+          font-size:12.5px;line-height:1.45;white-space:pre-line;
+          box-shadow:0 6px 18px rgba(20,26,34,.14)}
+  #out [title], #out [data-tip], #out svg :has(> title){cursor:help}
   .note b{color:var(--ink)}
   .warn{color:var(--red);font-weight:600}
   table{width:100%;border-collapse:collapse;font-size:14px}
@@ -149,6 +155,14 @@
       two answers produced by different versions are not directly comparable.</p>
 
     <div class="rel">
+      <span class="tag">v1.48 &nbsp;&middot;&nbsp; 13 Oct 2026</span>
+      <h4>Hover the red and green bars to see who is calling and who is paying</h4>
+      <p><b>Asked for by Kristin Westergard.</b> On Capital calls vs. preferred income, point at a year&rsquo;s red bar (or its calls figure) to see which positions are calling and how much, and at the green bar (or its preferred figure) to see which are paying. It works the same way as the blocks and gold lines on the liquidity ladder. The full table under the panel is still there for reading years side by side, and both come from the same calculation, so they always agree. No change to the model.</p>
+      <p><b>Hover shows up at once, everywhere.</b> The charts have carried amounts on hover for a long time, and nobody knew, because a browser waits about a second before showing one and gives no sign it is there. Anything you can hover inside your results now shows its box straight away, and the pointer changes over it.</p>
+      <p><b>A fund&rsquo;s payout years say where they came from.</b> A fund pays across a window rather than on one date. Where you left Liquidity from and Liquidity to blank, the positions table now marks the years as <i>derived</i> from the hold. If you typed an Exit: earliest on such a fund, the page now says plainly that it does not move a fund&rsquo;s payout and tells you which two columns do.</p>
+      <p><b>An evergreen fund is marked as capital back, not an exit.</b> There is no sale. What lands in those years is your own capital returning as redemptions, at 1.0x; the preferred return is the real return.</p>
+      <p><b>Two rows of the same deal stay two rows.</b> The prompt asking you to give them the same exit years now says first that nothing gets merged: each keeps its own commitment and funding date. No change to the model in any of these.</p>
+
       <span class="tag">v1.47 &nbsp;&middot;&nbsp; 12 Oct 2026</span>
       <h4>Hardening the retirement simulator for somebody else's numbers</h4>
       <p><b>Everything in that tab had been tested against one book: mine.</b> The configurations that break a model are never the ones its author types, so rather than adding more examples I swept it for inputs where it produces something it cannot possibly mean. Three real defects came out.</p>
@@ -911,7 +925,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="engine.js?v=1.47"></script>
-<script src="app.js?v=1.47"></script>
+<script src="engine.js?v=1.48"></script>
+<script src="app.js?v=1.48"></script>
 </body>
 </html>
